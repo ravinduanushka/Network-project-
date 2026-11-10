@@ -1,0 +1,84 @@
+/* Main Background */
+.root-container {
+    -fx-background-color: #0f172a; /* Slate 900 */
+}
+
+/* Card Container */
+.login-card {
+    -fx-background-color: #1e293b; /* Slate 800 */
+    -fx-background-radius: 16px;
+    -fx-border-radius: 16px;
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.4), 20, 0, 0, 10);
+}
+
+/* Typography */
+.brand-title {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.brand-subtitle {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 13px;
+}
+
+.input-label {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+/* Modern Input Fields */
+.text-input-field {
+    -fx-background-color: #0f172a;
+    -fx-text-fill: #f8fafc;
+    -fx-prompt-text-fill: #64748b;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-border-color: #334155;
+    -fx-border-width: 1px;
+    -fx-padding: 10px 14px;
+    -fx-font-size: 13px;
+}
+
+.text-input-field:focused {
+    -fx-border-color: #38bdf8; /* Sky blue glow */
+    -fx-effect: dropshadow(three-pass-box, rgba(56, 189, 248, 0.25), 8, 0, 0, 0);
+}
+
+/* Primary Action Button */
+.btn-primary {
+    -fx-background-color: #2563eb;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(37, 99, 235, 0.4), 10, 0, 0, 4);
+}
+
+.btn-primary:hover {
+    -fx-background-color: #1d4ed8;
+}
+
+.btn-primary:pressed {
+    -fx-background-color: #1e40af;
+}
+
+/* Server Status Badge */
+.status-badge {
+    -fx-background-color: rgba(34, 197, 94, 0.1);
+    -fx-border-color: rgba(34, 197, 94, 0.3);
+    -fx-border-radius: 20px;
+    -fx-background-radius: 20px;
+    -fx-padding: 4px 10px;
+}
+
+.status-text {
+    -fx-text-fill: #4ade80;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
