@@ -28,7 +28,7 @@ import java.util.logging.Logger;
  * <pre>
  * REGISTER        {username, fullName, password}   -> REGISTER_RESULT {success, message, accountNo}
  * LOGIN           {username, password}             -> LOGIN_RESULT    {success, message}  + token
- * TRANSFER        {toAccount, amount}  (needs token) -> TRANSFER_RESULT {success, message}
+ * TRANSFER        {targetAccount, amount}  (needs token) -> TRANSFER_RESULT {success, message}
  * </pre>
  */
 public class ClientHandler implements Runnable {
@@ -54,7 +54,7 @@ public class ClientHandler implements Runnable {
     }
 
     private static class TransferRequest {
-        String toAccount;
+        String targetAccount;
         double amount;
     }
 
@@ -181,13 +181,13 @@ public class ClientHandler implements Runnable {
         }
 
         TransferRequest body = request.getPayload(TransferRequest.class);
-        if (body == null || body.toAccount == null) {
+        if (body == null || body.targetAccount == null) {
             return Message.error(request.getReqId(), "Missing payload");
         }
 
         // 2. the sender is ALWAYS the logged-in user's own account - never taken from the client
         String fromAccount = "ACC-" + session.userId();
-        boolean ok = transactionDao.transferFunds(fromAccount, body.toAccount, body.amount);
+        boolean ok = transactionDao.transferFunds(fromAccount, body.targetAccount, body.amount);
 
         Message reply = new Message(MessageType.TRANSFER_RESULT, null, request.getReqId(), null);
         return reply.setPayload(Map.of("success", ok,
