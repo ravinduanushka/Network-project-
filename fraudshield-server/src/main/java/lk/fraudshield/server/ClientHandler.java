@@ -4,9 +4,9 @@ import lk.fraudshield.common.protocol.Message;
 import lk.fraudshield.common.protocol.MessageType;
 import lk.fraudshield.server.dao.TransactionDao;
 import lk.fraudshield.server.dao.UserDao;
-import lk.fraudshield.server.fraud.FraudDetector;
-import lk.fraudshield.server.fraud.FraudResult;
 import lk.fraudshield.server.security.SessionManager;
+import lk.fraudshield.server.service.FraudDetector;
+import lk.fraudshield.server.service.FraudDetector.FraudResult;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -43,8 +43,8 @@ public class ClientHandler implements Runnable {
     /** Shared by every handler thread. */
     private static final SessionManager SESSIONS = new SessionManager();
 
-    /** One detector for all threads, so the blacklist is shared. */
-    private static final FraudDetector FRAUD_DETECTOR = new FraudDetector(new TransactionDao());
+    /** Stateless, so one instance serves all handler threads. */
+    private static final FraudDetector FRAUD_DETECTOR = new FraudDetector();
 
     // ---- request payload shapes (deserialised by Gson) ----
     private static class RegisterRequest {
@@ -194,16 +194,16 @@ public class ClientHandler implements Runnable {
         String fromAccount = "ACC-" + session.userId();
 
         // 3. fraud check BEFORE any money moves
-        FraudResult verdict = FRAUD_DETECTOR.evaluate(fromAccount, body.targetAccount, body.amount);
+        FraudResult verdict = FRAUD_DETECTOR.evaluateTransfer(session.username(), body.targetAccount, body.amount);
         Message reply = new Message(MessageType.TRANSFER_RESULT, null, request.getReqId(), null);
 
-        if (!verdict.isApproved()) {
-            // nothing is debited; keep an audit row so analysts (and the velocity rule) can see it
+        if (!verdict.approved()) {
+            // nothing is debited; keep an audit row for analysts
             transactionDao.logAttempt(fromAccount, body.targetAccount, body.amount,
-                    verdict.status().name(), verdict.riskScore());
+                    verdict.status(), verdict.riskScore());
             LOG.info("Transfer " + verdict.status() + " for " + fromAccount + " (risk " + verdict.riskScore() + ")");
             return reply.setPayload(Map.of("success", false,
-                    "status", verdict.status().name(),
+                    "status", verdict.status(),
                     "message", verdict.reason()));
         }
 
