@@ -4,6 +4,8 @@ import lk.fraudshield.common.protocol.Message;
 import lk.fraudshield.common.protocol.MessageType;
 import lk.fraudshield.server.dao.TransactionDao;
 import lk.fraudshield.server.dao.UserDao;
+import lk.fraudshield.server.fraud.FraudDetector;
+import lk.fraudshield.server.fraud.FraudResult;
 import lk.fraudshield.server.security.SessionManager;
 
 import java.io.BufferedReader;
@@ -40,6 +42,9 @@ public class ClientHandler implements Runnable {
 
     /** Shared by every handler thread. */
     private static final SessionManager SESSIONS = new SessionManager();
+
+    /** One detector for all threads, so the blacklist is shared. */
+    private static final FraudDetector FRAUD_DETECTOR = new FraudDetector(new TransactionDao());
 
     // ---- request payload shapes (deserialised by Gson) ----
     private static class RegisterRequest {
@@ -187,10 +192,25 @@ public class ClientHandler implements Runnable {
 
         // 2. the sender is ALWAYS the logged-in user's own account - never taken from the client
         String fromAccount = "ACC-" + session.userId();
-        boolean ok = transactionDao.transferFunds(fromAccount, body.targetAccount, body.amount);
 
+        // 3. fraud check BEFORE any money moves
+        FraudResult verdict = FRAUD_DETECTOR.evaluate(fromAccount, body.targetAccount, body.amount);
         Message reply = new Message(MessageType.TRANSFER_RESULT, null, request.getReqId(), null);
+
+        if (!verdict.isApproved()) {
+            // nothing is debited; keep an audit row so analysts (and the velocity rule) can see it
+            transactionDao.logAttempt(fromAccount, body.targetAccount, body.amount,
+                    verdict.status().name(), verdict.riskScore());
+            LOG.info("Transfer " + verdict.status() + " for " + fromAccount + " (risk " + verdict.riskScore() + ")");
+            return reply.setPayload(Map.of("success", false,
+                    "status", verdict.status().name(),
+                    "message", verdict.reason()));
+        }
+
+        // 4. approved: atomic debit + credit + audit row (risk score stored with it)
+        boolean ok = transactionDao.transferFunds(fromAccount, body.targetAccount, body.amount, verdict.riskScore());
         return reply.setPayload(Map.of("success", ok,
+                "status", ok ? "APPROVED" : "FAILED",
                 "message", ok ? "Transfer completed" : "Transfer failed"));
     }
 }

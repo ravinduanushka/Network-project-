@@ -4,6 +4,7 @@ import lk.fraudshield.server.db.Database;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -27,6 +28,11 @@ public class TransactionDao {
      *         (invalid input, unknown/inactive account, insufficient funds, or a database error)
      */
     public boolean transferFunds(String fromAcc, String toAcc, double amount) {
+        return transferFunds(fromAcc, toAcc, amount, 0);
+    }
+
+    /** Same as above, but records the fraud engine's {@code riskScore} on the transaction row. */
+    public boolean transferFunds(String fromAcc, String toAcc, double amount, int riskScore) {
         if (fromAcc == null || toAcc == null || fromAcc.equals(toAcc)
                 || Double.isNaN(amount) || Double.isInfinite(amount)) {
             return false;
@@ -65,12 +71,13 @@ public class TransactionDao {
             // 3. audit record
             try (PreparedStatement ps = conn.prepareStatement(
                     "INSERT INTO transactions (tx_id, from_acc, to_acc, amount, status, risk_score, timestamp) "
-                            + "VALUES (?, ?, ?, ?, 'SUCCESS', 0, ?)")) {
+                            + "VALUES (?, ?, ?, ?, 'SUCCESS', ?, ?)")) {
                 ps.setString(1, UUID.randomUUID().toString());
                 ps.setString(2, fromAcc);
                 ps.setString(3, toAcc);
                 ps.setDouble(4, value);
-                ps.setLong(5, System.currentTimeMillis());
+                ps.setInt(5, riskScore);
+                ps.setLong(6, System.currentTimeMillis());
                 ps.executeUpdate();
             }
 
@@ -100,6 +107,50 @@ public class TransactionDao {
                 ps.setDouble(3, minBalance);
             }
             return ps.executeUpdate() == 1;
+        }
+    }
+
+    /**
+     * Counts transactions (any status) sent FROM {@code account} since {@code sinceMillis}.
+     * Used by the velocity rule.
+     *
+     * @return the count; on a database error {@link Integer#MAX_VALUE}, so the fraud check
+     *         fails closed (blocks) rather than silently skipping the rule
+     */
+    public int countRecentTransactions(String account, long sinceMillis) {
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(
+                     "SELECT COUNT(*) FROM transactions WHERE from_acc = ? AND timestamp >= ?")) {
+            ps.setString(1, account);
+            ps.setLong(2, sinceMillis);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        } catch (SQLException e) {
+            LOG.log(Level.SEVERE, "countRecentTransactions failed", e);
+            return Integer.MAX_VALUE;
+        }
+    }
+
+    /**
+     * Writes an audit row for a transfer that was NOT executed (status FLAGGED or BLOCKED).
+     * No balances change. Fails quietly if the accounts do not exist (foreign keys).
+     */
+    public void logAttempt(String fromAcc, String toAcc, double amount, String status, int riskScore) {
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(
+                     "INSERT INTO transactions (tx_id, from_acc, to_acc, amount, status, risk_score, timestamp) "
+                             + "VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+            ps.setString(1, UUID.randomUUID().toString());
+            ps.setString(2, fromAcc);
+            ps.setString(3, toAcc);
+            ps.setDouble(4, amount);
+            ps.setString(5, status);
+            ps.setInt(6, riskScore);
+            ps.setLong(7, System.currentTimeMillis());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            LOG.log(Level.INFO, "Could not log " + status + " attempt: " + e.getMessage());
         }
     }
 
