@@ -17,7 +17,7 @@
 
     <properties>
         <!-- Change if your main class lives elsewhere -->
-        <server.main.class>lk.fraudshield.server.net.BankServer</server.main.class>
+        <server.main.class>lk.fraudshield.server.BankServer</server.main.class>
     </properties>
 
     <dependencies>
