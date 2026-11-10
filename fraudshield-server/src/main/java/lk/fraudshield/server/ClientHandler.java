@@ -2,6 +2,9 @@ package lk.fraudshield.server;
 
 import lk.fraudshield.common.protocol.Message;
 import lk.fraudshield.common.protocol.MessageType;
+import lk.fraudshield.server.dao.TransactionDao;
+import lk.fraudshield.server.dao.UserDao;
+import lk.fraudshield.server.security.SessionManager;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,12 +15,21 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Serves ONE client connection on a pool thread. Protocol: the client sends one JSON
- * {@link Message} per line and receives exactly one JSON line in reply.
+ * Serves ONE client connection on a pool thread.
+ *
+ * <p>Protocol: the client sends one JSON {@link Message} per line and receives exactly one JSON
+ * line in reply. Request/response payloads (inside {@code Message.data}):
+ * <pre>
+ * REGISTER        {username, fullName, password}   -> REGISTER_RESULT {success, message, accountNo}
+ * LOGIN           {username, password}             -> LOGIN_RESULT    {success, message}  + token
+ * TRANSFER        {toAccount, amount}  (needs token) -> TRANSFER_RESULT {success, message}
+ * </pre>
  */
 public class ClientHandler implements Runnable {
 
@@ -26,7 +38,32 @@ public class ClientHandler implements Runnable {
     /** Longest accepted request line, to stop a client from exhausting server memory. */
     private static final int MAX_LINE_LENGTH = 8192;
 
+    /** Shared by every handler thread. */
+    private static final SessionManager SESSIONS = new SessionManager();
+
+    // ---- request payload shapes (deserialised by Gson) ----
+    private static class RegisterRequest {
+        String username;
+        String fullName;
+        String password;
+    }
+
+    private static class LoginRequest {
+        String username;
+        String password;
+    }
+
+    private static class TransferRequest {
+        String toAccount;
+        double amount;
+    }
+
     private final Socket socket;
+    private final UserDao userDao = new UserDao();
+    private final TransactionDao transactionDao = new TransactionDao();
+
+    /** Token issued to THIS connection; invalidated when the connection ends. */
+    private String sessionToken;
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
@@ -59,11 +96,12 @@ public class ClientHandler implements Runnable {
         } catch (IOException e) {
             LOG.log(Level.WARNING, "I/O error with client " + peer, e);
         } finally {
+            SESSIONS.invalidate(sessionToken);                // a dead connection must not keep a live token
             LOG.info("Client disconnected: " + peer);
         }
     }
 
-    /** Parses and routes one request. Never throws: any failure becomes an ERROR reply. */
+    /** Parses and dispatches one request. Never throws: any failure becomes an ERROR reply. */
     private Message handle(String line) {
         Message request;
         try {
@@ -79,15 +117,80 @@ public class ClientHandler implements Runnable {
 
         try {
             return switch (type) {
-                // TODO: wire these to the auth / account / transfer services
-                case REGISTER, LOGIN, LOGOUT, GET_BALANCE, GET_HISTORY,
-                     TRANSFER, VERIFY_OTP, ADMIN_LOGIN ->
-                        Message.error(request.getReqId(), type + " not implemented yet");
-                default -> Message.error(request.getReqId(), "Unsupported message type: " + type);
+                case REGISTER -> handleRegister(request);
+                case LOGIN -> handleLogin(request);
+                case TRANSFER -> handleTransfer(request);
+                default -> Message.error(request.getReqId(), type + " is not supported yet");
             };
+        } catch (IllegalArgumentException e) {
+            return Message.error(request.getReqId(), "Malformed payload");
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "Failed to handle " + request, e);
             return Message.error(request.getReqId(), "Internal server error"); // no internals leaked
         }
+    }
+
+    // ------------------------------------------------------------------ handlers
+
+    private Message handleRegister(Message request) {
+        RegisterRequest body = request.getPayload(RegisterRequest.class);
+        if (body == null) {
+            return Message.error(request.getReqId(), "Missing payload");
+        }
+
+        // the server picks the id, so clients cannot choose (or collide with) someone else's id
+        String userId = "U" + UUID.randomUUID().toString().replace("-", "").substring(0, 10).toUpperCase();
+        boolean ok = userDao.registerUser(userId, body.username, body.fullName, body.password);
+
+        Message reply = new Message(MessageType.REGISTER_RESULT, null, request.getReqId(), null);
+        if (ok) {
+            return reply.setPayload(Map.of("success", true, "message", "Registered",
+                    "accountNo", "ACC-" + userId));
+        }
+        // one message for "taken" and "invalid" alike; no hints about existing usernames
+        return reply.setPayload(Map.of("success", false, "message", "Registration failed"));
+    }
+
+    private Message handleLogin(Message request) {
+        LoginRequest body = request.getPayload(LoginRequest.class);
+        if (body == null) {
+            return Message.error(request.getReqId(), "Missing payload");
+        }
+
+        Message reply = new Message(MessageType.LOGIN_RESULT, null, request.getReqId(), null);
+        String userId = null;
+        if (userDao.authenticate(body.username, body.password)) {
+            userId = userDao.findUserId(body.username);
+        }
+        if (userId == null) {
+            return reply.setPayload(Map.of("success", false, "message", "Invalid credentials or locked account"));
+        }
+
+        SESSIONS.invalidate(sessionToken);                    // replace any earlier login on this connection
+        sessionToken = SESSIONS.create(userId, body.username);
+        reply.setToken(sessionToken);
+        return reply.setPayload(Map.of("success", true, "message", "Login successful"));
+    }
+
+    private Message handleTransfer(Message request) {
+        // 1. must be logged in; the token must be one issued to this very connection
+        SessionManager.Session session =
+                (sessionToken != null && sessionToken.equals(request.getToken())) ? SESSIONS.get(sessionToken) : null;
+        if (session == null) {
+            return Message.error(request.getReqId(), "Not authenticated");
+        }
+
+        TransferRequest body = request.getPayload(TransferRequest.class);
+        if (body == null || body.toAccount == null) {
+            return Message.error(request.getReqId(), "Missing payload");
+        }
+
+        // 2. the sender is ALWAYS the logged-in user's own account - never taken from the client
+        String fromAccount = "ACC-" + session.userId();
+        boolean ok = transactionDao.transferFunds(fromAccount, body.toAccount, body.amount);
+
+        Message reply = new Message(MessageType.TRANSFER_RESULT, null, request.getReqId(), null);
+        return reply.setPayload(Map.of("success", ok,
+                "message", ok ? "Transfer completed" : "Transfer failed"));
     }
 }
