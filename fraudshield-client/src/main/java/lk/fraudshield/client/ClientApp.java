@@ -12,29 +12,25 @@ public class ClientApp extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // Direct testing for Dashboard view:
-        URL fxmlLocation = getClass().getResource("/fxml/dashboard.fxml");
-
-        // If testing Login view:
-        // URL fxmlLocation = getClass().getResource("/fxml/login.fxml");
+        URL fxmlLocation = getClass().getResource("/fxml/login.fxml");
 
         if (fxmlLocation == null) {
             System.err.println("[ERROR] FXML location is null. Checking resource lookup path...");
-            fxmlLocation = ClientApp.class.getResource("/fxml/dashboard.fxml");
+            fxmlLocation = ClientApp.class.getResource("/fxml/login.fxml");
         }
 
         if (fxmlLocation == null) {
-            throw new IllegalStateException("FXML not found! Ensure dashboard.fxml is inside src/main/resources/fxml/");
+            throw new IllegalStateException("FXML not found! Ensure login.fxml is inside src/main/resources/fxml/");
         }
 
         FXMLLoader loader = new FXMLLoader(fxmlLocation);
         Parent root = loader.load();
 
-        Scene scene = new Scene(root, 1000, 720);
-        primaryStage.setTitle("FraudShield - Customer Dashboard");
+        Scene scene = new Scene(root, 850, 650);
+        primaryStage.setTitle("FraudShield - Customer Client");
         primaryStage.setScene(scene);
-        primaryStage.setMinWidth(850);
-        primaryStage.setMinHeight(650);
+        primaryStage.setMinWidth(600);
+        primaryStage.setMinHeight(500);
         primaryStage.show();
     }
 
