@@ -110,6 +110,117 @@ public class TransactionDao {
         }
     }
 
+    /** Convenience overload with risk score 0. */
+    public boolean performTransfer(String senderUsername, String targetAccount, double amount, String status) {
+        return performTransfer(senderUsername, targetAccount, amount, status, 0);
+    }
+
+    /**
+     * Logs a transfer attempt and, only if {@code status} is "APPROVED", moves the money - all in
+     * ONE database transaction.
+     *
+     * <ul>
+     *   <li>Every attempt (APPROVED, FLAGGED, BLOCKED) gets a row in {@code transactions}.</li>
+     *   <li>APPROVED: debit sender (only if active and balance >= amount), credit target (must exist
+     *       and be active). If either step fails, both are undone and the row is logged as
+     *       "FAILED" instead, so the log never claims money moved when it did not.</li>
+     *   <li>FLAGGED / BLOCKED: only the log row is written; no balance changes.</li>
+     * </ul>
+     *
+     * Schema mapping: the sender's account is found via {@code users.username -> accounts.user_id};
+     * columns are {@code from_acc, to_acc, amount, status, risk_score} and {@code timestamp} holds
+     * epoch milliseconds (the schema uses a LONG, so {@code datetime('now')} is not used).
+     * The foreign keys mean an attempt to a NON-EXISTENT target cannot be logged.
+     *
+     * @return true only if money actually moved; false for flagged/blocked/failed attempts and
+     *         for any database error (everything rolled back)
+     */
+    public boolean performTransfer(String senderUsername, String targetAccount, double amount,
+                                   String status, int riskScore) {
+        if (senderUsername == null || targetAccount == null || status == null
+                || Double.isNaN(amount) || Double.isInfinite(amount)
+                || !(status.equals("APPROVED") || status.equals("FLAGGED") || status.equals("BLOCKED"))) {
+            return false;
+        }
+        double value = Math.round(amount * 100.0) / 100.0; // whole cents
+        if (value <= 0) {
+            return false; // the table's CHECK (amount > 0) would reject the log row anyway
+        }
+
+        try (Connection conn = Database.getConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                String senderAccount = findAccountByUsername(conn, senderUsername);
+                if (senderAccount == null) {
+                    conn.rollback();
+                    LOG.warning("performTransfer: no account for the sender");
+                    return false;
+                }
+
+                String loggedStatus = status;
+                boolean moved = false;
+
+                if (status.equals("APPROVED")) {
+                    // conditional debit: the balance check and the update are one atomic statement
+                    boolean debited = updateOne(conn,
+                            "UPDATE accounts SET balance = balance - ? "
+                                    + "WHERE account_no = ? AND status = 'ACTIVE' AND balance >= ?",
+                            value, senderAccount, value);
+                    boolean credited = debited && updateOne(conn,
+                            "UPDATE accounts SET balance = balance + ? "
+                                    + "WHERE account_no = ? AND status = 'ACTIVE'",
+                            value, targetAccount, null);
+
+                    if (credited) {
+                        moved = true;
+                    } else {
+                        conn.rollback();          // undo a debit whose credit failed
+                        loggedStatus = "FAILED";  // insufficient funds or bad target
+                    }
+                }
+
+                try (PreparedStatement ps = conn.prepareStatement(
+                        "INSERT INTO transactions (tx_id, from_acc, to_acc, amount, status, risk_score, timestamp) "
+                                + "VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+                    ps.setString(1, UUID.randomUUID().toString());
+                    ps.setString(2, senderAccount);
+                    ps.setString(3, targetAccount);
+                    ps.setDouble(4, value);
+                    ps.setString(5, loggedStatus);
+                    ps.setInt(6, riskScore);
+                    ps.setLong(7, System.currentTimeMillis());
+                    ps.executeUpdate();
+                }
+
+                conn.commit();
+                return moved;
+
+            } catch (SQLException e) {
+                // includes the case where the log insert fails, which also undoes the balance change
+                LOG.log(Level.SEVERE, "performTransfer failed, rolling back", e);
+                e.printStackTrace();
+                rollbackQuietly(conn);
+                return false;
+            }
+        } catch (SQLException e) {
+            LOG.log(Level.SEVERE, "performTransfer: database unavailable", e);
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /** @return the user's account number, or null if the user or account does not exist */
+    private String findAccountByUsername(Connection conn, String username) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT a.account_no FROM accounts a JOIN users u ON a.user_id = u.user_id "
+                        + "WHERE u.username = ? ORDER BY a.account_no LIMIT 1")) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getString(1) : null;
+            }
+        }
+    }
+
     /**
      * Counts transactions (any status) sent FROM {@code account} since {@code sinceMillis}.
      * Used by the velocity rule.

@@ -190,27 +190,26 @@ public class ClientHandler implements Runnable {
             return Message.error(request.getReqId(), "Missing payload");
         }
 
-        // 2. the sender is ALWAYS the logged-in user's own account - never taken from the client
-        String fromAccount = "ACC-" + session.userId();
-
-        // 3. fraud check BEFORE any money moves
+        // 2. fraud check BEFORE any money moves
         FraudResult verdict = FRAUD_DETECTOR.evaluateTransfer(session.username(), body.targetAccount, body.amount);
         Message reply = new Message(MessageType.TRANSFER_RESULT, null, request.getReqId(), null);
 
-        if (!verdict.approved()) {
-            // nothing is debited; keep an audit row for analysts
-            transactionDao.logAttempt(fromAccount, body.targetAccount, body.amount,
-                    verdict.status(), verdict.riskScore());
-            LOG.info("Transfer " + verdict.status() + " for " + fromAccount + " (risk " + verdict.riskScore() + ")");
-            return reply.setPayload(Map.of("success", false,
-                    "status", verdict.status(),
-                    "message", verdict.reason()));
-        }
+        // 3. one DAO call for every outcome: it always writes the audit row and moves money
+        //    only for APPROVED. The sender is the logged-in user, never a client-supplied account.
+        boolean moved = transactionDao.performTransfer(session.username(), body.targetAccount,
+                body.amount, verdict.status(), verdict.riskScore());
 
-        // 4. approved: atomic debit + credit + audit row (risk score stored with it)
-        boolean ok = transactionDao.transferFunds(fromAccount, body.targetAccount, body.amount, verdict.riskScore());
-        return reply.setPayload(Map.of("success", ok,
-                "status", ok ? "APPROVED" : "FAILED",
-                "message", ok ? "Transfer completed" : "Transfer failed"));
+        // 4. response: final status + human-readable reason
+        String status = verdict.approved() ? (moved ? "APPROVED" : "FAILED") : verdict.status();
+        String reason = !verdict.approved() ? verdict.reason()
+                : moved ? "Transfer completed" : "Transfer failed: insufficient funds or invalid target account";
+
+        LOG.info("Transfer " + status + " for " + session.username() + " (risk " + verdict.riskScore() + ")");
+        return reply.setPayload(Map.of(
+                "success", moved,
+                "status", status,
+                "reason", reason,
+                "targetAccount", body.targetAccount,
+                "amount", body.amount));
     }
 }
