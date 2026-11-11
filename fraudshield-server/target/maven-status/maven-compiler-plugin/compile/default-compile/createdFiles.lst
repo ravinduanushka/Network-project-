@@ -1,6 +1,8 @@
 lk\fraudshield\server\security\SessionManager$Session.class
 lk\fraudshield\server\ClientHandler$RegisterRequest.class
 lk\fraudshield\server\dao\UserDao.class
+lk\fraudshield\server\service\FraudDetector$FraudResult.class
+lk\fraudshield\server\service\FraudDetector.class
 lk\fraudshield\server\db\Database.class
 lk\fraudshield\server\security\PasswordUtils.class
 lk\fraudshield\server\ClientHandler$LoginRequest.class
