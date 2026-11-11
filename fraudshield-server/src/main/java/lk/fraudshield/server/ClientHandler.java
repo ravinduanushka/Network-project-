@@ -8,6 +8,7 @@ import lk.fraudshield.server.security.SessionManager;
 import lk.fraudshield.server.service.FraudDetector;
 import lk.fraudshield.server.service.FraudDetector.FraudResult;
 
+import javax.net.ssl.SSLException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -96,6 +97,9 @@ public class ClientHandler implements Runnable {
             }
         } catch (SocketTimeoutException e) {
             LOG.info("Client idle too long, closing: " + peer);
+        } catch (SSLException e) {
+            // failed handshake (plaintext client, untrusted cert, bad protocol) or TLS alert
+            LOG.warning("TLS error with " + peer + ": " + e.getMessage());
         } catch (SocketException e) {
             LOG.info("Client dropped connection: " + peer);   // reset / abrupt disconnect
         } catch (IOException e) {

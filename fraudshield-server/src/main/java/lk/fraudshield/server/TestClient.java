@@ -10,6 +10,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
@@ -50,14 +55,15 @@ public class TestClient {
         String targetAccount = args.length > 2 ? args[2] : null;
         boolean usingDefaults = args.length == 0;
 
-        try (Socket socket = new Socket(HOST, PORT);
+        try (Socket socket = openSocket();
              PrintWriter out = new PrintWriter(
                      new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
              BufferedReader in = new BufferedReader(
                      new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8))) {
 
             socket.setSoTimeout(TIMEOUT_MS); // never hang forever waiting for a reply
-            System.out.println("Connected to " + HOST + ":" + PORT);
+            System.out.println("Connected to " + HOST + ":" + PORT
+                    + (socket instanceof SSLSocket s ? " over " + s.getSession().getProtocol() : " (PLAINTEXT)"));
 
             // ================= Phase 1: authentication =================
             banner("PHASE 1 - LOGIN");
@@ -100,13 +106,56 @@ public class TestClient {
         } catch (SocketTimeoutException e) {
             System.err.println("Server did not answer within " + TIMEOUT_MS + " ms: " + e.getMessage());
             System.exit(1);
+        } catch (SSLException e) {
+            System.err.println("TLS handshake/session failed: " + e.getMessage());
+            System.err.println("Check: truststore.jks exists and contains the server certificate, the cert has "
+                    + "SAN dns:localhost, and server and client use the same mode (-Dfraudshield.tls).");
+            System.exit(1);
         } catch (IOException e) {
             System.err.println("Could not talk to server at " + HOST + ":" + PORT + " -> " + e.getMessage());
-            System.err.println("Is BankServer running in plain mode (without -Dfraudshield.tls=true)?");
+            System.err.println("Is BankServer running? (start server and client in the same TLS mode)");
             System.exit(1);
         }
         if (failed > 0) {
             System.exit(1);
+        }
+    }
+
+    /**
+     * Opens the connection: TLS by default, plaintext only with {@code -Dfraudshield.tls=false}.
+     * The server certificate is verified against the truststore, found through the standard
+     * {@code javax.net.ssl.trustStore*} properties (default {@code truststore.jks} / {@code changeit}).
+     */
+    private static Socket openSocket() throws IOException {
+        if ("false".equalsIgnoreCase(System.getProperty("fraudshield.tls", "true"))) {
+            Socket plain = new Socket();
+            plain.connect(new InetSocketAddress(HOST, PORT), TIMEOUT_MS);
+            plain.setSoTimeout(TIMEOUT_MS);
+            return plain;
+        }
+
+        // must be set before the default SSL factory is first used
+        if (System.getProperty("javax.net.ssl.trustStore") == null) {
+            System.setProperty("javax.net.ssl.trustStore", "truststore.jks");
+            System.setProperty("javax.net.ssl.trustStorePassword", "changeit");
+        }
+
+        SSLSocket ssl = (SSLSocket) SSLSocketFactory.getDefault().createSocket(); // unconnected
+        try {
+            ssl.connect(new InetSocketAddress(HOST, PORT), TIMEOUT_MS);
+            ssl.setSoTimeout(TIMEOUT_MS); // also bounds the handshake
+
+            SSLParameters params = ssl.getSSLParameters();
+            params.setProtocols(new String[] {"TLSv1.3", "TLSv1.2"});
+            // Without this, JSSE checks the certificate chain but NOT that it was issued for "localhost"
+            params.setEndpointIdentificationAlgorithm("HTTPS");
+            ssl.setSSLParameters(params);
+
+            ssl.startHandshake(); // fail here, with a clear SSLException, rather than on the first read
+            return ssl;
+        } catch (IOException e) {
+            ssl.close();
+            throw e;
         }
     }
 
