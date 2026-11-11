@@ -16,25 +16,21 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
- * Integration test: LOGIN -> validate session token -> authenticated TRANSFER, on ONE connection.
+ * Integration test for authentication and the fraud rules, on ONE connection.
  *
- * <p>Start {@link BankServer} in plain TCP mode first. Usage (all arguments optional):
- * <pre>
- *   TestClient [username] [password] [targetAccount] [amount]
- * </pre>
- * Defaults: {@code testuser} / {@code Test@1234} / a freshly created receiver account / 500.0.
+ * <p>Start {@link BankServer} in plain TCP mode first, then run this class
+ * (optional arguments: {@code [username] [password] [targetAccount]}).
  *
  * <pre>
- * REQ-102  LOGIN     -> must return a session token (stops here if not)
- * REQ-103  TRANSFER  token + {targetAccount, amount} -> TRANSFER_RESULT
+ * Phase 1  LOGIN (REQ-102)                       -> must return a session token, else abort
+ * Test 1   TRANSFER 500      to a valid account  -> expect APPROVED
+ * Test 2   TRANSFER 75,000   to a valid account  -> expect FLAGGED  (above the 50,000 limit)
+ * Test 3   TRANSFER 100      to OWN username     -> expect BLOCKED  (self-transfer)
  * </pre>
  *
- * <p>Convenience for first runs (default credentials only): if the login fails because
- * {@code testuser} does not exist yet, the client registers it (REQ-101) and logs in again.
- * If no target account is given, a throwaway receiver is registered (REQ-100) to pay into.
- *
- * <p>Verify afterwards with {@code sqlite3 fraudshield.db "SELECT * FROM transactions;"}.
- * Dummy credentials only - requests are printed to the console.
+ * Each test prints PASS or FAIL against its expected status, and the process exits with code 1
+ * if anything failed. With default credentials the user and a receiver account are created
+ * automatically on the first run. Dummy credentials only: requests are printed to the console.
  */
 public class TestClient {
 
@@ -45,17 +41,13 @@ public class TestClient {
     private static final String DEFAULT_USER = "testuser";
     private static final String DEFAULT_PASSWORD = "Test@1234";
 
+    private static int passed = 0;
+    private static int failed = 0;
+
     public static void main(String[] args) {
         String username = args.length > 0 ? args[0] : DEFAULT_USER;
         String password = args.length > 1 ? args[1] : DEFAULT_PASSWORD;
         String targetAccount = args.length > 2 ? args[2] : null;
-        double amount;
-        try {
-            amount = args.length > 3 ? Double.parseDouble(args[3]) : 500.0;
-        } catch (NumberFormatException e) {
-            System.err.println("Invalid amount: " + args[3]);
-            return;
-        }
         boolean usingDefaults = args.length == 0;
 
         try (Socket socket = new Socket(HOST, PORT);
@@ -67,7 +59,8 @@ public class TestClient {
             socket.setSoTimeout(TIMEOUT_MS); // never hang forever waiting for a reply
             System.out.println("Connected to " + HOST + ":" + PORT);
 
-            // ---- step 1: LOGIN and extract the session token ----
+            // ================= Phase 1: authentication =================
+            banner("PHASE 1 - LOGIN");
             String token = login(out, in, username, password);
             if (token == null && usingDefaults) {
                 System.out.println("\nLogin failed - first run? Registering '" + username + "' and retrying.");
@@ -75,38 +68,67 @@ public class TestClient {
                 token = login(out, in, username, password);
             }
             if (token == null) {
-                System.err.println("\nNo valid session token - aborting before TRANSFER.");
-                return;
+                System.err.println("\nNo valid session token - aborting before any TRANSFER.");
+                System.exit(1);
             }
             System.out.println("\nSession token received (" + token.length() + " chars) - proceeding.");
 
-            // ---- step 2: pick a target account ----
             if (targetAccount == null) {
-                Message reply = exchange(out, in, register("REQ-100", "receiver" + System.currentTimeMillis() % 100000,
-                        DEFAULT_PASSWORD));
+                // the server never exposes account numbers, so create a receiver to pay into
+                Message reply = exchange(out, in, register("REQ-100",
+                        "receiver" + System.currentTimeMillis() % 100000, DEFAULT_PASSWORD));
                 targetAccount = field(reply, "accountNo");
                 if (targetAccount == null) {
                     System.err.println("\nCould not create a receiver account - aborting.");
-                    return;
+                    System.exit(1);
                 }
             }
 
-            // ---- step 3: authenticated TRANSFER (token goes in the envelope, details in the payload) ----
-            exchange(out, in, new Message(MessageType.TRANSFER, token, "REQ-103", null)
-                    .setPayload(Map.of("targetAccount", targetAccount, "amount", amount)));
+            // ================= Phase 2: fraud scenarios =================
+            runCase(out, in, token, "TEST 1 - Normal transfer", "REQ-201",
+                    targetAccount, 500.0, "APPROVED");
+
+            runCase(out, in, token, "TEST 2 - Amount above the 50,000 limit", "REQ-202",
+                    targetAccount, 75_000.0, "FLAGGED");
+
+            runCase(out, in, token, "TEST 3 - Self-transfer (target = own username)", "REQ-203",
+                    username, 100.0, "BLOCKED");
+
+            banner("SUMMARY");
+            System.out.println("Passed: " + passed + "   Failed: " + failed);
 
         } catch (SocketTimeoutException e) {
             System.err.println("Server did not answer within " + TIMEOUT_MS + " ms: " + e.getMessage());
+            System.exit(1);
         } catch (IOException e) {
             System.err.println("Could not talk to server at " + HOST + ":" + PORT + " -> " + e.getMessage());
             System.err.println("Is BankServer running in plain mode (without -Dfraudshield.tls=true)?");
-        } catch (IllegalStateException e) {
-            System.err.println("Test aborted: " + e.getMessage());
+            System.exit(1);
+        }
+        if (failed > 0) {
+            System.exit(1);
+        }
+    }
+
+    /** Sends one TRANSFER and compares the status in the reply with the expected one. */
+    private static void runCase(PrintWriter out, BufferedReader in, String token, String title, String reqId,
+                                String target, double amount, String expectedStatus) throws IOException {
+        banner(title + "  (expect " + expectedStatus + ")");
+        Message reply = exchange(out, in, new Message(MessageType.TRANSFER, token, reqId, null)
+                .setPayload(Map.of("targetAccount", target, "amount", amount)));
+
+        String actual = field(reply, "status");
+        boolean ok = reply.getMessageType() == MessageType.TRANSFER_RESULT && expectedStatus.equals(actual);
+        System.out.println(ok ? "    RESULT: PASS" : "    RESULT: FAIL (got status=" + actual + ")");
+        if (ok) {
+            passed++;
+        } else {
+            failed++;
         }
     }
 
     /**
-     * Sends LOGIN (REQ-102) and returns the session token, or null if the reply is not a
+     * Sends LOGIN (REQ-102) and returns the session token, or null unless the reply is a
      * successful LOGIN_RESULT carrying a non-blank token.
      */
     private static String login(PrintWriter out, BufferedReader in, String username, String password)
@@ -114,10 +136,7 @@ public class TestClient {
         Message reply = exchange(out, in, new Message(MessageType.LOGIN, null, "REQ-102", null)
                 .setPayload(Map.of("username", username, "password", password)));
 
-        if (reply.getMessageType() != MessageType.LOGIN_RESULT) {
-            return null; // e.g. ERROR
-        }
-        if (!"true".equals(field(reply, "success"))) {
+        if (reply.getMessageType() != MessageType.LOGIN_RESULT || !"true".equals(field(reply, "success"))) {
             return null;
         }
         String token = reply.getToken();
@@ -132,7 +151,7 @@ public class TestClient {
     /** Sends one request line, prints it, then reads, prints and returns the one-line reply. */
     private static Message exchange(PrintWriter out, BufferedReader in, Message request) throws IOException {
         String requestJson = request.toJson(); // Gson serialisation happens inside Message
-        System.out.println("\n>>> SENT     : " + requestJson);
+        System.out.println(">>> SENT     : " + requestJson);
         out.println(requestJson);
 
         String responseJson = in.readLine();
@@ -146,7 +165,7 @@ public class TestClient {
             System.out.println("    -> " + response.getType() + " | data=" + response.getData());
             return response;
         } catch (IllegalArgumentException e) {
-            throw new IllegalStateException("server sent an invalid message: " + e.getMessage());
+            throw new IOException("Server sent an invalid message: " + e.getMessage(), e);
         }
     }
 
@@ -161,5 +180,9 @@ public class TestClient {
         } catch (RuntimeException e) {
             return null;
         }
+    }
+
+    private static void banner(String text) {
+        System.out.println("\n==== " + text + " ====");
     }
 }
