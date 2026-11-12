@@ -1,5 +1,8 @@
 package lk.fraudshield.client.ui;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -11,10 +14,12 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 import lk.fraudshield.client.model.TransactionRecord;
 import lk.fraudshield.client.net.BankClientService;
+import lk.fraudshield.common.fraud.FraudAlert;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -66,12 +71,15 @@ public class DashboardController {
     private double currentBalance = 250000.00;
     private volatile boolean listeningUdp = true;
     private DatagramSocket udpSocket;
+    private DatagramSocket heartbeatSocket;
+    private final Gson gson = new Gson();
 
     @FXML
     public void initialize() {
         updateBalanceDisplay();
         setupTransactionsTable();
         startUdpAlertListener();
+        startHeartbeatListener();
 
         if (BankClientService.getInstance().getCurrentUsername() != null && accountNumberLabel != null) {
             accountNumberLabel.setText("Account: " + BankClientService.getInstance().getAccountNumber() + " (" + BankClientService.getInstance().getCurrentUsername() + ")");
@@ -176,7 +184,7 @@ public class DashboardController {
         Thread udpThread = new Thread(() -> {
             try {
                 udpSocket = new DatagramSocket(6000);
-                byte[] buffer = new byte[1024];
+                byte[] buffer = new byte[2048];
 
                 while (listeningUdp) {
                     DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
@@ -184,6 +192,26 @@ public class DashboardController {
 
                     String message = new String(packet.getData(), 0, packet.getLength(), StandardCharsets.UTF_8);
                     String timestamp = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+
+                    try {
+                        FraudAlert alert = gson.fromJson(message, FraudAlert.class);
+                        if (alert != null) {
+                            String reasons = alert.reasons() != null && !alert.reasons().isEmpty()
+                                    ? String.join(", ", alert.reasons())
+                                    : "Rule Triggered";
+                            String formatted = String.format("[%s] 🚨 %s ALERT: Tx %s | Score: %d | %s",
+                                    timestamp, alert.decision(), alert.txId(), alert.score(), reasons);
+
+                            Platform.runLater(() -> {
+                                if (fraudAlertsListView != null) {
+                                    fraudAlertsListView.getItems().add(0, formatted);
+                                }
+                            });
+                            continue;
+                        }
+                    } catch (Exception ignored) {
+                        // fallback to raw display if not FraudAlert schema
+                    }
 
                     Platform.runLater(() -> {
                         if (fraudAlertsListView != null) {
@@ -205,6 +233,41 @@ public class DashboardController {
         udpThread.start();
     }
 
+    private void startHeartbeatListener() {
+        Thread heartbeatThread = new Thread(() -> {
+            try {
+                heartbeatSocket = new DatagramSocket(6002);
+                heartbeatSocket.setSoTimeout(5000); // 5 sec timeout to detect offline
+                byte[] buffer = new byte[512];
+
+                while (listeningUdp) {
+                    try {
+                        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+                        heartbeatSocket.receive(packet);
+
+                        Platform.runLater(() -> {
+                            if (engineStatusLabel != null) {
+                                engineStatusLabel.setText("● Server Online");
+                                engineStatusLabel.setStyle("-fx-text-fill: #10b981; -fx-font-weight: bold;");
+                            }
+                        });
+                    } catch (SocketTimeoutException timeout) {
+                        Platform.runLater(() -> {
+                            if (engineStatusLabel != null) {
+                                engineStatusLabel.setText("○ Server Offline");
+                                engineStatusLabel.setStyle("-fx-text-fill: #ef4444; -fx-font-weight: bold;");
+                            }
+                        });
+                    }
+                }
+            } catch (Exception e) {
+                // Heartbeat socket could not bind or closed
+            }
+        });
+        heartbeatThread.setDaemon(true);
+        heartbeatThread.start();
+    }
+
     @FXML
     private void handleSimulateAlert() {
         String timestamp = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
@@ -218,6 +281,9 @@ public class DashboardController {
         listeningUdp = false;
         if (udpSocket != null && !udpSocket.isClosed()) {
             udpSocket.close();
+        }
+        if (heartbeatSocket != null && !heartbeatSocket.isClosed()) {
+            heartbeatSocket.close();
         }
 
         try {
