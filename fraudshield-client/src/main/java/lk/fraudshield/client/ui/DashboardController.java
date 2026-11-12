@@ -1,15 +1,22 @@
 package lk.fraudshield.client.ui;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 public class DashboardController {
 
@@ -39,11 +46,18 @@ public class DashboardController {
     @FXML
     private Label transferStatusLabel;
 
+    // Fraud Alerts (UDP Live) Tab Elements
+    @FXML
+    private ListView<String> fraudAlertsListView;
+
     private double currentBalance = 250000.00;
+    private volatile boolean listeningUdp = true;
+    private DatagramSocket udpSocket;
 
     @FXML
     public void initialize() {
         updateBalanceDisplay();
+        startUdpAlertListener();
     }
 
     private void updateBalanceDisplay() {
@@ -79,7 +93,6 @@ public class DashboardController {
                 return;
             }
 
-            // High-value transaction anomaly check (FraudShield trigger simulation)
             if (amount >= 100000.00) {
                 transferStatusLabel.setStyle("-fx-text-fill: #f59e0b;");
                 transferStatusLabel.setText("OTP Verification Required: High-value transfer flagged by FraudShield.");
@@ -101,8 +114,54 @@ public class DashboardController {
         }
     }
 
+    private void startUdpAlertListener() {
+        Thread udpThread = new Thread(() -> {
+            try {
+                udpSocket = new DatagramSocket(6000);
+                byte[] buffer = new byte[1024];
+
+                while (listeningUdp) {
+                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+                    udpSocket.receive(packet);
+
+                    String message = new String(packet.getData(), 0, packet.getLength(), StandardCharsets.UTF_8);
+                    String timestamp = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+
+                    Platform.runLater(() -> {
+                        if (fraudAlertsListView != null) {
+                            fraudAlertsListView.getItems().add(0, "[" + timestamp + "] 🚨 UDP ALERT: " + message);
+                        }
+                    });
+                }
+            } catch (Exception e) {
+                if (listeningUdp) {
+                    Platform.runLater(() -> {
+                        if (fraudAlertsListView != null) {
+                            fraudAlertsListView.getItems().add("[SYSTEM] UDP Listener standby on Port 6000 (" + e.getMessage() + ")");
+                        }
+                    });
+                }
+            }
+        });
+        udpThread.setDaemon(true);
+        udpThread.start();
+    }
+
+    @FXML
+    private void handleSimulateAlert() {
+        String timestamp = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+        if (fraudAlertsListView != null) {
+            fraudAlertsListView.getItems().add(0, "[" + timestamp + "] ⚠️ HIGH RISK: Unusual transfer velocity detected on ACC-88910 (Score: 0.94)");
+        }
+    }
+
     @FXML
     private void handleLogout() {
+        listeningUdp = false;
+        if (udpSocket != null && !udpSocket.isClosed()) {
+            udpSocket.close();
+        }
+
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
             Parent root = loader.load();
