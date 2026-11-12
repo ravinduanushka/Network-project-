@@ -76,15 +76,15 @@
     </StackPane>
 
     <!-- ================= RIGHT COLUMN: REGISTRATION FORM (SOFT WARM WHITE) ================= -->
-    <StackPane HBox.hgrow="ALWAYS" prefWidth="610.0" style="-fx-background-color: #f8fafc;">
+    <StackPane HBox.hgrow="ALWAYS" prefWidth="610.0" alignment="CENTER" style="-fx-background-color: #f8fafc;">
 
         <!-- Centered Floating White Card -->
-        <VBox maxWidth="440.0" spacing="18.0"
-              style="-fx-background-color: #ffffff; -fx-padding: 38 40; -fx-background-radius: 18; -fx-border-color: #f1f5f9; -fx-border-radius: 18; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.08), 26, 0, 0, 10);">
+        <VBox maxWidth="440.0" maxHeight="USE_PREF_SIZE" spacing="14.0"
+              style="-fx-background-color: #ffffff; -fx-padding: 28 38; -fx-background-radius: 18; -fx-border-color: #f1f5f9; -fx-border-radius: 18; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.08), 26, 0, 0, 10);">
 
             <!-- Card Header -->
-            <VBox spacing="6.0">
-                <Label text="Create a Secure Banking&#10;Account"
+            <VBox spacing="6.0" alignment="CENTER">
+                <Label text="Create a Secure Banking&#10;Account" textAlignment="CENTER"
                        style="-fx-text-fill: #0f172a; -fx-font-size: 24px; -fx-font-weight: 800; -fx-line-spacing: -1px;"/>
                 <Label text="Fill in your details to register." style="-fx-text-fill: #64748b; -fx-font-size: 13px;"/>
             </VBox>
@@ -135,7 +135,7 @@
             <!-- Action Buttons Row (Image 2 style: Register Account + Cancel) -->
             <HBox spacing="12.0">
                 <Button fx:id="registerBtn" text="Register Account" onAction="#handleRegister" HBox.hgrow="ALWAYS" maxWidth="Infinity"
-                        style="-fx-background-color: linear-gradient(to right, #dc2626, #ea580c); -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 13 20; -fx-background-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(220, 38, 38, 0.4), 16, 0, 0, 5);"/>
+                        style="-fx-background-color: #fc831bf2; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 13 20; -fx-background-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(252, 131, 27, 0.45), 16, 0, 0, 5);"/>
                 <Button text="Cancel" onAction="#handleCancel"
                         style="-fx-background-color: #ffffff; -fx-text-fill: #475569; -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 13 20; -fx-background-radius: 8; -fx-border-color: #cbd5e1; -fx-border-radius: 8; -fx-cursor: hand;"/>
             </HBox>
