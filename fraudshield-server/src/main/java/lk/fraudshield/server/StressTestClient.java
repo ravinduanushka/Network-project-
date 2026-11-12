@@ -152,10 +152,14 @@ public class StressTestClient {
         long min = Long.MAX_VALUE;
         long max = 0;
         List<Long> okLatencies = new ArrayList<>();
+        long sumAll = 0;
+        int completed = 0;
 
         for (Future<Result> f : futures) {
             try {
                 Result r = f.get();
+                sumAll += r.latencyMs();
+                completed++;
                 if (r.ok()) {
                     ok++;
                     okLatencies.add(r.latencyMs());
@@ -175,6 +179,9 @@ public class StressTestClient {
         System.out.println("Successful responses: " + ok);
         System.out.println("Failed requests     : " + failed);
         System.out.println("Total execution time: " + totalMs + " ms");
+        if (completed > 0) {
+            System.out.println("Average latency/req : " + sumAll / completed + " ms (all requests)");
+        }
         if (!okLatencies.isEmpty()) {
             okLatencies.sort(null);
             long p95 = okLatencies.get(Math.min(okLatencies.size() - 1, (int) Math.ceil(okLatencies.size() * 0.95) - 1));
