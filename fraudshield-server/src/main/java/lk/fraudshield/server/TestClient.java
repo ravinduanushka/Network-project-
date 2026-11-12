@@ -23,7 +23,8 @@ import java.util.Map;
 /**
  * Integration test for authentication and the fraud rules, on ONE connection.
  *
- * <p>Start {@link BankServer} in plain TCP mode first, then run this class
+ * <p>Start {@link BankServer} (TLS) first, then run this class from the same working directory
+ * (it needs {@code keystore.jks} there, used as the trust store)
  * (optional arguments: {@code [username] [password] [targetAccount]}).
  *
  * <pre>
@@ -108,12 +109,12 @@ public class TestClient {
             System.exit(1);
         } catch (SSLException e) {
             System.err.println("TLS handshake/session failed: " + e.getMessage());
-            System.err.println("Check: truststore.jks exists and contains the server certificate, the cert has "
-                    + "SAN dns:localhost, and server and client use the same mode (-Dfraudshield.tls).");
+            System.err.println("Check: keystore.jks exists in the working directory (password password123), "
+                    + "it holds the server's self-signed certificate, and its CN/SAN is 'localhost'.");
             System.exit(1);
         } catch (IOException e) {
             System.err.println("Could not talk to server at " + HOST + ":" + PORT + " -> " + e.getMessage());
-            System.err.println("Is BankServer running? (start server and client in the same TLS mode)");
+            System.err.println("Is BankServer running on port " + PORT + "?");
             System.exit(1);
         }
         if (failed > 0) {
@@ -127,17 +128,13 @@ public class TestClient {
      * {@code javax.net.ssl.trustStore*} properties (default {@code truststore.jks} / {@code changeit}).
      */
     private static Socket openSocket() throws IOException {
-        if ("false".equalsIgnoreCase(System.getProperty("fraudshield.tls", "true"))) {
-            Socket plain = new Socket();
-            plain.connect(new InetSocketAddress(HOST, PORT), TIMEOUT_MS);
-            plain.setSoTimeout(TIMEOUT_MS);
-            return plain;
-        }
-
-        // must be set before the default SSL factory is first used
+        // Must be set before the default SSL factory is first used. Development setup: the client
+        // trusts the server's self-signed keystore directly. -D values on the command line win.
         if (System.getProperty("javax.net.ssl.trustStore") == null) {
-            System.setProperty("javax.net.ssl.trustStore", "truststore.jks");
-            System.setProperty("javax.net.ssl.trustStorePassword", "changeit");
+            System.setProperty("javax.net.ssl.trustStore", "keystore.jks");
+        }
+        if (System.getProperty("javax.net.ssl.trustStorePassword") == null) {
+            System.setProperty("javax.net.ssl.trustStorePassword", "password123");
         }
 
         SSLSocket ssl = (SSLSocket) SSLSocketFactory.getDefault().createSocket(); // unconnected
