@@ -41,6 +41,9 @@ public class ClientHandler implements Runnable {
     /** Longest accepted request line, to stop a client from exhausting server memory. */
     private static final int MAX_LINE_LENGTH = 8192;
 
+    /** Max inactivity (ms) between requests before the connection is dropped. */
+    private static final int READ_TIMEOUT_MS = 30_000;
+
     /** Shared by every handler thread. */
     private static final SessionManager SESSIONS = new SessionManager();
 
@@ -87,6 +90,10 @@ public class ClientHandler implements Runnable {
              PrintWriter out = new PrintWriter(
                      new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true)) {
 
+            // Applies to every blocking read on this socket (SSLSocket included): readLine() throws
+            // SocketTimeoutException after 30 s without data. Only this thread is affected.
+            socket.setSoTimeout(READ_TIMEOUT_MS);
+
             String line;
             while ((line = in.readLine()) != null) {          // null = client closed the connection
                 if (line.length() > MAX_LINE_LENGTH) {
@@ -96,7 +103,10 @@ public class ClientHandler implements Runnable {
                 out.println(handle(line).toJson());
             }
         } catch (SocketTimeoutException e) {
-            LOG.info("Client idle too long, closing: " + peer);
+            // Idle client. By the time we get here try-with-resources has already closed the
+            // reader, writer and socket; the finally block below invalidates the session token.
+            LOG.warning("Read timeout after " + READ_TIMEOUT_MS / 1000 + " s of inactivity, "
+                    + "closing connection: " + peer);
         } catch (SSLException e) {
             // failed handshake (plaintext client, untrusted cert, bad protocol) or TLS alert
             LOG.warning("TLS error with " + peer + ": " + e.getMessage());
