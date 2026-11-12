@@ -1,69 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<StackPane prefHeight="650.0" prefWidth="850.0"
-           styleClass="root-container"
-           stylesheets="@../styles/styles.css"
+<StackPane prefHeight="720.0" prefWidth="1150.0"
+           style="-fx-background-color: #0b1120;"
            xmlns="http://javafx.com/javafx/21"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="lk.fraudshield.client.ui.LoginController">
 
-    <!-- Card Container -->
-    <VBox alignment="CENTER" maxWidth="420.0" spacing="20.0" styleClass="login-card">
-        <padding>
-            <Insets bottom="36.0" left="36.0" right="36.0" top="36.0" />
-        </padding>
+    <VBox alignment="CENTER" spacing="18.0" maxWidth="420.0" maxHeight="540.0"
+          style="-fx-background-color: #161f33; -fx-padding: 35 40; -fx-background-radius: 16; -fx-border-color: #26334d; -fx-border-radius: 16;">
 
-        <!-- Brand Header -->
         <VBox alignment="CENTER" spacing="6.0">
-            <Label styleClass="brand-title" text="FraudShield" />
-            <Label styleClass="brand-subtitle" text="Secure Multi-Agent Banking Client" />
+            <Label text="FraudShield" style="-fx-text-fill: white; -fx-font-size: 26px; -fx-font-weight: bold;"/>
+            <Label text="Secure Multi-Agent Banking Client" style="-fx-text-fill: #94a3b8; -fx-font-size: 13px;"/>
+        </VBox>
 
-            <!-- Connection Indicator -->
-            <HBox alignment="CENTER" spacing="6.0" styleClass="status-badge">
-                <Circle fill="#22c55e" radius="4.0" />
-                <Label styleClass="status-text" text="TLS Sockets Ready" />
-                <VBox.margin>
-                    <Insets top="4.0" />
-                </VBox.margin>
+        <HBox alignment="CENTER" maxWidth="Infinity"
+              style="-fx-background-color: #064e3b; -fx-padding: 7 15; -fx-background-radius: 20; -fx-border-color: #10b981; -fx-border-radius: 20;">
+            <Label text="● TLS Sockets Ready" style="-fx-text-fill: #34d399; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+        </HBox>
+
+        <VBox spacing="6.0" maxWidth="Infinity">
+            <Label text="SERVER GATEWAY (TCP)" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+            <HBox spacing="10.0">
+                <TextField fx:id="hostField" text="127.0.0.1" HBox.hgrow="ALWAYS"
+                           style="-fx-background-color: #0f172a; -fx-text-fill: white; -fx-padding: 10; -fx-background-radius: 6; -fx-border-color: #0284c7; -fx-border-radius: 6;"/>
+                <TextField fx:id="portField" text="5000" prefWidth="80.0"
+                           style="-fx-background-color: #0f172a; -fx-text-fill: white; -fx-padding: 10; -fx-background-radius: 6; -fx-border-color: #334155; -fx-border-radius: 6;"/>
             </HBox>
         </VBox>
 
-        <!-- Server IP / Port Configuration -->
-        <VBox spacing="6.0">
-            <Label styleClass="input-label" text="SERVER GATEWAY (TCP)" />
-            <HBox spacing="8.0">
-                <TextField fx:id="serverIpField" prefHeight="42.0" promptText="127.0.0.1" text="127.0.0.1" styleClass="text-input-field" HBox.hgrow="ALWAYS" />
-                <TextField fx:id="serverPortField" prefHeight="42.0" prefWidth="90.0" promptText="5000" text="5000" styleClass="text-input-field" />
-            </HBox>
+        <VBox spacing="6.0" maxWidth="Infinity">
+            <Label text="USERNAME" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+            <TextField fx:id="usernameField" promptText="Enter client username"
+                       style="-fx-background-color: #0f172a; -fx-text-fill: white; -fx-padding: 10; -fx-background-radius: 6; -fx-border-color: #334155; -fx-border-radius: 6;"/>
         </VBox>
 
-        <!-- Credentials -->
-        <VBox spacing="14.0">
-            <VBox spacing="6.0">
-                <Label styleClass="input-label" text="USERNAME" />
-                <TextField fx:id="usernameField" prefHeight="42.0" promptText="Enter client username" styleClass="text-input-field" />
-            </VBox>
-
-            <VBox spacing="6.0">
-                <Label styleClass="input-label" text="PASSWORD" />
-                <PasswordField fx:id="passwordField" prefHeight="42.0" promptText="••••••••" styleClass="text-input-field" />
-            </VBox>
+        <VBox spacing="6.0" maxWidth="Infinity">
+            <Label text="PASSWORD" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+            <PasswordField fx:id="passwordField" promptText="••••••••"
+                           style="-fx-background-color: #0f172a; -fx-text-fill: white; -fx-padding: 10; -fx-background-radius: 6; -fx-border-color: #334155; -fx-border-radius: 6;"/>
         </VBox>
 
-        <!-- Login Button -->
-        <Button fx:id="loginButton" maxWidth="Infinity" onAction="#handleLogin" prefHeight="45.0" styleClass="btn-primary" text="Connect &amp; Authenticate" />
+        <Label fx:id="statusLabel" text="" wrapText="true" style="-fx-font-size: 12px; -fx-font-weight: bold;"/>
 
-        <!-- Error / Status Feedback Label -->
-        <Label fx:id="statusLabel" textFill="#f87171" visible="false" wrapText="true" />
+        <Button text="Connect &amp; Authenticate" onAction="#handleLogin" maxWidth="Infinity"
+                style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 12; -fx-background-radius: 8; -fx-cursor: hand;"/>
+
+        <HBox alignment="CENTER" spacing="6.0">
+            <Label text="New customer?" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;"/>
+            <Hyperlink text="Create Account (Register)" onAction="#handleOpenRegister"
+                       style="-fx-text-fill: #38bdf8; -fx-font-size: 12px; -fx-font-weight: bold; -fx-border-color: transparent;"/>
+        </HBox>
+
     </VBox>
 </StackPane>
