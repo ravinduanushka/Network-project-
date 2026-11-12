@@ -43,7 +43,14 @@
                         </HBox>
 
                         <Label text="RECENT TRANSACTIONS" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-font-weight: bold;"/>
-                        <TableView fx:id="transactionsTable" VBox.vgrow="ALWAYS" style="-fx-background-color: #1e293b; -fx-border-color: #334155;"/>
+                        <TableView fx:id="transactionsTable" VBox.vgrow="ALWAYS" style="-fx-background-color: #1e293b; -fx-border-color: #334155;">
+                            <columns>
+                                <TableColumn fx:id="colTimestamp" text="Date &amp; Time" prefWidth="220.0"/>
+                                <TableColumn fx:id="colRecipient" text="Recipient Account" prefWidth="280.0"/>
+                                <TableColumn fx:id="colAmount" text="Amount (LKR)" prefWidth="220.0"/>
+                                <TableColumn fx:id="colStatus" text="Security Status" prefWidth="260.0"/>
+                            </columns>
+                        </TableView>
                     </VBox>
                 </Tab>
 
