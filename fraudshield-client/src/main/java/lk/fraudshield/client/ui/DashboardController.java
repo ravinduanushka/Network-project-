@@ -1,26 +1,27 @@
 package lk.fraudshield.client.ui;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
+import lk.fraudshield.client.model.TransactionRecord;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 public class DashboardController {
 
-    // Header & Account Overview Elements
     @FXML
     private Label balanceLabel;
 
@@ -31,9 +32,20 @@ public class DashboardController {
     private Label engineStatusLabel;
 
     @FXML
-    private TableView<?> transactionsTable;
+    private TableView<TransactionRecord> transactionsTable;
 
-    // Fund Transfer Tab Elements
+    @FXML
+    private TableColumn<TransactionRecord, String> colTimestamp;
+
+    @FXML
+    private TableColumn<TransactionRecord, String> colRecipient;
+
+    @FXML
+    private TableColumn<TransactionRecord, String> colAmount;
+
+    @FXML
+    private TableColumn<TransactionRecord, String> colStatus;
+
     @FXML
     private TextField recipientAccountField;
 
@@ -46,10 +58,10 @@ public class DashboardController {
     @FXML
     private Label transferStatusLabel;
 
-    // Fraud Alerts (UDP Live) Tab Elements
     @FXML
     private ListView<String> fraudAlertsListView;
 
+    private final ObservableList<TransactionRecord> transactionList = FXCollections.observableArrayList();
     private double currentBalance = 250000.00;
     private volatile boolean listeningUdp = true;
     private DatagramSocket udpSocket;
@@ -57,7 +69,21 @@ public class DashboardController {
     @FXML
     public void initialize() {
         updateBalanceDisplay();
+        setupTransactionsTable();
         startUdpAlertListener();
+    }
+
+    private void setupTransactionsTable() {
+        if (transactionsTable != null) {
+            colTimestamp.setCellValueFactory(data -> data.getValue().timestampProperty());
+            colRecipient.setCellValueFactory(data -> data.getValue().recipientProperty());
+            colAmount.setCellValueFactory(data -> data.getValue().amountProperty());
+            colStatus.setCellValueFactory(data -> data.getValue().statusProperty());
+
+            String initialTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            transactionList.add(new TransactionRecord(initialTime, "INITIAL-DEPOSIT", "250,000.00", "Cleared"));
+            transactionsTable.setItems(transactionList);
+        }
     }
 
     private void updateBalanceDisplay() {
@@ -70,7 +96,6 @@ public class DashboardController {
     private void handleFundTransfer() {
         String recipient = recipientAccountField.getText().trim();
         String amountText = transferAmountField.getText().trim();
-        String note = referenceNoteField.getText().trim();
 
         if (recipient.isEmpty() || amountText.isEmpty()) {
             transferStatusLabel.setStyle("-fx-text-fill: #ef4444;");
@@ -94,24 +119,46 @@ public class DashboardController {
             }
 
             if (amount >= 100000.00) {
-                transferStatusLabel.setStyle("-fx-text-fill: #f59e0b;");
-                transferStatusLabel.setText("OTP Verification Required: High-value transfer flagged by FraudShield.");
+                boolean verified = showOtpVerificationDialog(amount, recipient);
+                if (!verified) {
+                    transferStatusLabel.setStyle("-fx-text-fill: #ef4444;");
+                    transferStatusLabel.setText("Transfer Cancelled: OTP verification failed or aborted.");
+                    return;
+                }
+                executeTransfer(recipient, amount, "Verified (OTP)");
             } else {
-                currentBalance -= amount;
-                updateBalanceDisplay();
-
-                transferStatusLabel.setStyle("-fx-text-fill: #22c55e;");
-                transferStatusLabel.setText("Success: LKR " + String.format("%,.2f", amount) + " transferred to " + recipient);
-
-                recipientAccountField.clear();
-                transferAmountField.clear();
-                referenceNoteField.clear();
+                executeTransfer(recipient, amount, "Success (Standard)");
             }
 
         } catch (NumberFormatException e) {
             transferStatusLabel.setStyle("-fx-text-fill: #ef4444;");
             transferStatusLabel.setText("Error: Invalid numeric amount.");
         }
+    }
+
+    private boolean showOtpVerificationDialog(double amount, String recipient) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("FraudShield Step-Up Authentication");
+        dialog.setHeaderText("High-Value Transfer Flagged (LKR " + String.format("%,.2f", amount) + ")");
+        dialog.setContentText("Enter 6-digit OTP sent to registered device (Demo OTP: 123456):");
+
+        Optional<String> result = dialog.showAndWait();
+        return result.isPresent() && result.get().trim().equals("123456");
+    }
+
+    private void executeTransfer(String recipient, double amount, String status) {
+        currentBalance -= amount;
+        updateBalanceDisplay();
+
+        String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        transactionList.add(0, new TransactionRecord(now, recipient, String.format("%,.2f", amount), status));
+
+        transferStatusLabel.setStyle("-fx-text-fill: #22c55e;");
+        transferStatusLabel.setText("Success: LKR " + String.format("%,.2f", amount) + " transferred to " + recipient + " [" + status + "]");
+
+        recipientAccountField.clear();
+        transferAmountField.clear();
+        referenceNoteField.clear();
     }
 
     private void startUdpAlertListener() {
@@ -129,7 +176,7 @@ public class DashboardController {
 
                     Platform.runLater(() -> {
                         if (fraudAlertsListView != null) {
-                            fraudAlertsListView.getItems().add(0, "[" + timestamp + "] 🚨 UDP ALERT: " + message);
+                            fraudAlertsListView.getItems().add(0, "[" + timestamp + "] UDP ALERT: " + message);
                         }
                     });
                 }
@@ -151,7 +198,7 @@ public class DashboardController {
     private void handleSimulateAlert() {
         String timestamp = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
         if (fraudAlertsListView != null) {
-            fraudAlertsListView.getItems().add(0, "[" + timestamp + "] ⚠️ HIGH RISK: Unusual transfer velocity detected on ACC-88910 (Score: 0.94)");
+            fraudAlertsListView.getItems().add(0, "[" + timestamp + "] HIGH RISK: Unusual transfer velocity detected on ACC-88910 (Score: 0.94)");
         }
     }
 
