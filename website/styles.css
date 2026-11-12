@@ -18,9 +18,9 @@
   --blue-hero-mid: #1d39d9;
   --blue-hero-dark: #12228f;
   
-  --coral-cta: #ff4d3b;
-  --coral-cta-hover: #ff3824;
-  --coral-glow: rgba(255, 77, 59, 0.45);
+  --coral-cta: #fc831bf2;
+  --coral-cta-hover: #e5720df2;
+  --coral-glow: rgba(252, 131, 27, 0.45);
   
   --toast-bg: #fff6de;
   --toast-border: rgba(245, 158, 11, 0.2);
@@ -365,9 +365,17 @@ body {
 .hero-heading {
   font-size: clamp(48px, 5.2vw, 76px);
   font-weight: 800;
-  line-height: 1.08;
+  line-height: 1.04;
   color: #ffffff;
   letter-spacing: -1.5px;
+}
+
+.hero-accent-gradient {
+  background: linear-gradient(135deg, #ff7253 0%, #fb7185 50%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-style: italic;
+  display: inline-block;
 }
 
 .hero-description {

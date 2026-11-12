@@ -6,254 +6,793 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.shape.SVGPath?>
 
-<ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
-            prefHeight="750.0" prefWidth="1180.0"
-            style="-fx-background-color: #1e3a8a; -fx-background: #1e3a8a;"
+<BorderPane fx:id="rootPane" prefHeight="750.0" prefWidth="1180.0"
+            style="-fx-background-color: #f8fafc;"
             xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="lk.fraudshield.client.ui.HomeController">
 
-    <VBox spacing="0.0" style="-fx-background-color: transparent;">
-
-        <!-- ================= TOP HERO SECTION (BLUE) ================= -->
-        <VBox spacing="25.0" style="-fx-background-color: linear-gradient(to bottom, #1d4ed8 0%, #2563eb 55%, #3b82f6 100%); -fx-padding: 24 50 35 50;">
-
-            <!-- NAVIGATION HEADER -->
-            <HBox alignment="CENTER_LEFT" spacing="24.0">
-                <!-- Brand Logo -->
-                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                    <StackPane prefWidth="32.0" prefHeight="32.0" style="-fx-background-color: rgba(255,255,255,0.2); -fx-background-radius: 8;">
-                        <SVGPath content="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm-1 14.5l-3.5-3.5 1.41-1.41L11 13.67l5.09-5.09 1.41 1.41L11 16.5z"
-                                 fill="WHITE"/>
-                    </StackPane>
-                    <Label text="FraudShield" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
-                </HBox>
-
-                <!-- Center Nav Menu -->
-                <HBox alignment="CENTER" spacing="22.0">
-                    <Label text="Accounts" style="-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold; -fx-cursor: hand;"/>
-                    <Label text="Cards" style="-fx-text-fill: #bfdbfe; -fx-font-size: 13px; -fx-cursor: hand;"/>
-                    <Label text="Transfers" style="-fx-text-fill: #bfdbfe; -fx-font-size: 13px; -fx-cursor: hand;"/>
-                    <Label text="Security" style="-fx-text-fill: #bfdbfe; -fx-font-size: 13px; -fx-cursor: hand;"/>
-                </HBox>
-
-                <Region HBox.hgrow="ALWAYS"/>
-
-                <!-- Right Nav Items -->
-                <HBox alignment="CENTER" spacing="14.0">
-                    <!-- Language Pill -->
-                    <HBox alignment="CENTER" spacing="6.0" style="-fx-background-color: rgba(255,255,255,0.15); -fx-padding: 7 14; -fx-background-radius: 20; -fx-cursor: hand;">
-                        <Label text="🌐 Eng ▾" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;"/>
-                    </HBox>
-
-                    <!-- Sign Up Button -->
-                    <Button fx:id="signUpBtn" text="Sign Up" onAction="#handleSignUp"
-                            style="-fx-background-color: linear-gradient(to right, #ea580c, #dc2626); -fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 8 20; -fx-background-radius: 20; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(234, 88, 12, 0.4), 10, 0, 0, 3);"/>
-                </HBox>
+    <!-- ================= FIXED STICKY TOP NAVIGATION HEADER (NEVER SCROLLS) ================= -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="24.0"
+              style="-fx-background-color: #1d4ed8; -fx-padding: 16 50; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.28), 16, 0, 0, 4);">
+            <!-- Brand Logo (Clicking smoothly scrolls to top hero) -->
+            <HBox alignment="CENTER_LEFT" spacing="10.0" onMouseClicked="#scrollToHero" style="-fx-cursor: hand;">
+                <StackPane prefWidth="32.0" prefHeight="32.0" style="-fx-background-color: rgba(255,255,255,0.2); -fx-background-radius: 8;">
+                    <SVGPath content="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm-1 14.5l-3.5-3.5 1.41-1.41L11 13.67l5.09-5.09 1.41 1.41L11 16.5z"
+                             fill="WHITE"/>
+                </StackPane>
+                <Label text="FraudShield" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
             </HBox>
 
-            <!-- HERO MAIN STAGE -->
-            <HBox alignment="CENTER" spacing="30.0" VBox.vgrow="ALWAYS" style="-fx-padding: 10 0 0 0;">
-
-                <!-- Hero Left Column: Copy & CTA -->
-                <VBox spacing="24.0" prefWidth="480.0" alignment="CENTER_LEFT">
-                    <VBox spacing="12.0">
-                        <Label text="Banking that&#10;guards&#10;itself."
-                               style="-fx-text-fill: white; -fx-font-size: 46px; -fx-font-weight: 800; -fx-line-spacing: -2px;"/>
-                        <Label text="Secure accounts, instant transfers and real-time&#10;fraud detection — all in one app."
-                               style="-fx-text-fill: #dbeafe; -fx-font-size: 15px; -fx-line-spacing: 4px;"/>
-                    </VBox>
-
-                    <!-- Primary Get Started CTA Button -->
-                    <Button fx:id="getStartedBtn" text="Get Started" onAction="#handleGetStarted"
-                            style="-fx-background-color: linear-gradient(to right, #ea580c, #dc2626); -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 14 36; -fx-background-radius: 28; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(220, 38, 38, 0.55), 20, 0, 0, 8);"/>
-                </VBox>
-
-                <!-- Hero Right Column: Absolute Positioned Stage (Prevents any node stretching) -->
-                <Pane prefWidth="580.0" minWidth="580.0" maxWidth="580.0" prefHeight="530.0" minHeight="530.0" maxHeight="530.0">
-
-                    <!-- Ambient Glow Circles -->
-                    <Circle centerX="290.0" centerY="260.0" radius="210.0"
-                            style="-fx-fill: radial-gradient(center 50% 50%, radius 50%, rgba(96, 165, 250, 0.28), transparent);"/>
-                    <Circle centerX="290.0" centerY="260.0" radius="290.0"
-                            style="-fx-fill: transparent; -fx-stroke: rgba(255,255,255,0.06); -fx-stroke-width: 1.5;"/>
-
-                    <!-- 1. Floating Translucent Glass Credit Card -->
-                    <VBox layoutX="15.0" layoutY="45.0" prefWidth="240.0" maxWidth="240.0" prefHeight="145.0" maxHeight="145.0"
-                          rotate="-7.0"
-                          style="-fx-background-color: rgba(255, 255, 255, 0.22); -fx-background-radius: 16; -fx-border-color: rgba(255, 255, 255, 0.45); -fx-border-radius: 16; -fx-padding: 14 16; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.3), 20, 0, 0, 8);">
-                        <HBox alignment="CENTER_LEFT">
-                            <Label text="FRAUDSHIELD" style="-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 800;"/>
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Label text=")))" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;"/>
-                        </HBox>
-                        <Region prefHeight="8.0"/>
-                        <HBox alignment="CENTER_LEFT">
-                            <VBox prefWidth="30.0" prefHeight="22.0" style="-fx-background-color: #facc15; -fx-background-radius: 4; -fx-border-color: #eab308; -fx-border-radius: 4;"/>
-                        </HBox>
-                        <Region prefHeight="10.0"/>
-                        <Label text="•••• •••• •••• 4821" style="-fx-text-fill: white; -fx-font-size: 13.5px; -fx-font-weight: bold;"/>
-                        <Region prefHeight="6.0"/>
-                        <HBox alignment="CENTER_LEFT">
-                            <Label text="CARD HOLDER" style="-fx-text-fill: #e2e8f0; -fx-font-size: 9px;"/>
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Label text="08/29" style="-fx-text-fill: white; -fx-font-size: 10px; -fx-font-weight: bold;"/>
-                        </HBox>
-                    </VBox>
-
-                    <!-- 2. Floating Capsule Pill Indicator -->
-                    <HBox layoutX="35.0" layoutY="215.0" alignment="CENTER_LEFT" spacing="8.0" prefWidth="135.0" maxWidth="135.0" prefHeight="34.0" maxHeight="34.0"
-                          style="-fx-background-color: rgba(255, 255, 255, 0.18); -fx-background-radius: 20; -fx-border-color: rgba(255, 255, 255, 0.35); -fx-border-radius: 20; -fx-padding: 6 12;">
-                        <StackPane prefWidth="20.0" prefHeight="20.0" style="-fx-background-color: rgba(255,255,255,0.25); -fx-background-radius: 10;">
-                            <SVGPath content="M10 2L3 5.5V10.5C3 15 6 18 10 19C14 18 17 15 17 10.5V5.5L10 2Z" fill="WHITE"/>
-                        </StackPane>
-                        <VBox spacing="2.0">
-                            <HBox prefWidth="60.0" prefHeight="4.0" style="-fx-background-color: rgba(255,255,255,0.5); -fx-background-radius: 2;"/>
-                            <HBox prefWidth="35.0" prefHeight="4.0" style="-fx-background-color: rgba(255,255,255,0.3); -fx-background-radius: 2;"/>
-                        </VBox>
-                    </HBox>
-
-                    <!-- 3. Smartphone Device Mockup -->
-                    <VBox layoutX="190.0" layoutY="10.0" prefWidth="275.0" maxWidth="275.0" prefHeight="495.0" maxHeight="495.0"
-                          style="-fx-background-color: #ffffff; -fx-background-radius: 38; -fx-border-color: #0f172a; -fx-border-width: 6; -fx-border-radius: 38; -fx-padding: 10; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.45), 26, 0, 0, 12);">
-
-                        <!-- Dynamic Island Notch -->
-                        <HBox alignment="CENTER" prefHeight="18.0">
-                            <StackPane prefWidth="76.0" prefHeight="15.0" style="-fx-background-color: #0f172a; -fx-background-radius: 12;"/>
-                        </HBox>
-
-                        <!-- Inner Screen Content -->
-                        <VBox spacing="9.0" VBox.vgrow="ALWAYS" style="-fx-padding: 4 6;">
-                            <!-- Header / Avatar -->
-                            <HBox alignment="CENTER_LEFT">
-                                <Label text="≡" style="-fx-text-fill: #0f172a; -fx-font-size: 18px; -fx-font-weight: bold;"/>
-                                <Region HBox.hgrow="ALWAYS"/>
-                                <StackPane prefWidth="26.0" prefHeight="26.0" style="-fx-background-color: #1e293b; -fx-background-radius: 13;">
-                                    <Label text="AK" style="-fx-text-fill: white; -fx-font-size: 10px; -fx-font-weight: bold;"/>
-                                </StackPane>
-                            </HBox>
-
-                            <!-- Welcome -->
-                            <VBox spacing="1.0">
-                                <Label text="Welcome back" style="-fx-text-fill: #64748b; -fx-font-size: 10px;"/>
-                                <Label text="Anushka" style="-fx-text-fill: #0f172a; -fx-font-size: 15px; -fx-font-weight: 800;"/>
-                            </VBox>
-
-                            <!-- Mini Debit Card with Balance -->
-                            <VBox style="-fx-background-radius: 14; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 2);">
-                                <VBox style="-fx-background-color: #1e1b4b; -fx-background-radius: 14 14 0 0; -fx-padding: 8 10;">
-                                    <Label text="DEBIT CARD" style="-fx-text-fill: #94a3b8; -fx-font-size: 8px; -fx-font-weight: bold;"/>
-                                    <Label text="•••• 9852 0510 4821" style="-fx-text-fill: white; -fx-font-size: 10px; -fx-font-weight: bold;"/>
-                                </VBox>
-                                <VBox style="-fx-background-color: linear-gradient(to right, #ea580c, #f97316); -fx-background-radius: 0 0 14 14; -fx-padding: 8 10;">
-                                    <Label text="Balance" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 8px;"/>
-                                    <Label text="\$12,480.50" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;"/>
-                                </VBox>
-                            </VBox>
-
-                            <!-- Quick Action Buttons -->
-                            <HBox alignment="CENTER" spacing="12.0" style="-fx-padding: 2 0;">
-                                <VBox alignment="CENTER" spacing="3.0">
-                                    <StackPane prefWidth="32.0" prefHeight="32.0" style="-fx-background-color: #f1f5f9; -fx-background-radius: 16;">
-                                        <Label text="⇄" style="-fx-text-fill: #0f172a; -fx-font-weight: bold;"/>
-                                    </StackPane>
-                                    <Label text="Transfer" style="-fx-font-size: 8px; -fx-text-fill: #475569;"/>
-                                </VBox>
-                                <VBox alignment="CENTER" spacing="3.0">
-                                    <StackPane prefWidth="32.0" prefHeight="32.0" style="-fx-background-color: #f1f5f9; -fx-background-radius: 16;">
-                                        <Label text="⇣" style="-fx-text-fill: #0f172a; -fx-font-weight: bold;"/>
-                                    </StackPane>
-                                    <Label text="Request" style="-fx-font-size: 8px; -fx-text-fill: #475569;"/>
-                                </VBox>
-                                <VBox alignment="CENTER" spacing="3.0" onMouseClicked="#handleShieldClick" style="-fx-cursor: hand;">
-                                    <StackPane prefWidth="32.0" prefHeight="32.0" style="-fx-background-color: #dbeafe; -fx-background-radius: 16;">
-                                        <Label text="🛡" style="-fx-text-fill: #2563eb;"/>
-                                    </StackPane>
-                                    <Label text="Shield" style="-fx-font-size: 8px; -fx-text-fill: #2563eb; -fx-font-weight: bold;"/>
-                                </VBox>
-                            </HBox>
-
-                            <!-- Transactions list -->
-                            <Label text="Transactions" style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
-                            <HBox alignment="CENTER_LEFT" spacing="8.0" style="-fx-background-color: #f8fafc; -fx-padding: 5 8; -fx-background-radius: 8;">
-                                <Label text="🛍" style="-fx-font-size: 11px;"/>
-                                <Label text="Shopping" style="-fx-font-size: 9px; -fx-text-fill: #334155; -fx-font-weight: bold;"/>
-                                <Region HBox.hgrow="ALWAYS"/>
-                                <Label text="\$1,240" style="-fx-font-size: 9px; -fx-text-fill: #0f172a; -fx-font-weight: bold;"/>
-                            </HBox>
-                            <HBox alignment="CENTER_LEFT" spacing="8.0" style="-fx-background-color: #f8fafc; -fx-padding: 5 8; -fx-background-radius: 8;">
-                                <Label text="⚡" style="-fx-font-size: 11px;"/>
-                                <Label text="Bills" style="-fx-font-size: 9px; -fx-text-fill: #334155; -fx-font-weight: bold;"/>
-                                <Region HBox.hgrow="ALWAYS"/>
-                                <Label text="Paid" style="-fx-font-size: 9px; -fx-text-fill: #16a34a; -fx-font-weight: bold;"/>
-                            </HBox>
-
-                            <!-- Bottom Nav Icons -->
-                            <Region VBox.vgrow="ALWAYS"/>
-                            <HBox alignment="CENTER" spacing="22.0" style="-fx-padding: 4 0; -fx-border-color: #f1f5f9; -fx-border-width: 1 0 0 0;">
-                                <Label text="⌂" style="-fx-font-size: 14px; -fx-text-fill: #2563eb;"/>
-                                <Label text="💳" style="-fx-font-size: 11px; -fx-text-fill: #94a3b8;"/>
-                                <Label text="🔔" style="-fx-font-size: 11px; -fx-text-fill: #94a3b8;"/>
-                                <Label text="👤" style="-fx-font-size: 11px; -fx-text-fill: #94a3b8;"/>
-                            </HBox>
-                        </VBox>
-                    </VBox>
-
-                    <!-- 4. Floating "Fraud blocked" Alert Popout Toast (Fixed Dimensions) -->
-                    <VBox fx:id="fraudToastBox" layoutX="325.0" layoutY="265.0" prefWidth="230.0" minWidth="230.0" maxWidth="230.0" prefHeight="90.0" minHeight="90.0" maxHeight="90.0" spacing="4.0"
-                          style="-fx-background-color: #fffbeb; -fx-background-radius: 16; -fx-border-color: #fef08a; -fx-border-width: 1.5; -fx-border-radius: 16; -fx-padding: 12 14; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.22), 20, 0, 0, 8);">
-                        <HBox alignment="CENTER_LEFT" spacing="8.0">
-                            <StackPane prefWidth="24.0" prefHeight="24.0" style="-fx-background-color: #fee2e2; -fx-background-radius: 12;">
-                                <Label text="🛡" style="-fx-text-fill: #dc2626; -fx-font-size: 12px;"/>
-                            </StackPane>
-                            <Label text="Fraud blocked" style="-fx-font-size: 12px; -fx-font-weight: 800; -fx-text-fill: #991b1b;"/>
-                        </HBox>
-                        <Label text="Suspicious payment&#10;stopped in real time" wrapText="true"
-                               style="-fx-font-size: 10px; -fx-text-fill: #78350f; -fx-line-spacing: 1px;"/>
-                    </VBox>
-
-                </Pane>
+            <!-- Center Nav Menu: ALL 4 ITEMS HAVE THE EXACT SAME PURE WHITE COLOR & BOLD WEIGHT -->
+            <HBox alignment="CENTER" spacing="28.0">
+                <Label text="Accounts" onMouseClicked="#scrollToAccounts"
+                       style="-fx-text-fill: #ffffff; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 4 8;"/>
+                <Label text="Cards" onMouseClicked="#scrollToCards"
+                       style="-fx-text-fill: #ffffff; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 4 8;"/>
+                <Label text="Transfers" onMouseClicked="#scrollToTransfers"
+                       style="-fx-text-fill: #ffffff; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 4 8;"/>
+                <Label text="Security" onMouseClicked="#scrollToSecurity"
+                       style="-fx-text-fill: #ffffff; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 4 8;"/>
             </HBox>
-        </VBox>
-
-        <!-- ================= BOTTOM FEATURES SECTION (LIGHT) ================= -->
-        <HBox alignment="CENTER_LEFT" spacing="40.0" style="-fx-background-color: #ffffff; -fx-padding: 35 50;">
-            <!-- Brand Statement -->
-            <VBox spacing="8.0" prefWidth="380.0">
-                <HBox alignment="CENTER_LEFT" spacing="8.0">
-                    <StackPane prefWidth="28.0" prefHeight="28.0" style="-fx-background-color: #dbeafe; -fx-background-radius: 6;">
-                        <SVGPath content="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm-1 14.5l-3.5-3.5 1.41-1.41L11 13.67l5.09-5.09 1.41 1.41L11 16.5z"
-                                 fill="#2563EB"/>
-                    </StackPane>
-                    <Label text="FraudShield" style="-fx-text-fill: #1e3a8a; -fx-font-size: 20px; -fx-font-weight: bold;"/>
-                </HBox>
-                <Label text="Secure banking with real-time fraud detection.&#10;Every transaction checked before it goes through."
-                       style="-fx-text-fill: #64748b; -fx-font-size: 13px; -fx-line-spacing: 2px;"/>
-            </VBox>
 
             <Region HBox.hgrow="ALWAYS"/>
 
-            <!-- 3 Stat Cards -->
-            <HBox spacing="18.0">
-                <!-- Card 1 -->
-                <VBox spacing="4.0" prefWidth="170.0" style="-fx-background-color: #f8fafc; -fx-padding: 16 18; -fx-background-radius: 12; -fx-border-color: #e2e8f0; -fx-border-radius: 12;">
-                    <Label text="24/7" style="-fx-font-size: 22px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
-                    <Label text="Fraud monitoring" style="-fx-font-size: 12px; -fx-text-fill: #64748b;"/>
-                </VBox>
+            <!-- Right Nav Items: Language Pill + Sign Up Button (With smooth popup scale on hover) -->
+            <HBox alignment="CENTER" spacing="14.0">
+                <!-- Language Pill -->
+                <HBox alignment="CENTER" spacing="6.0" style="-fx-background-color: rgba(255,255,255,0.15); -fx-padding: 7 14; -fx-background-radius: 20; -fx-cursor: hand;">
+                    <Label text="🌐 Eng ▾" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                </HBox>
 
-                <!-- Card 2 -->
-                <VBox spacing="4.0" prefWidth="170.0" style="-fx-background-color: #f8fafc; -fx-padding: 16 18; -fx-background-radius: 12; -fx-border-color: #e2e8f0; -fx-border-radius: 12;">
-                    <Label text="Real–time" style="-fx-font-size: 22px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
-                    <Label text="Transaction alerts" style="-fx-font-size: 12px; -fx-text-fill: #64748b;"/>
-                </VBox>
-
-                <!-- Card 3 -->
-                <VBox spacing="4.0" prefWidth="170.0" style="-fx-background-color: #f8fafc; -fx-padding: 16 18; -fx-background-radius: 12; -fx-border-color: #e2e8f0; -fx-border-radius: 12;">
-                    <Label text="Encrypted" style="-fx-font-size: 22px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
-                    <Label text="End-to-end transfers" style="-fx-font-size: 12px; -fx-text-fill: #64748b;"/>
-                </VBox>
+                <!-- Sign Up Button -->
+                <Button fx:id="signUpBtn" text="Sign Up" onAction="#handleSignUp"
+                        style="-fx-background-color: #fc831bf2; -fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 8 22; -fx-background-radius: 20; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(252, 131, 27, 0.45), 10, 0, 0, 3);"/>
             </HBox>
         </HBox>
+    </top>
 
-    </VBox>
-</ScrollPane>
+    <!-- ================= SCROLLABLE PAGE BODY ================= -->
+    <center>
+        <ScrollPane fx:id="mainScrollPane" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    style="-fx-background-color: #f8fafc; -fx-background: #f8fafc;">
+
+            <VBox fx:id="scrollContent" spacing="0.0" style="-fx-background-color: #f8fafc;">
+
+                <!-- ================= TOP HERO SECTION (BLUE) ================= -->
+                <VBox fx:id="heroSection" spacing="20.0" style="-fx-background-color: linear-gradient(to bottom, #1d4ed8 0%, #2563eb 55%, #3b82f6 100%); -fx-padding: 25 50 40 50;">
+
+                    <!-- HERO MAIN STAGE -->
+                    <HBox alignment="CENTER" spacing="20.0" VBox.vgrow="ALWAYS" style="-fx-padding: 10 0 0 0;">
+
+                        <!-- Hero Left Column: Copy & CTA -->
+                        <VBox spacing="24.0" prefWidth="510.0" alignment="CENTER_LEFT">
+                            <VBox spacing="18.0">
+                                <!-- Headline divided into 2 lines with Clean Geometric Typography & Increased Size -->
+                                <VBox spacing="-6.0">
+                                    <Label text="Easy Banking in"
+                                           style="-fx-text-fill: white; -fx-font-size: 54px; -fx-font-weight: 800; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', 'Segoe UI', -apple-system, sans-serif; -fx-padding: 0;"/>
+                                    <Label text="your busy life."
+                                           style="-fx-text-fill: white; -fx-font-size: 54px; -fx-font-weight: 800; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', 'Segoe UI', -apple-system, sans-serif; -fx-padding: 0;"/>
+                                </VBox>
+                                <Label text="Secure accounts, instant transfers and real-time&#10;fraud detection — all in one app."
+                                       style="-fx-text-fill: #dbeafe; -fx-font-size: 15px; -fx-line-spacing: 4px;"/>
+                            </VBox>
+
+                            <!-- Primary Sign In CTA Button (Hover Popup Animation) -->
+                            <Button fx:id="getStartedBtn" text="Sign In" onAction="#handleGetStarted"
+                                    style="-fx-background-color: #fc831bf2; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 14 42; -fx-background-radius: 28; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(252, 131, 27, 0.55), 20, 0, 0, 8);"/>
+                        </VBox>
+
+                        <!-- Hero Right Column: Absolute Positioned Stage -->
+                        <Pane prefWidth="580.0" minWidth="580.0" maxWidth="580.0" prefHeight="530.0" minHeight="530.0" maxHeight="530.0">
+
+                            <!-- Concentric Circular Background Wave Rings (Half Circle / Orbit Design Under Phone) -->
+                            <Circle centerX="310.0" centerY="255.0" radius="160.0"
+                                    style="-fx-fill: transparent; -fx-stroke: rgba(255, 255, 255, 0.16); -fx-stroke-width: 1.5;"/>
+                            <Circle centerX="310.0" centerY="255.0" radius="230.0"
+                                    style="-fx-fill: transparent; -fx-stroke: rgba(255, 255, 255, 0.13); -fx-stroke-width: 1.5;"/>
+                            <Circle centerX="310.0" centerY="255.0" radius="310.0"
+                                    style="-fx-fill: transparent; -fx-stroke: rgba(255, 255, 255, 0.09); -fx-stroke-width: 1.5;"/>
+                            <Circle centerX="310.0" centerY="255.0" radius="390.0"
+                                    style="-fx-fill: transparent; -fx-stroke: rgba(255, 255, 255, 0.05); -fx-stroke-width: 1.5;"/>
+                            <Circle centerX="310.0" centerY="255.0" radius="220.0"
+                                    style="-fx-fill: radial-gradient(center 50% 50%, radius 50%, rgba(96, 165, 250, 0.35), transparent);"/>
+
+                            <!-- 1. Floating Translucent Glass Credit Card -->
+                            <VBox layoutX="15.0" layoutY="45.0" prefWidth="240.0" maxWidth="240.0" prefHeight="145.0" maxHeight="145.0"
+                                  rotate="-7.0"
+                                  style="-fx-background-color: rgba(255, 255, 255, 0.22); -fx-background-radius: 16; -fx-border-color: rgba(255, 255, 255, 0.45); -fx-border-radius: 16; -fx-padding: 14 16; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.3), 20, 0, 0, 8);">
+                                <HBox alignment="CENTER_LEFT">
+                                    <Label text="FRAUDSHIELD" style="-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 800;"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Label text="PREMIUM" style="-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 9px; -fx-font-weight: bold;"/>
+                                </HBox>
+                                <Region prefHeight="16.0"/>
+                                <Label text="•••• •••• •••• 4821" style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-font-family: monospace;"/>
+                                <Region prefHeight="10.0"/>
+                                <HBox alignment="CENTER_LEFT">
+                                    <VBox>
+                                        <Label text="BALANCE" style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 8px;"/>
+                                        <Label text="\$12,480.50" style="-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                                    </VBox>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Label text="08/29" style="-fx-text-fill: white; -fx-font-size: 10px;"/>
+                                </HBox>
+                            </VBox>
+
+                            <!-- 2. Floating Modern Smartphone Mockup (Angle Tilted -5.5deg) -->
+                            <VBox layoutX="205.0" layoutY="18.0" prefWidth="255.0" minWidth="255.0" maxWidth="255.0" prefHeight="485.0" minHeight="485.0" maxHeight="485.0"
+                                  rotate="-5.5"
+                                  style="-fx-background-color: #ffffff; -fx-background-radius: 36; -fx-border-color: #0f172a; -fx-border-width: 6; -fx-border-radius: 36; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.45), 32, 0, 0, 14);">
+
+                                <!-- Phone Dynamic Island / Speaker Notch -->
+                                <HBox alignment="CENTER" prefHeight="22.0">
+                                    <StackPane prefWidth="80.0" prefHeight="14.0" style="-fx-background-color: #0f172a; -fx-background-radius: 10;"/>
+                                </HBox>
+
+                                <!-- Phone Screen Content -->
+                                <VBox spacing="10.0" style="-fx-padding: 10 14;">
+                                    <!-- User Header inside Phone -->
+                                    <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                        <StackPane prefWidth="28.0" prefHeight="28.0" style="-fx-background-color: #2563eb; -fx-background-radius: 14;">
+                                            <Label text="A" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 11px;"/>
+                                        </StackPane>
+                                        <VBox>
+                                            <Label text="Welcome back" style="-fx-font-size: 9px; -fx-text-fill: #64748b;"/>
+                                            <Label text="Anushka" style="-fx-font-size: 12px; -fx-text-fill: #0f172a; -fx-font-weight: bold;"/>
+                                        </VBox>
+                                        <Region HBox.hgrow="ALWAYS"/>
+                                        <Label text="🔔" style="-fx-font-size: 12px;"/>
+                                    </HBox>
+
+                                    <!-- Balance Card Inside Phone -->
+                                    <VBox spacing="4.0" style="-fx-background-color: linear-gradient(to right, #1d4ed8, #3b82f6); -fx-background-radius: 14; -fx-padding: 12 12;">
+                                        <Label text="Total Balance" style="-fx-text-fill: #dbeafe; -fx-font-size: 10px;"/>
+                                        <Label text="\$24,850.75" style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+                                        <HBox spacing="12.0" style="-fx-padding: 6 0 0 0;">
+                                            <Label text="↑ \$1,240.00" style="-fx-text-fill: #86efac; -fx-font-size: 9px; -fx-font-weight: bold;"/>
+                                            <Label text="↓ \$450.20" style="-fx-text-fill: #fca5a5; -fx-font-size: 9px; -fx-font-weight: bold;"/>
+                                        </HBox>
+                                    </VBox>
+
+                                    <!-- Quick Actions inside Phone -->
+                                    <HBox alignment="CENTER" spacing="10.0">
+                                        <VBox alignment="CENTER" spacing="3.0">
+                                            <StackPane prefWidth="32.0" prefHeight="32.0" style="-fx-background-color: #eff6ff; -fx-background-radius: 16;">
+                                                <Label text="↗" style="-fx-text-fill: #2563eb; -fx-font-weight: bold;"/>
+                                            </StackPane>
+                                            <Label text="Send" style="-fx-font-size: 9px; -fx-text-fill: #475569;"/>
+                                        </VBox>
+                                        <VBox alignment="CENTER" spacing="3.0">
+                                            <StackPane prefWidth="32.0" prefHeight="32.0" style="-fx-background-color: #eff6ff; -fx-background-radius: 16;">
+                                                <Label text="↙" style="-fx-text-fill: #2563eb; -fx-font-weight: bold;"/>
+                                            </StackPane>
+                                            <Label text="Request" style="-fx-font-size: 9px; -fx-text-fill: #475569;"/>
+                                        </VBox>
+                                        <VBox alignment="CENTER" spacing="3.0">
+                                            <StackPane prefWidth="32.0" prefHeight="32.0" style="-fx-background-color: #eff6ff; -fx-background-radius: 16;">
+                                                <Label text="🛡" style="-fx-font-size: 11px;"/>
+                                            </StackPane>
+                                            <Label text="Shield" style="-fx-font-size: 9px; -fx-text-fill: #475569;"/>
+                                        </VBox>
+                                        <VBox alignment="CENTER" spacing="3.0">
+                                            <StackPane prefWidth="32.0" prefHeight="32.0" style="-fx-background-color: #eff6ff; -fx-background-radius: 16;">
+                                                <Label text="⋯" style="-fx-text-fill: #2563eb; -fx-font-weight: bold;"/>
+                                            </StackPane>
+                                            <Label text="More" style="-fx-font-size: 9px; -fx-text-fill: #475569;"/>
+                                        </VBox>
+                                    </HBox>
+
+                                    <!-- Recent Transactions inside Phone -->
+                                    <VBox spacing="6.0">
+                                        <Label text="Recent Activity" style="-fx-font-size: 10px; -fx-text-fill: #0f172a; -fx-font-weight: bold;"/>
+                                        <HBox alignment="CENTER_LEFT" spacing="8.0" style="-fx-background-color: #f8fafc; -fx-padding: 5 8; -fx-background-radius: 8;">
+                                            <Label text="🛍" style="-fx-font-size: 11px;"/>
+                                            <Label text="Shopping" style="-fx-font-size: 9px; -fx-text-fill: #334155; -fx-font-weight: bold;"/>
+                                            <Region HBox.hgrow="ALWAYS"/>
+                                            <Label text="\$1,240" style="-fx-font-size: 9px; -fx-text-fill: #0f172a; -fx-font-weight: bold;"/>
+                                        </HBox>
+                                        <HBox alignment="CENTER_LEFT" spacing="8.0" style="-fx-background-color: #f8fafc; -fx-padding: 5 8; -fx-background-radius: 8;">
+                                            <Label text="⚡" style="-fx-font-size: 11px;"/>
+                                            <Label text="Bills Paid" style="-fx-font-size: 9px; -fx-text-fill: #334155; -fx-font-weight: bold;"/>
+                                            <Region HBox.hgrow="ALWAYS"/>
+                                            <Label text="-\$85.00" style="-fx-font-size: 9px; -fx-text-fill: #dc2626; -fx-font-weight: bold;"/>
+                                        </HBox>
+                                        <HBox alignment="CENTER_LEFT" spacing="8.0" style="-fx-background-color: #f8fafc; -fx-padding: 5 8; -fx-background-radius: 8;">
+                                            <Label text="✈" style="-fx-font-size: 11px;"/>
+                                            <Label text="Travel Booked" style="-fx-font-size: 9px; -fx-text-fill: #334155; -fx-font-weight: bold;"/>
+                                            <Region HBox.hgrow="ALWAYS"/>
+                                            <Label text="-\$420" style="-fx-font-size: 9px; -fx-text-fill: #dc2626; -fx-font-weight: bold;"/>
+                                        </HBox>
+                                    </VBox>
+                                </VBox>
+                            </VBox>
+
+                            <!-- 3. Floating "Fraud blocked" Alert Popout Toast -->
+                            <VBox fx:id="fraudToastBox" layoutX="325.0" layoutY="265.0" prefWidth="230.0" minWidth="230.0" maxWidth="230.0" prefHeight="90.0" minHeight="90.0" maxHeight="90.0" spacing="4.0"
+                                  style="-fx-background-color: #fffbeb; -fx-background-radius: 16; -fx-border-color: #fef08a; -fx-border-width: 1.5; -fx-border-radius: 16; -fx-padding: 12 14; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.22), 20, 0, 0, 8);">
+                                <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                    <StackPane prefWidth="24.0" prefHeight="24.0" style="-fx-background-color: #fee2e2; -fx-background-radius: 12;">
+                                        <Label text="🛡" style="-fx-text-fill: #dc2626; -fx-font-size: 12px;"/>
+                                    </StackPane>
+                                    <Label text="Fraud blocked" style="-fx-font-size: 12px; -fx-font-weight: 800; -fx-text-fill: #991b1b;"/>
+                                </HBox>
+                                <Label text="Suspicious payment&#10;stopped in real time" wrapText="true"
+                                       style="-fx-font-size: 10px; -fx-text-fill: #78350f; -fx-line-spacing: 1px;"/>
+                            </VBox>
+
+                        </Pane>
+                    </HBox>
+                </VBox>
+
+                <!-- ================= SECTION 1: ACCOUNTS ("An account for every goal") ================= -->
+                <VBox fx:id="accountsSection" alignment="CENTER" spacing="32.0" style="-fx-background-color: #ffffff; -fx-padding: 65 50;">
+                    <!-- Section Header -->
+                    <VBox alignment="CENTER" spacing="8.0">
+                        <Label text="An account for every goal"
+                               style="-fx-font-size: 32px; -fx-font-weight: 800; -fx-text-fill: #0f172a; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', sans-serif;"/>
+                        <Label text="Open an account in minutes. Every account is protected by FraudShield's real-time monitoring from day one."
+                               style="-fx-font-size: 14px; -fx-text-fill: #64748b;"/>
+                    </VBox>
+
+                    <!-- 3 Accounts Cards: Left arrives from Left, Center from Bottom, Right from Right -->
+                    <HBox alignment="CENTER" spacing="40.0">
+
+                        <!-- Card 1: Current Account (Slides from Left) -->
+                        <VBox fx:id="accountCard1" prefWidth="320.0" spacing="16.0"
+                              style="-fx-background-color: #ffffff; -fx-padding: 28 26; -fx-background-radius: 18; -fx-border-color: #e2e8f0; -fx-border-width: 1.4; -fx-border-radius: 18; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.05), 18, 0, 0, 4);">
+                            <StackPane alignment="CENTER_LEFT" prefHeight="36.0">
+                                <StackPane prefWidth="38.0" prefHeight="38.0" style="-fx-background-color: #eff6ff; -fx-background-radius: 10;">
+                                    <SVGPath content="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z" fill="#2563eb"/>
+                                </StackPane>
+                            </StackPane>
+                            <VBox spacing="4.0">
+                                <Label text="Current Account" style="-fx-font-size: 18px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
+                                <Label text="For your everyday spending, salary and bill payments." wrapText="true" style="-fx-font-size: 12px; -fx-text-fill: #64748b;"/>
+                            </VBox>
+                            <Label text="\$0 / monthly fee" style="-fx-font-size: 20px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
+                            <VBox spacing="8.0">
+                                <Label text="✓  Free debit card" style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
+                                <Label text="✓  Unlimited local transfers" style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
+                                <Label text="✓  Instant spending alerts" style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
+                            </VBox>
+                            <Region VBox.vgrow="ALWAYS"/>
+                            <Button fx:id="openAccountBtn" text="Open account" onAction="#handleSignUp" maxWidth="Infinity"
+                                    style="-fx-background-color: #eff6ff; -fx-text-fill: #2563eb; -fx-font-size: 13.5px; -fx-font-weight: bold; -fx-padding: 11; -fx-background-radius: 20; -fx-cursor: hand;"/>
+                        </VBox>
+
+                        <!-- Card 2: Savings Account (Highlighted / Popular - Slides from Center) -->
+                        <VBox fx:id="accountCard2" prefWidth="320.0" spacing="16.0"
+                              style="-fx-background-color: #2563eb; -fx-padding: 28 26; -fx-background-radius: 18; -fx-effect: dropshadow(three-pass-box, rgba(37, 99, 235, 0.35), 24, 0, 0, 8);">
+                            <HBox alignment="CENTER_LEFT">
+                                <StackPane prefWidth="38.0" prefHeight="38.0" style="-fx-background-color: rgba(255,255,255,0.2); -fx-background-radius: 10;">
+                                    <SVGPath content="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" fill="WHITE"/>
+                                </StackPane>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label text="Popular" style="-fx-background-color: #ea580c; -fx-text-fill: white; -fx-font-size: 10.5px; -fx-font-weight: bold; -fx-padding: 4 10; -fx-background-radius: 12;"/>
+                            </HBox>
+                            <VBox spacing="4.0">
+                                <Label text="Savings Account" style="-fx-font-size: 18px; -fx-font-weight: 800; -fx-text-fill: white;"/>
+                                <Label text="Grow your money with competitive interest, paid monthly." wrapText="true" style="-fx-font-size: 12px; -fx-text-fill: #dbeafe;"/>
+                            </VBox>
+                            <Label text="6.5% p.a. interest" style="-fx-font-size: 20px; -fx-font-weight: 800; -fx-text-fill: white;"/>
+                            <VBox spacing="8.0">
+                                <Label text="✓  Monthly interest payout" style="-fx-font-size: 12.5px; -fx-text-fill: white;"/>
+                                <Label text="✓  Savings goals &amp; round-ups" style="-fx-font-size: 12.5px; -fx-text-fill: white;"/>
+                                <Label text="✓  No minimum balance" style="-fx-font-size: 12.5px; -fx-text-fill: white;"/>
+                            </VBox>
+                            <Region VBox.vgrow="ALWAYS"/>
+                            <Button fx:id="startSavingBtn" text="Start saving" onAction="#handleSignUp" maxWidth="Infinity"
+                                    style="-fx-background-color: #fc831bf2; -fx-text-fill: white; -fx-font-size: 13.5px; -fx-font-weight: bold; -fx-padding: 11; -fx-background-radius: 20; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(252, 131, 27, 0.45), 10, 0, 0, 3);"/>
+                        </VBox>
+
+                        <!-- Card 3: Fixed Deposit (Slides from Right) -->
+                        <VBox fx:id="accountCard3" prefWidth="320.0" spacing="16.0"
+                              style="-fx-background-color: #ffffff; -fx-padding: 28 26; -fx-background-radius: 18; -fx-border-color: #e2e8f0; -fx-border-width: 1.4; -fx-border-radius: 18; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.05), 18, 0, 0, 4);">
+                            <StackPane alignment="CENTER_LEFT" prefHeight="36.0">
+                                <StackPane prefWidth="38.0" prefHeight="38.0" style="-fx-background-color: #eff6ff; -fx-background-radius: 10;">
+                                    <SVGPath content="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" fill="#2563eb"/>
+                                </StackPane>
+                            </StackPane>
+                            <VBox spacing="4.0">
+                                <Label text="Fixed Deposit" style="-fx-font-size: 18px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
+                                <Label text="Lock in a higher rate for a fixed period with guaranteed returns." wrapText="true" style="-fx-font-size: 12px; -fx-text-fill: #64748b;"/>
+                            </VBox>
+                            <Label text="9.0% p.a. up to 24 months" style="-fx-font-size: 20px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
+                            <VBox spacing="8.0">
+                                <Label text="✓  Terms from 3 to 24 months" style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
+                                <Label text="✓  Guaranteed returns" style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
+                                <Label text="✓  Auto-renew option" style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
+                            </VBox>
+                            <Region VBox.vgrow="ALWAYS"/>
+                            <Button fx:id="openDepositBtn" text="Open deposit" onAction="#handleSignUp" maxWidth="Infinity"
+                                    style="-fx-background-color: #eff6ff; -fx-text-fill: #2563eb; -fx-font-size: 13.5px; -fx-font-weight: bold; -fx-padding: 11; -fx-background-radius: 20; -fx-cursor: hand;"/>
+                        </VBox>
+
+                    </HBox>
+                </VBox>
+
+                <!-- ================= SECTION 2: CARDS ("Your card, fully under your control") ================= -->
+                <HBox fx:id="cardsSection" alignment="CENTER" spacing="55.0" style="-fx-background-color: #f8fafc; -fx-padding: 65 50;">
+
+                    <!-- Left: 2 Overlapping Physical & Virtual Cards Mockup (Arrives from Left) -->
+                    <Pane fx:id="cardsLeftPane" prefWidth="420.0" minWidth="420.0" maxWidth="420.0" prefHeight="260.0">
+                        <!-- Physical Debit Card (Dark Navy) -->
+                        <VBox layoutX="10.0" layoutY="10.0" prefWidth="280.0" prefHeight="165.0"
+                              rotate="-8.0"
+                              style="-fx-background-color: #1e1b4b; -fx-background-radius: 18; -fx-padding: 16 20; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.25), 20, 0, 0, 6);">
+                            <HBox alignment="CENTER_LEFT">
+                                <Label text="FRAUDSHIELD" style="-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 800;"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label text="DEBIT" style="-fx-text-fill: #94a3b8; -fx-font-size: 9px;"/>
+                            </HBox>
+                            <Region prefHeight="14.0"/>
+                            <VBox prefWidth="32.0" prefHeight="24.0" style="-fx-background-color: #facc15; -fx-background-radius: 4;"/>
+                            <Region prefHeight="16.0"/>
+                            <Label text="•••• •••• •••• 9852" style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                            <Region prefHeight="8.0"/>
+                            <HBox alignment="CENTER_LEFT">
+                                <Label text="CARD HOLDER&#10;ANUSHKA" style="-fx-text-fill: #cbd5e1; -fx-font-size: 9px;"/>
+                            </HBox>
+                        </VBox>
+
+                        <!-- Virtual Shopping Card (Cyan Blue) -->
+                        <VBox layoutX="110.0" layoutY="75.0" prefWidth="280.0" prefHeight="165.0"
+                              rotate="4.0"
+                              style="-fx-background-color: linear-gradient(to right, #0284c7, #38bdf8); -fx-background-radius: 18; -fx-padding: 16 20; -fx-effect: dropshadow(three-pass-box, rgba(2, 132, 199, 0.35), 22, 0, 0, 8);">
+                            <HBox alignment="CENTER_LEFT">
+                                <Label text="FRAUDSHIELD" style="-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 800;"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label text="VIRTUAL" style="-fx-text-fill: #e0f2fe; -fx-font-size: 9px; -fx-font-weight: bold;"/>
+                            </HBox>
+                            <Region prefHeight="24.0"/>
+                            <Label text="•••• 3317 6620 1094" style="-fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: 800;"/>
+                            <Region prefHeight="12.0"/>
+                            <Label text="FOR ONLINE SHOPPING&#10;ONE-TIME USE" style="-fx-text-fill: #f0f9ff; -fx-font-size: 9px; -fx-font-weight: bold;"/>
+                        </VBox>
+                    </Pane>
+
+                    <!-- Right: Interactive Control Switches (Arrives from Right) -->
+                    <VBox fx:id="cardsRightPane" spacing="20.0" prefWidth="480.0">
+                        <VBox spacing="6.0">
+                            <Label text="Your card, fully under&#10;your control"
+                                   style="-fx-font-size: 30px; -fx-font-weight: 800; -fx-text-fill: #0f172a; -fx-line-spacing: -2px; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', sans-serif;"/>
+                            <Label text="Physical and virtual debit cards with controls you can change in a tap. Try them below."
+                                   wrapText="true" style="-fx-font-size: 13.5px; -fx-text-fill: #64748b;"/>
+                        </VBox>
+
+                        <!-- Interactive Switch 1: Freeze card -->
+                        <HBox alignment="CENTER_LEFT" spacing="14.0"
+                              style="-fx-background-color: #ffffff; -fx-padding: 14 18; -fx-background-radius: 14; -fx-border-color: #e2e8f0; -fx-border-radius: 14;">
+                            <StackPane prefWidth="32.0" prefHeight="32.0" style="-fx-background-color: #eff6ff; -fx-background-radius: 8;">
+                                <SVGPath content="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" fill="#2563eb"/>
+                            </StackPane>
+                            <VBox spacing="2.0">
+                                <Label text="Freeze card" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                                <Label text="Lost it? Freeze it instantly, unfreeze anytime." style="-fx-font-size: 11px; -fx-text-fill: #64748b;"/>
+                            </VBox>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <CheckBox selected="false" style="-fx-cursor: hand;"/>
+                        </HBox>
+
+                        <!-- Interactive Switch 2: Online payments -->
+                        <HBox alignment="CENTER_LEFT" spacing="14.0"
+                              style="-fx-background-color: #ffffff; -fx-padding: 14 18; -fx-background-radius: 14; -fx-border-color: #e2e8f0; -fx-border-radius: 14;">
+                            <StackPane prefWidth="32.0" prefHeight="32.0" style="-fx-background-color: #eff6ff; -fx-background-radius: 8;">
+                                <SVGPath content="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" fill="#2563eb"/>
+                            </StackPane>
+                            <VBox spacing="2.0">
+                                <Label text="Online payments" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                                <Label text="Allow or block online &amp; overseas purchases." style="-fx-font-size: 11px; -fx-text-fill: #64748b;"/>
+                            </VBox>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <CheckBox selected="true" style="-fx-cursor: hand;"/>
+                        </HBox>
+
+                        <!-- Interactive Slider 3: Daily spending limit -->
+                        <VBox spacing="8.0" style="-fx-background-color: #ffffff; -fx-padding: 14 18; -fx-background-radius: 14; -fx-border-color: #e2e8f0; -fx-border-radius: 14;">
+                            <HBox alignment="CENTER_LEFT">
+                                <Label text="Daily spending limit" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="spendingLimitLabel" text="Current limit: $1,500" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #ea580c;"/>
+                            </HBox>
+                            <Slider fx:id="spendingSlider" min="100" max="5000" value="1500" style="-fx-cursor: hand;"/>
+                        </VBox>
+                    </VBox>
+
+                </HBox>
+
+                <!-- ================= SECTION 3: TRANSFERS ("Send money instantly — and safely") ================= -->
+                <!-- Gap increased to 80.0 between Steps and Quick Transfer display card -->
+                <HBox fx:id="transfersSection" alignment="CENTER" spacing="80.0" style="-fx-background-color: #ffffff; -fx-padding: 65 50;">
+
+                    <!-- Left: Process Steps (Arrives from Left) -->
+                    <VBox fx:id="transfersLeftBox" spacing="20.0" prefWidth="480.0">
+                        <HBox>
+                            <Label text="TRANSFERS" style="-fx-background-color: #ffedd5; -fx-text-fill: #ea580c; -fx-font-size: 10.5px; -fx-font-weight: 800; -fx-padding: 4 10; -fx-background-radius: 12;"/>
+                        </HBox>
+                        <VBox spacing="6.0">
+                            <Label text="Send money instantly —&#10;and safely"
+                                   style="-fx-font-size: 30px; -fx-font-weight: 800; -fx-text-fill: #0f172a; -fx-line-spacing: -2px; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', sans-serif;"/>
+                            <Label text="Every transfer is scored for fraud risk before it leaves your account. Safe payments go through in seconds."
+                                   wrapText="true" style="-fx-font-size: 13.5px; -fx-text-fill: #64748b;"/>
+                        </VBox>
+
+                        <!-- 4 Steps -->
+                        <VBox spacing="14.0" style="-fx-padding: 8 0 0 0;">
+                            <!-- Step 1 -->
+                            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                <StackPane prefWidth="26.0" prefHeight="26.0" style="-fx-background-color: #2563eb; -fx-background-radius: 13;">
+                                    <Label text="1" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                                </StackPane>
+                                <VBox>
+                                    <Label text="Choose a recipient" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                                    <Label text="Pick a saved contact or enter an account number." style="-fx-font-size: 11.5px; -fx-text-fill: #64748b;"/>
+                                </VBox>
+                            </HBox>
+
+                            <!-- Step 2 -->
+                            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                <StackPane prefWidth="26.0" prefHeight="26.0" style="-fx-background-color: #2563eb; -fx-background-radius: 13;">
+                                    <Label text="2" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                                </StackPane>
+                                <VBox>
+                                    <Label text="Enter the amount" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                                    <Label text="Add a note so you both remember what it was for." style="-fx-font-size: 11.5px; -fx-text-fill: #64748b;"/>
+                                </VBox>
+                            </HBox>
+
+                            <!-- Step 3 -->
+                            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                <StackPane prefWidth="26.0" prefHeight="26.0" style="-fx-background-color: #ea580c; -fx-background-radius: 13;">
+                                    <Label text="3" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                                </StackPane>
+                                <VBox>
+                                    <Label text="Real-time fraud check" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                                    <Label text="Our engine checks amount, device, location and behaviour patterns." style="-fx-font-size: 11.5px; -fx-text-fill: #64748b;"/>
+                                </VBox>
+                            </HBox>
+
+                            <!-- Step 4 -->
+                            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                <StackPane prefWidth="26.0" prefHeight="26.0" style="-fx-background-color: #2563eb; -fx-background-radius: 13;">
+                                    <Label text="4" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                                </StackPane>
+                                <VBox>
+                                    <Label text="Done" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                                    <Label text="Money arrives instantly and both sides get a notification." style="-fx-font-size: 11.5px; -fx-text-fill: #64748b;"/>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                    </VBox>
+
+                    <!-- Right: Quick Transfer Display-Only Preview Card (Arrives from Right) -->
+                    <VBox fx:id="transfersRightCard" prefWidth="380.0" spacing="14.0"
+                          style="-fx-background-color: #ffffff; -fx-padding: 26 28; -fx-background-radius: 18; -fx-border-color: #e2e8f0; -fx-border-width: 1.4; -fx-border-radius: 18; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.08), 24, 0, 0, 8);">
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="Quick transfer" style="-fx-font-size: 16px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label text="● Protected" style="-fx-background-color: #dcfce7; -fx-text-fill: #15803d; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 3 8; -fx-background-radius: 10;"/>
+                        </HBox>
+
+                        <!-- Read-Only Field: From Account -->
+                        <VBox spacing="4.0">
+                            <Label text="From" style="-fx-font-size: 11px; -fx-text-fill: #64748b;"/>
+                            <TextField text="Current Account •••• 4821 — \$12,480.50"
+                                       editable="false" focusTraversable="false" mouseTransparent="true"
+                                       style="-fx-background-color: #f1f5f9; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-padding: 9 12; -fx-font-size: 12px; -fx-text-fill: #334155; -fx-cursor: default;"/>
+                        </VBox>
+
+                        <!-- Read-Only Field: To Account -->
+                        <VBox spacing="4.0">
+                            <Label text="To account" style="-fx-font-size: 11px; -fx-text-fill: #64748b;"/>
+                            <TextField text="1002 3345 6789 (Emma Watson)"
+                                       editable="false" focusTraversable="false" mouseTransparent="true"
+                                       style="-fx-background-color: #f1f5f9; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-padding: 9 12; -fx-font-size: 12px; -fx-text-fill: #334155; -fx-cursor: default;"/>
+                        </VBox>
+
+                        <!-- Read-Only Field: Amount -->
+                        <VBox spacing="4.0">
+                            <Label text="Amount (USD)" style="-fx-font-size: 11px; -fx-text-fill: #64748b;"/>
+                            <TextField text="\$250.00"
+                                       editable="false" focusTraversable="false" mouseTransparent="true"
+                                       style="-fx-background-color: #f1f5f9; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-padding: 9 12; -fx-font-size: 12px; -fx-text-fill: #0f172a; -fx-font-weight: bold; -fx-cursor: default;"/>
+                        </VBox>
+
+                        <Button fx:id="sendMoneyBtn" text="Send money" onAction="#handleGetStarted" maxWidth="Infinity"
+                                style="-fx-background-color: #fc831bf2; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 12; -fx-background-radius: 20; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(252, 131, 27, 0.45), 14, 0, 0, 4);"/>
+
+                        <!-- Live Risk Verdict Indicator -->
+                        <HBox alignment="CENTER_LEFT" spacing="6.0" style="-fx-background-color: #dcfce7; -fx-padding: 8 12; -fx-background-radius: 8;">
+                            <Label text="✓" style="-fx-text-fill: #15803d; -fx-font-weight: bold; -fx-font-size: 12px;"/>
+                            <Label text="Risk score: low  ·  \$250.00 sent to 1002 3345 6789" style="-fx-font-size: 11px; -fx-text-fill: #15803d; -fx-font-weight: 600;"/>
+                        </HBox>
+                    </VBox>
+
+                </HBox>
+
+                <!-- ================= SECTION 4: SECURITY ("Fraud stopped before it happens") ================= -->
+                <!-- Clean Light Slate (#f8fafc) Background - Left 6 cards arrive from Left, Right monitor arrives from Right -->
+                <VBox fx:id="securitySection" alignment="CENTER" spacing="36.0"
+                      style="-fx-background-color: #f8fafc; -fx-padding: 65 50; -fx-border-color: #e2e8f0; -fx-border-width: 1 0 1 0;">
+
+                    <!-- Section Header with Crisp Dark Slate Typography -->
+                    <VBox alignment="CENTER" spacing="8.0">
+                        <Label text="Fraud stopped before it happens"
+                               style="-fx-font-size: 32px; -fx-font-weight: 800; -fx-text-fill: #0f172a; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', sans-serif;"/>
+                        <Label text="FraudShield watches every transaction in real time and blocks suspicious activity in milliseconds."
+                               style="-fx-font-size: 14.5px; -fx-text-fill: #64748b;"/>
+                    </VBox>
+
+                    <!-- Main Security Content: Left 6 Cards (Arrive from Left) + Right Live Fraud Monitor (Arrives from Right) -->
+                    <HBox alignment="CENTER" spacing="35.0">
+
+                        <!-- Left Column: 6 Feature Cards in 2x3 Grid with Light Blue Header Icon Pills (Image 2 style) -->
+                        <GridPane fx:id="securityLeftGrid" hgap="16.0" vgap="16.0" prefWidth="540.0">
+                            <!-- Card 1: Real-time risk scoring -->
+                            <VBox spacing="10.0" prefWidth="255.0" GridPane.columnIndex="0" GridPane.rowIndex="0"
+                                  style="-fx-background-color: #ffffff; -fx-padding: 14 16; -fx-background-radius: 14; -fx-border-color: #e2e8f0; -fx-border-width: 1.3; -fx-border-radius: 14; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.04), 12, 0, 0, 3);">
+                                <HBox alignment="CENTER" prefHeight="28.0" style="-fx-background-color: #eff6ff; -fx-background-radius: 8;">
+                                    <Label text="⚡" style="-fx-font-size: 13px; -fx-text-fill: #2563eb;"/>
+                                </HBox>
+                                <VBox spacing="3.0">
+                                    <Label text="Real-time risk scoring" style="-fx-font-size: 13.5px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                                    <Label text="Each transaction gets a risk score before approval." wrapText="true" style="-fx-font-size: 11px; -fx-text-fill: #64748b; -fx-line-spacing: 2px;"/>
+                                </VBox>
+                            </VBox>
+
+                            <!-- Card 2: End-to-end encryption -->
+                            <VBox spacing="10.0" prefWidth="255.0" GridPane.columnIndex="1" GridPane.rowIndex="0"
+                                  style="-fx-background-color: #ffffff; -fx-padding: 14 16; -fx-background-radius: 14; -fx-border-color: #e2e8f0; -fx-border-width: 1.3; -fx-border-radius: 14; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.04), 12, 0, 0, 3);">
+                                <HBox alignment="CENTER" prefHeight="28.0" style="-fx-background-color: #eff6ff; -fx-background-radius: 8;">
+                                    <Label text="🔒" style="-fx-font-size: 13px; -fx-text-fill: #2563eb;"/>
+                                </HBox>
+                                <VBox spacing="3.0">
+                                    <Label text="End-to-end encryption" style="-fx-font-size: 13.5px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                                    <Label text="All client-server traffic travels over TLS-secured sockets." wrapText="true" style="-fx-font-size: 11px; -fx-text-fill: #64748b; -fx-line-spacing: 2px;"/>
+                                </VBox>
+                            </VBox>
+
+                            <!-- Card 3: Two-factor login -->
+                            <VBox spacing="10.0" prefWidth="255.0" GridPane.columnIndex="0" GridPane.rowIndex="1"
+                                  style="-fx-background-color: #ffffff; -fx-padding: 14 16; -fx-background-radius: 14; -fx-border-color: #e2e8f0; -fx-border-width: 1.3; -fx-border-radius: 14; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.04), 12, 0, 0, 3);">
+                                <HBox alignment="CENTER" prefHeight="28.0" style="-fx-background-color: #eff6ff; -fx-background-radius: 8;">
+                                    <Label text="📱" style="-fx-font-size: 13px; -fx-text-fill: #2563eb;"/>
+                                </HBox>
+                                <VBox spacing="3.0">
+                                    <Label text="Two-factor login" style="-fx-font-size: 13.5px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                                    <Label text="One-time codes and trusted-device checks on sign in." wrapText="true" style="-fx-font-size: 11px; -fx-text-fill: #64748b; -fx-line-spacing: 2px;"/>
+                                </VBox>
+                            </VBox>
+
+                            <!-- Card 4: Instant alerts -->
+                            <VBox spacing="10.0" prefWidth="255.0" GridPane.columnIndex="1" GridPane.rowIndex="1"
+                                  style="-fx-background-color: #ffffff; -fx-padding: 14 16; -fx-background-radius: 14; -fx-border-color: #e2e8f0; -fx-border-width: 1.3; -fx-border-radius: 14; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.04), 12, 0, 0, 3);">
+                                <HBox alignment="CENTER" prefHeight="28.0" style="-fx-background-color: #eff6ff; -fx-background-radius: 8;">
+                                    <Label text="🔔" style="-fx-font-size: 13px; -fx-text-fill: #2563eb;"/>
+                                </HBox>
+                                <VBox spacing="3.0">
+                                    <Label text="Instant alerts" style="-fx-font-size: 13.5px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                                    <Label text="Get notified the moment something looks unusual." wrapText="true" style="-fx-font-size: 11px; -fx-text-fill: #64748b; -fx-line-spacing: 2px;"/>
+                                </VBox>
+                            </VBox>
+
+                            <!-- Card 5: Location checks -->
+                            <VBox spacing="10.0" prefWidth="255.0" GridPane.columnIndex="0" GridPane.rowIndex="2"
+                                  style="-fx-background-color: #ffffff; -fx-padding: 14 16; -fx-background-radius: 14; -fx-border-color: #e2e8f0; -fx-border-width: 1.3; -fx-border-radius: 14; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.04), 12, 0, 0, 3);">
+                                <HBox alignment="CENTER" prefHeight="28.0" style="-fx-background-color: #eff6ff; -fx-background-radius: 8;">
+                                    <Label text="📍" style="-fx-font-size: 13px; -fx-text-fill: #2563eb;"/>
+                                </HBox>
+                                <VBox spacing="3.0">
+                                    <Label text="Location checks" style="-fx-font-size: 13.5px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                                    <Label text="Flags logins and payments from unexpected places." wrapText="true" style="-fx-font-size: 11px; -fx-text-fill: #64748b; -fx-line-spacing: 2px;"/>
+                                </VBox>
+                            </VBox>
+
+                            <!-- Card 6: Behaviour analysis -->
+                            <VBox spacing="10.0" prefWidth="255.0" GridPane.columnIndex="1" GridPane.rowIndex="2"
+                                  style="-fx-background-color: #ffffff; -fx-padding: 14 16; -fx-background-radius: 14; -fx-border-color: #e2e8f0; -fx-border-width: 1.3; -fx-border-radius: 14; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.04), 12, 0, 0, 3);">
+                                <HBox alignment="CENTER" prefHeight="28.0" style="-fx-background-color: #eff6ff; -fx-background-radius: 8;">
+                                    <Label text="📈" style="-fx-font-size: 13px; -fx-text-fill: #2563eb;"/>
+                                </HBox>
+                                <VBox spacing="3.0">
+                                    <Label text="Behaviour analysis" style="-fx-font-size: 13.5px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                                    <Label text="Learns your normal spending to catch what isn't." wrapText="true" style="-fx-font-size: 11px; -fx-text-fill: #64748b; -fx-line-spacing: 2px;"/>
+                                </VBox>
+                            </VBox>
+                        </GridPane>
+
+                        <!-- Right Column: Live Fraud Monitor Card (Arrives from Right) -->
+                        <VBox fx:id="liveMonitorCard" prefWidth="440.0" spacing="16.0"
+                              style="-fx-background-color: #ffffff; -fx-padding: 22 24; -fx-background-radius: 18; -fx-border-color: #e2e8f0; -fx-border-width: 1.4; -fx-border-radius: 18; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.08), 24, 0, 0, 8);">
+
+                            <!-- Monitor Header -->
+                            <HBox alignment="CENTER_LEFT">
+                                <Label text="Live Fraud monitor" style="-fx-font-size: 15px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <HBox alignment="CENTER" spacing="6.0" style="-fx-background-color: #f0fdf4; -fx-padding: 4 10; -fx-background-radius: 12;">
+                                    <Circle radius="4.0" fill="#16a34a"/>
+                                    <Label text="Live" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #16a34a;"/>
+                                </HBox>
+                            </HBox>
+
+                            <!-- Monitor Items List -->
+                            <VBox spacing="10.0">
+
+                                <!-- Row 1: Crypto exchange payment (Risk 83 - Review) -->
+                                <VBox spacing="8.0" style="-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-radius: 12; -fx-padding: 10 14; -fx-background-radius: 12;">
+                                    <HBox alignment="CENTER_LEFT">
+                                        <VBox spacing="2.0">
+                                            <Label text="Crypto exchange payment" style="-fx-font-size: 12.5px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                                            <Label text="\$4999.00 · 11:25:49 PM · risk 83" style="-fx-font-size: 10.5px; -fx-text-fill: #64748b;"/>
+                                        </VBox>
+                                        <Region HBox.hgrow="ALWAYS"/>
+                                        <Label text="Review" style="-fx-background-color: #fef3c7; -fx-text-fill: #d97706; -fx-font-size: 10.5px; -fx-font-weight: bold; -fx-padding: 3 9; -fx-background-radius: 10;"/>
+                                    </HBox>
+                                    <!-- Progress indicator bar (Orange) -->
+                                    <StackPane alignment="CENTER_LEFT" prefHeight="4.0" style="-fx-background-color: #e2e8f0; -fx-background-radius: 2;">
+                                        <Region prefHeight="4.0" prefWidth="290.0" maxWidth="290.0" style="-fx-background-color: #f59e0b; -fx-background-radius: 2;"/>
+                                    </StackPane>
+                                </VBox>
+
+                                <!-- Row 2: Online transfer to •••• 6612 (Risk 17 - Approved) -->
+                                <VBox spacing="8.0" style="-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-radius: 12; -fx-padding: 10 14; -fx-background-radius: 12;">
+                                    <HBox alignment="CENTER_LEFT">
+                                        <VBox spacing="2.0">
+                                            <Label text="Online transfer to •••• 6612" style="-fx-font-size: 12.5px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                                            <Label text="\$300.00 · 11:26:46 PM · risk 17" style="-fx-font-size: 10.5px; -fx-text-fill: #64748b;"/>
+                                        </VBox>
+                                        <Region HBox.hgrow="ALWAYS"/>
+                                        <Label text="Approved" style="-fx-background-color: #dcfce7; -fx-text-fill: #15803d; -fx-font-size: 10.5px; -fx-font-weight: bold; -fx-padding: 3 9; -fx-background-radius: 10;"/>
+                                    </HBox>
+                                    <!-- Progress indicator bar (Green) -->
+                                    <StackPane alignment="CENTER_LEFT" prefHeight="4.0" style="-fx-background-color: #e2e8f0; -fx-background-radius: 2;">
+                                        <Region prefHeight="4.0" prefWidth="70.0" maxWidth="70.0" style="-fx-background-color: #22c55e; -fx-background-radius: 2;"/>
+                                    </StackPane>
+                                </VBox>
+
+                                <!-- Row 3: Mobile reload (Risk 2 - Approved) -->
+                                <VBox spacing="8.0" style="-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-radius: 12; -fx-padding: 10 14; -fx-background-radius: 12;">
+                                    <HBox alignment="CENTER_LEFT">
+                                        <VBox spacing="2.0">
+                                            <Label text="Mobile reload" style="-fx-font-size: 12.5px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                                            <Label text="\$5.00 · 11:26:44 PM · risk 2" style="-fx-font-size: 10.5px; -fx-text-fill: #64748b;"/>
+                                        </VBox>
+                                        <Region HBox.hgrow="ALWAYS"/>
+                                        <Label text="Approved" style="-fx-background-color: #dcfce7; -fx-text-fill: #15803d; -fx-font-size: 10.5px; -fx-font-weight: bold; -fx-padding: 3 9; -fx-background-radius: 10;"/>
+                                    </HBox>
+                                    <!-- Progress indicator bar (Green) -->
+                                    <StackPane alignment="CENTER_LEFT" prefHeight="4.0" style="-fx-background-color: #e2e8f0; -fx-background-radius: 2;">
+                                        <Region prefHeight="4.0" prefWidth="25.0" maxWidth="25.0" style="-fx-background-color: #22c55e; -fx-background-radius: 2;"/>
+                                    </StackPane>
+                                </VBox>
+
+                                <!-- Row 4: Grocery store — Colombo (Risk 25 - Approved) -->
+                                <VBox spacing="8.0" style="-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-radius: 12; -fx-padding: 10 14; -fx-background-radius: 12;">
+                                    <HBox alignment="CENTER_LEFT">
+                                        <VBox spacing="2.0">
+                                            <Label text="Grocery store — Colombo" style="-fx-font-size: 12.5px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                                            <Label text="\$42.50 · 11:26:41 PM · risk 25" style="-fx-font-size: 10.5px; -fx-text-fill: #64748b;"/>
+                                        </VBox>
+                                        <Region HBox.hgrow="ALWAYS"/>
+                                        <Label text="Approved" style="-fx-background-color: #dcfce7; -fx-text-fill: #15803d; -fx-font-size: 10.5px; -fx-font-weight: bold; -fx-padding: 3 9; -fx-background-radius: 10;"/>
+                                    </HBox>
+                                    <!-- Progress indicator bar (Green) -->
+                                    <StackPane alignment="CENTER_LEFT" prefHeight="4.0" style="-fx-background-color: #e2e8f0; -fx-background-radius: 2;">
+                                        <Region prefHeight="4.0" prefWidth="90.0" maxWidth="90.0" style="-fx-background-color: #22c55e; -fx-background-radius: 2;"/>
+                                    </StackPane>
+                                </VBox>
+
+                            </VBox>
+
+                            <!-- Bottom 3 Summary Boxes: Approved / Reviewed / Blocked -->
+                            <HBox spacing="10.0">
+                                <VBox alignment="CENTER" spacing="3.0" HBox.hgrow="ALWAYS"
+                                      style="-fx-background-color: #f8fafc; -fx-padding: 10; -fx-background-radius: 10; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 10;">
+                                    <Label text="1,676" style="-fx-font-size: 18px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
+                                    <Label text="Approved" style="-fx-font-size: 10.5px; -fx-text-fill: #64748b;"/>
+                                </VBox>
+                                <VBox alignment="CENTER" spacing="3.0" HBox.hgrow="ALWAYS"
+                                      style="-fx-background-color: #f8fafc; -fx-padding: 10; -fx-background-radius: 10; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 10;">
+                                    <Label text="178" style="-fx-font-size: 18px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
+                                    <Label text="Reviewed" style="-fx-font-size: 10.5px; -fx-text-fill: #64748b;"/>
+                                </VBox>
+                                <VBox alignment="CENTER" spacing="3.0" HBox.hgrow="ALWAYS"
+                                      style="-fx-background-color: #f8fafc; -fx-padding: 10; -fx-background-radius: 10; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 10;">
+                                    <Label text="85" style="-fx-font-size: 18px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
+                                    <Label text="Blocked" style="-fx-font-size: 10.5px; -fx-text-fill: #64748b;"/>
+                                </VBox>
+                            </HBox>
+
+                        </VBox>
+
+                    </HBox>
+                </VBox>
+
+                <!-- ================= FOOTER SECTION (DARK NAVY) ================= -->
+                <!-- Bottom legal copyright line removed per user request -->
+                <VBox fx:id="footerSection" spacing="35.0" style="-fx-background-color: #060a14; -fx-padding: 50 60 45 60;">
+                    <!-- Top Footer Columns -->
+                    <HBox spacing="40.0" alignment="TOP_LEFT">
+                        <!-- Col 1: Brand & Socials -->
+                        <VBox spacing="14.0" prefWidth="260.0">
+                            <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                <StackPane prefWidth="28.0" prefHeight="28.0" style="-fx-background-color: #2563eb; -fx-background-radius: 6;">
+                                    <SVGPath content="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm-1 14.5l-3.5-3.5 1.41-1.41L11 13.67l5.09-5.09 1.41 1.41L11 16.5z"
+                                             fill="WHITE"/>
+                                </StackPane>
+                                <Label text="FraudShield" style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+                            </HBox>
+                            <Label text="Secure banking with real-time fraud detection. Every transaction checked before it goes through."
+                                   wrapText="true" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-line-spacing: 2px;"/>
+                            <!-- Social icons -->
+                            <HBox spacing="10.0">
+                                <StackPane prefWidth="30.0" prefHeight="30.0" style="-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 15; -fx-cursor: hand;">
+                                    <Label text="f" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;"/>
+                                </StackPane>
+                                <StackPane prefWidth="30.0" prefHeight="30.0" style="-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 15; -fx-cursor: hand;">
+                                    <Label text="𝕏" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;"/>
+                                </StackPane>
+                                <StackPane prefWidth="30.0" prefHeight="30.0" style="-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 15; -fx-cursor: hand;">
+                                    <Label text="in" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px;"/>
+                                </StackPane>
+                                <StackPane prefWidth="30.0" prefHeight="30.0" style="-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 15; -fx-cursor: hand;">
+                                    <Label text="⌥" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px;"/>
+                                </StackPane>
+                            </HBox>
+                        </VBox>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+
+                        <!-- Col 2: Banking -->
+                        <VBox spacing="10.0" prefWidth="120.0">
+                            <Label text="Banking" style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                            <Label text="Accounts" onMouseClicked="#scrollToAccounts" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                            <Label text="Cards" onMouseClicked="#scrollToCards" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                            <Label text="Transfers" onMouseClicked="#scrollToTransfers" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                            <Label text="Security" onMouseClicked="#scrollToSecurity" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                        </VBox>
+
+                        <!-- Col 3: Company -->
+                        <VBox spacing="10.0" prefWidth="120.0">
+                            <Label text="Company" style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                            <Label text="About us" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                            <Label text="Our team" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                            <Label text="Careers" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                            <Label text="Blog" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                        </VBox>
+
+                        <!-- Col 4: Support -->
+                        <VBox spacing="10.0" prefWidth="120.0">
+                            <Label text="Support" style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                            <Label text="Help center" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                            <Label text="Report fraud" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                            <Label text="FAQs" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                            <Label text="Contact us" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                        </VBox>
+
+                        <!-- Col 5: Stay updated -->
+                        <VBox spacing="10.0" prefWidth="250.0">
+                            <Label text="Stay updated" style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                            <Label text="Security tips and product news, once a month." style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;"/>
+                            <HBox spacing="8.0" alignment="CENTER_LEFT" style="-fx-background-color: rgba(255,255,255,0.08); -fx-padding: 4 6 4 12; -fx-background-radius: 20;">
+                                <TextField promptText="Your email" HBox.hgrow="ALWAYS"
+                                           style="-fx-background-color: transparent; -fx-text-fill: white; -fx-prompt-text-fill: #64748b; -fx-font-size: 12px;"/>
+                                <Button fx:id="subscribeBtn" text="Subscribe"
+                                        style="-fx-background-color: #fc831bf2; -fx-text-fill: white; -fx-font-size: 11.5px; -fx-font-weight: bold; -fx-padding: 6 16; -fx-background-radius: 16; -fx-cursor: hand;"/>
+                            </HBox>
+                            <VBox spacing="4.0" style="-fx-padding: 6 0 0 0;">
+                                <Label text="📞  +94 11 234 5678" style="-fx-text-fill: #94a3b8; -fx-font-size: 11.5px;"/>
+                                <Label text="✉  support@fraudshield.lk" style="-fx-text-fill: #94a3b8; -fx-font-size: 11.5px;"/>
+                            </VBox>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+</BorderPane>
