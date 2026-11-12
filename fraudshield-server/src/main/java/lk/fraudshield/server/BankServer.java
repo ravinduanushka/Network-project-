@@ -32,7 +32,7 @@ public class BankServer {
     private static final int PORT = 5000;
     private static final int POOL_SIZE = 20;
     private static final int HANDSHAKE_TIMEOUT_MS = 10_000;
-    private static final int CLIENT_TIMEOUT_MS = 5 * 60 * 1000;
+    private static final int CLIENT_TIMEOUT_MS = 30_000; // same as ClientHandler.READ_TIMEOUT_MS
 
     private final ExecutorService pool = Executors.newFixedThreadPool(POOL_SIZE);
     private volatile boolean running = true;
