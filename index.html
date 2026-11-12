@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FraudShield — Banking that guards itself</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'%3E%3Cpath d='M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm-1 14.5l-3.5-3.5 1.41-1.41L11 13.67l5.09-5.09 1.41 1.41L11 16.5z'/%3E%3C/svg%3E">
+</head>
+<body>
+  <div class="page-wrapper">
+
+    <!-- TOP HERO BACKGROUND WITH MESH GLOWS & RINGS -->
+    <div class="hero-bg-container">
+      <div class="glow-orb glow-top-left"></div>
+      <div class="glow-orb glow-center-right"></div>
+      <div class="orbital-ring ring-1"></div>
+      <div class="orbital-ring ring-2"></div>
+      <div class="orbital-ring ring-3"></div>
+      <div class="radial-mesh-light"></div>
+    </div>
+
+    <!-- NAVIGATION HEADER -->
+    <header class="navbar">
+      <div class="nav-container">
+        <!-- Brand Logo -->
+        <a href="#" class="brand-logo">
+          <span class="logo-shield-icon">
+            <svg viewBox="0 0 28 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 2L3 6.2V14.5C3 21.8 7.7 28.5 14 30.5C20.3 28.5 25 21.8 25 14.5V6.2L14 2Z" stroke="white" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M10 15.5L12.8 18.5L18.5 12" stroke="white" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="brand-text">FraudShield</span>
+        </a>
+
+        <!-- Center Nav Links -->
+        <nav class="nav-menu">
+          <a href="#accounts" class="nav-link active">Accounts</a>
+          <a href="#cards" class="nav-link">Cards</a>
+          <a href="#transfers" class="nav-link">Transfers</a>
+          <a href="#security" class="nav-link">Security</a>
+        </nav>
+
+        <!-- Right Nav Actions -->
+        <div class="nav-actions">
+          <!-- Language Selector -->
+          <div class="lang-selector-wrapper">
+            <button class="lang-pill" id="langBtn" type="button" aria-haspopup="true" aria-expanded="false">
+              <svg class="globe-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                <circle cx="10" cy="10" r="7.5" stroke-width="1.4"/>
+                <ellipse cx="10" cy="10" rx="3.5" ry="7.5" stroke-width="1.4"/>
+                <path d="M2.5 10H17.5" stroke-width="1.4"/>
+              </svg>
+              <span id="currentLang">Eng</span>
+              <svg class="chevron-icon" viewBox="0 0 12 12" fill="none" stroke="currentColor">
+                <path d="M3 4.5L6 7.5L9 4.5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <div class="lang-dropdown" id="langDropdown">
+              <div class="lang-item active" data-lang="Eng">English (US)</div>
+              <div class="lang-item" data-lang="Sin">Sinhala (සිංහල)</div>
+              <div class="lang-item" data-lang="Tam">Tamil (தமிழ்)</div>
+              <div class="lang-item" data-lang="Fra">Français (FR)</div>
+            </div>
+          </div>
+
+          <!-- Sign Up Button -->
+          <a href="login.html" class="btn-signup" id="signUpBtn" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Sign Up</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <main class="hero-section">
+      <div class="hero-container">
+
+        <!-- Hero Left Column: Copy & Primary CTA -->
+        <div class="hero-copy-col">
+          <h1 class="hero-heading">
+            Banking that<br>
+            guards<br>
+            itself.
+          </h1>
+          <p class="hero-description">
+            Secure accounts, instant transfers and real-time<br class="desktop-break">
+            fraud detection — all in one app.
+          </p>
+          <div class="hero-cta-group">
+            <a href="login.html" class="btn-get-started" id="getStartedBtn" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+              Get Started
+            </a>
+          </div>
+        </div>
+
+        <!-- Hero Right Column: 3D Composition with Phone, Glass Card & Toast -->
+        <div class="hero-visual-col">
+          <div class="visual-stage">
+
+            <!-- 1. Floating Frosted Glass Card -->
+            <div class="floating-glass-card" id="glassCard">
+              <div class="glass-card-inner">
+                <div class="card-top-row">
+                  <span class="card-brand">FRAUDSHIELD</span>
+                  <div class="contactless-wave">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path d="M8.5 7.5C10.5 9.5 10.5 14.5 8.5 16.5" stroke-width="2" stroke-linecap="round"/>
+                      <path d="M12 4.5C15 7.5 15 16.5 12 19.5" stroke-width="2" stroke-linecap="round"/>
+                      <path d="M15.5 1.5C19.5 5.5 19.5 18.5 15.5 22.5" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                </div>
+
+                <div class="card-chip-container">
+                  <div class="emv-chip">
+                    <div class="chip-line line-h"></div>
+                    <div class="chip-line line-v"></div>
+                    <div class="chip-core"></div>
+                  </div>
+                </div>
+
+                <div class="card-number">
+                  <span class="num-group">••••</span>
+                  <span class="num-group">••••</span>
+                  <span class="num-group">••••</span>
+                  <span class="num-last">4821</span>
+                </div>
+
+                <div class="card-bottom-row">
+                  <div class="card-meta">
+                    <span class="meta-label">CARD HOLDER</span>
+                  </div>
+                  <div class="card-meta expiry">
+                    <span class="meta-val">08/29</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Floating Pill Capsule Indicator -->
+            <div class="floating-capsule" id="floatingPill">
+              <div class="capsule-shield">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                  <path d="M10 2L3 5.5V10.5C3 15 6 18 10 19C14 18 17 15 17 10.5V5.5L10 2Z" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="capsule-lines">
+                <span class="skeleton-line long"></span>
+                <span class="skeleton-line short"></span>
+              </div>
+            </div>
+
+            <!-- 3. Realistic Smartphone Mockup -->
+            <div class="phone-device-wrap" id="phoneMockup">
+              <div class="phone-frame">
+                <!-- Physical Buttons & Trim -->
+                <div class="phone-button btn-power"></div>
+                <div class="phone-button btn-vol-up"></div>
+                <div class="phone-button btn-vol-down"></div>
+
+                <!-- Phone Bezel & Screen -->
+                <div class="phone-screen">
+                  
+                  <!-- Dynamic Island Header -->
+                  <div class="dynamic-island-bar">
+                    <div class="dynamic-island">
+                      <div class="camera-lens"></div>
+                      <div class="sensor-dot"></div>
+                    </div>
+                  </div>
+
+                  <!-- Inner App Container -->
+                  <div class="app-screen-content">
+                    
+                    <!-- App Status / Top Bar -->
+                    <div class="app-header">
+                      <button class="app-menu-btn" type="button" aria-label="Menu">
+                        <svg viewBox="0 0 20 20" fill="currentColor">
+                          <rect y="4" width="16" height="2" rx="1"/>
+                          <rect y="9" width="11" height="2" rx="1"/>
+                          <rect y="14" width="14" height="2" rx="1"/>
+                        </svg>
+                      </button>
+                      <div class="app-avatar">AK</div>
+                    </div>
+
+                    <!-- Welcome Title -->
+                    <div class="app-welcome-block">
+                      <div class="app-welcome-sub">Welcome back</div>
+                      <div class="app-welcome-name">Anushka</div>
+                    </div>
+
+                    <!-- App Debit Card Card -->
+                    <div class="app-debit-card">
+                      <!-- Dark Upper Half -->
+                      <div class="card-upper-navy">
+                        <div class="debit-label-row">
+                          <span class="debit-tag">DEBIT CARD</span>
+                          <div class="mini-chip"></div>
+                        </div>
+                        <div class="debit-digits">
+                          •••• 9852 0510 4821
+                        </div>
+                      </div>
+                      <!-- Orange Gradient Lower Half -->
+                      <div class="card-lower-coral">
+                        <div class="balance-tag">Balance</div>
+                        <div class="balance-amount">$12,480.50</div>
+                        <div class="card-glow-shape"></div>
+                      </div>
+                    </div>
+
+                    <!-- Quick Actions Row -->
+                    <div class="app-quick-actions">
+                      <button class="quick-act-btn" type="button">
+                        <div class="act-icon-wrap">
+                          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                            <path d="M4 7H16M16 7L12 3M16 7L12 11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M16 13H4M4 13L8 9M4 13L8 17" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </div>
+                        <span class="act-label">Transfer</span>
+                      </button>
+
+                      <button class="quick-act-btn" type="button">
+                        <div class="act-icon-wrap">
+                          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                            <circle cx="10" cy="10" r="7" stroke-width="1.6"/>
+                            <path d="M10 6V14M10 14L7 11M10 14L13 11" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </div>
+                        <span class="act-label">Request</span>
+                      </button>
+
+                      <button class="quick-act-btn" type="button">
+                        <div class="act-icon-wrap">
+                          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                            <path d="M10 2.5L4 5.5V10.5C4 14.5 6.5 17 10 18C13.5 17 16 14.5 16 10.5V5.5L10 2.5Z" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </div>
+                        <span class="act-label">Shield</span>
+                      </button>
+                    </div>
+
+                    <!-- Transactions Section -->
+                    <div class="app-transactions-section">
+                      <div class="tx-header">
+                        <span class="tx-title">Transactions</span>
+                      </div>
+                      <div class="tx-list-grid">
+                        
+                        <!-- Transaction 1: Shopping -->
+                        <div class="tx-item-card card-shopping">
+                          <div class="tx-icon-circle bg-shopping">
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                              <path d="M5 7H15L16 17H4L5 7Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                              <path d="M7.5 7V4.5C7.5 3.12 8.62 2 10 2C11.38 2 12.5 3.12 12.5 4.5V7" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                          </div>
+                          <div class="tx-name">Shopping</div>
+                          <div class="tx-val">$1,240</div>
+                        </div>
+
+                        <!-- Transaction 2: Bills -->
+                        <div class="tx-item-card card-bills">
+                          <div class="tx-icon-circle bg-bills">
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                              <path d="M11 2L4 11H10L9 18L16 9H10L11 2Z" stroke-width="1.5" stroke-linejoin="round"/>
+                            </svg>
+                          </div>
+                          <div class="tx-name">Bills</div>
+                        </div>
+
+                        <!-- Transaction 3: Travel -->
+                        <div class="tx-item-card card-travel">
+                          <div class="tx-icon-circle bg-travel">
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                              <path d="M2.5 10L17.5 3.5L11 18.5L9 11L2.5 10Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                          </div>
+                          <div class="tx-name">Travel</div>
+                        </div>
+
+                      </div>
+                    </div>
+
+                    <!-- App Bottom Navigation Bar -->
+                    <div class="app-bottom-nav">
+                      <div class="nav-tab active">
+                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                          <path d="M3 8.5L10 3L17 8.5V17H13V12H7V17H3V8.5Z" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </div>
+                      <div class="nav-tab">
+                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                          <rect x="3" y="5" width="14" height="10" rx="2" stroke-width="1.7"/>
+                          <path d="M3 9H17" stroke-width="1.7"/>
+                        </svg>
+                      </div>
+                      <div class="nav-tab has-alert">
+                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                          <path d="M10 3C7.5 3 6 4.8 6 7.5V11L4 13V14H16V13L14 11V7.5C14 4.8 12.5 3 10 3Z" stroke-width="1.7"/>
+                          <path d="M8.5 16C8.5 16.8 9.2 17.5 10 17.5C10.8 17.5 11.5 16.8 11.5 16" stroke-width="1.7"/>
+                        </svg>
+                        <span class="red-badge-dot"></span>
+                      </div>
+                      <div class="nav-tab">
+                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                          <circle cx="10" cy="7" r="3.5" stroke-width="1.7"/>
+                          <path d="M4 17C4 14 6.7 12.5 10 12.5C13.3 12.5 16 14 16 17" stroke-width="1.7" stroke-linecap="round"/>
+                        </svg>
+                      </div>
+                    </div>
+
+                    <!-- iOS Home Indicator -->
+                    <div class="home-indicator-bar"></div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. Floating "Fraud blocked" Popout Toast Alert -->
+            <div class="floating-alert-card" id="fraudBlockedToast">
+              <div class="alert-icon-wrap">
+                <svg class="alert-shield-svg" viewBox="0 0 28 28" fill="none">
+                  <circle cx="14" cy="14" r="13" fill="#FEE2E2" stroke="#FCA5A5" stroke-width="1.2"/>
+                  <path d="M14 7L8 9.5V13.8C8 17.5 10.5 20 14 21C17.5 20 20 17.5 20 13.8V9.5L14 7Z" stroke="#DC2626" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M14 11V14.5" stroke="#DC2626" stroke-width="1.8" stroke-linecap="round"/>
+                  <circle cx="14" cy="17" r="0.9" fill="#DC2626"/>
+                </svg>
+              </div>
+              <div class="alert-content">
+                <h4 class="alert-heading">Fraud blocked</h4>
+                <p class="alert-desc">Suspicious payment stopped in real time</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- BOTTOM STATS / FEATURES SECTION -->
+    <section class="bottom-features-section" id="security">
+      <div class="bottom-container">
+        
+        <!-- Left Brand & Mission Statement -->
+        <div class="bottom-brand-col">
+          <div class="brand-logo dark-mode">
+            <span class="logo-shield-icon blue">
+              <svg viewBox="0 0 28 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14 2L3 6.2V14.5C3 21.8 7.7 28.5 14 30.5C20.3 28.5 25 21.8 25 14.5V6.2L14 2Z" stroke="#2563EB" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M10 15.5L12.8 18.5L18.5 12" stroke="#2563EB" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="brand-text navy">FraudShield</span>
+          </div>
+          <p class="brand-subtext">
+            Secure banking with real-time fraud detection.<br>
+            Every transaction checked before it goes through.
+          </p>
+        </div>
+
+        <!-- Right 3 Metric / Benefit Cards -->
+        <div class="bottom-cards-grid">
+          
+          <!-- Card 1: 24/7 -->
+          <div class="feature-card">
+            <div class="feature-number">24/7</div>
+            <div class="feature-label">Fraud monitoring</div>
+          </div>
+
+          <!-- Card 2: Real-time -->
+          <div class="feature-card">
+            <div class="feature-number">Real-time</div>
+            <div class="feature-label">Transaction alerts</div>
+          </div>
+
+          <!-- Card 3: Encrypted -->
+          <div class="feature-card">
+            <div class="feature-number">Encrypted</div>
+            <div class="feature-label">End-to-end transfers</div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- INTERACTIVE MODAL (Connect / Try Demo / Sign Up) -->
+    <div class="modal-backdrop" id="actionModal">
+      <div class="modal-dialog">
+        <button class="modal-close-btn" id="closeModalBtn" aria-label="Close dialog">&times;</button>
+        <div class="modal-header">
+          <div class="modal-shield-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2">
+              <path d="M12 2L3 5.5V11C3 16.5 6.8 21.4 12 22.5C17.2 21.4 21 16.5 21 11V5.5L12 2Z"/>
+              <path d="M9 12L11 14L15 10"/>
+            </svg>
+          </div>
+          <h3 class="modal-title" id="modalTitle">Get Started with FraudShield</h3>
+          <p class="modal-subtitle">Secure banking with real-time fraud detection engine</p>
+        </div>
+
+        <div class="modal-body">
+          <div class="simulation-preview">
+            <div class="sim-row">
+              <span class="sim-label">TLS Banking Gateway:</span>
+              <span class="sim-val online">● 127.0.0.1:5000 (Active)</span>
+            </div>
+            <div class="sim-row">
+              <span class="sim-label">UDP Real-Time Broadcaster:</span>
+              <span class="sim-val online">● Port 6000/6001 (Listening)</span>
+            </div>
+            <div class="sim-row">
+              <span class="sim-label">Rule Engine (EC5205):</span>
+              <span class="sim-val highlight">10 Automated Risk Rules Active</span>
+            </div>
+          </div>
+
+          <div class="modal-actions-list">
+            <a href="#test" class="modal-act-btn primary" id="simulateAlertBtn">
+              ⚡ Trigger Live Fraud Alert Test
+            </a>
+            <button class="modal-act-btn secondary" id="modalCloseAction">
+              Return to Homepage
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -10,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import lk.fraudshield.client.model.TransactionRecord;
+import lk.fraudshield.client.net.BankClientService;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -71,6 +72,10 @@ public class DashboardController {
         updateBalanceDisplay();
         setupTransactionsTable();
         startUdpAlertListener();
+
+        if (BankClientService.getInstance().getCurrentUsername() != null && accountNumberLabel != null) {
+            accountNumberLabel.setText("Account: " + BankClientService.getInstance().getAccountNumber() + " (" + BankClientService.getInstance().getCurrentUsername() + ")");
+        }
     }
 
     private void setupTransactionsTable() {
@@ -149,6 +154,12 @@ public class DashboardController {
     private void executeTransfer(String recipient, double amount, String status) {
         currentBalance -= amount;
         updateBalanceDisplay();
+
+        if (BankClientService.getInstance().getSessionToken() != null) {
+            new Thread(() -> {
+                BankClientService.getInstance().transfer(recipient, amount);
+            }).start();
+        }
 
         String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         transactionList.add(0, new TransactionRecord(now, recipient, String.format("%,.2f", amount), status));

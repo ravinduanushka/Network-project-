@@ -1,59 +1,147 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.SVGPath?>
 
-<StackPane prefHeight="720.0" prefWidth="1150.0"
-           style="-fx-background-color: #0b1120;"
-           xmlns="http://javafx.com/javafx/21"
-           xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="lk.fraudshield.client.ui.LoginController">
+<HBox prefHeight="720.0" prefWidth="1150.0"
+      xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="lk.fraudshield.client.ui.LoginController">
 
-    <VBox alignment="CENTER" spacing="18.0" maxWidth="420.0" maxHeight="540.0"
-          style="-fx-background-color: #161f33; -fx-padding: 35 40; -fx-background-radius: 16; -fx-border-color: #26334d; -fx-border-radius: 16;">
+    <!-- ================= LEFT COLUMN: HERO / BRANDING (DEEP ROYAL BLUE) ================= -->
+    <StackPane HBox.hgrow="ALWAYS" prefWidth="540.0"
+               style="-fx-background-color: linear-gradient(to bottom, #1e3a8a 0%, #2563eb 50%, #1d4ed8 100%);">
 
-        <VBox alignment="CENTER" spacing="6.0">
-            <Label text="FraudShield" style="-fx-text-fill: white; -fx-font-size: 26px; -fx-font-weight: bold;"/>
-            <Label text="Secure Multi-Agent Banking Client" style="-fx-text-fill: #94a3b8; -fx-font-size: 13px;"/>
-        </VBox>
+        <!-- Background Concentric Orbital Rings -->
+        <Circle radius="320.0" style="-fx-fill: transparent; -fx-stroke: rgba(255,255,255,0.06); -fx-stroke-width: 1.5;"/>
+        <Circle radius="220.0" style="-fx-fill: transparent; -fx-stroke: rgba(255,255,255,0.08); -fx-stroke-width: 1.5;"/>
+        <Circle radius="120.0" style="-fx-fill: transparent; -fx-stroke: rgba(255,255,255,0.1); -fx-stroke-width: 1.5;"/>
 
-        <HBox alignment="CENTER" maxWidth="Infinity"
-              style="-fx-background-color: #064e3b; -fx-padding: 7 15; -fx-background-radius: 20; -fx-border-color: #10b981; -fx-border-radius: 20;">
-            <Label text="● TLS Sockets Ready" style="-fx-text-fill: #34d399; -fx-font-size: 12px; -fx-font-weight: bold;"/>
-        </HBox>
-
-        <VBox spacing="6.0" maxWidth="Infinity">
-            <Label text="SERVER GATEWAY (TCP)" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-font-weight: bold;"/>
-            <HBox spacing="10.0">
-                <TextField fx:id="hostField" text="127.0.0.1" HBox.hgrow="ALWAYS"
-                           style="-fx-background-color: #0f172a; -fx-text-fill: white; -fx-padding: 10; -fx-background-radius: 6; -fx-border-color: #0284c7; -fx-border-radius: 6;"/>
-                <TextField fx:id="portField" text="5000" prefWidth="80.0"
-                           style="-fx-background-color: #0f172a; -fx-text-fill: white; -fx-padding: 10; -fx-background-radius: 6; -fx-border-color: #334155; -fx-border-radius: 6;"/>
+        <!-- Left Column Content -->
+        <VBox spacing="36.0" style="-fx-padding: 40 50;">
+            <!-- Top Bar: Logo & Back to Home button -->
+            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                <StackPane prefWidth="30.0" prefHeight="30.0" style="-fx-background-color: rgba(255,255,255,0.2); -fx-background-radius: 8;">
+                    <SVGPath content="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm-1 14.5l-3.5-3.5 1.41-1.41L11 13.67l5.09-5.09 1.41 1.41L11 16.5z"
+                             fill="WHITE"/>
+                </StackPane>
+                <Label text="FraudShield" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="← Home" onAction="#handleBackToHome"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 6 14; -fx-background-radius: 16; -fx-cursor: hand;"/>
             </HBox>
+
+            <!-- Main Heading & Subtitle -->
+            <VBox spacing="14.0" VBox.vgrow="ALWAYS" alignment="CENTER_LEFT">
+                <Label text="Welcome back.&#10;Your money is&#10;guarded."
+                       style="-fx-text-fill: white; -fx-font-size: 38px; -fx-font-weight: 800; -fx-line-spacing: -2px;"/>
+
+                <Label text="Sign in to your secure banking gateway. Every session and&#10;transaction is checked for fraud in real time."
+                       style="-fx-text-fill: #dbeafe; -fx-font-size: 14px; -fx-line-spacing: 3px;"/>
+
+                <!-- 3 Feature Badges -->
+                <VBox spacing="14.0" style="-fx-padding: 20 0 0 0;">
+                    <!-- Badge 1: Encrypted -->
+                    <HBox alignment="CENTER_LEFT" spacing="12.0"
+                          style="-fx-background-color: rgba(255,255,255,0.12); -fx-padding: 10 18; -fx-background-radius: 24; -fx-border-color: rgba(255,255,255,0.18); -fx-border-radius: 24;">
+                        <Label text="🔒" style="-fx-font-size: 13px;"/>
+                        <Label text="Encrypted connection to the server" style="-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: 600;"/>
+                    </HBox>
+
+                    <!-- Badge 2: Fraud Monitoring -->
+                    <HBox alignment="CENTER_LEFT" spacing="12.0"
+                          style="-fx-background-color: rgba(255,255,255,0.12); -fx-padding: 10 18; -fx-background-radius: 24; -fx-border-color: rgba(255,255,255,0.18); -fx-border-radius: 24;">
+                        <Label text="📈" style="-fx-font-size: 13px;"/>
+                        <Label text="Real-time fraud monitoring" style="-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: 600;"/>
+                    </HBox>
+
+                    <!-- Badge 3: Instant Alerts -->
+                    <HBox alignment="CENTER_LEFT" spacing="12.0"
+                          style="-fx-background-color: rgba(255,255,255,0.12); -fx-padding: 10 18; -fx-background-radius: 24; -fx-border-color: rgba(255,255,255,0.18); -fx-border-radius: 24;">
+                        <Label text="🔔" style="-fx-font-size: 13px;"/>
+                        <Label text="Instant alerts on suspicious activity" style="-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: 600;"/>
+                    </HBox>
+                </VBox>
+            </VBox>
+
+            <!-- Bottom Left Footer -->
+            <Label text="© FraudShield Secure Banking" style="-fx-text-fill: #93c5fd; -fx-font-size: 12px;"/>
         </VBox>
+    </StackPane>
 
-        <VBox spacing="6.0" maxWidth="Infinity">
-            <Label text="USERNAME" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-font-weight: bold;"/>
-            <TextField fx:id="usernameField" promptText="Enter client username"
-                       style="-fx-background-color: #0f172a; -fx-text-fill: white; -fx-padding: 10; -fx-background-radius: 6; -fx-border-color: #334155; -fx-border-radius: 6;"/>
+    <!-- ================= RIGHT COLUMN: LOGIN FORM (SOFT WARM WHITE) ================= -->
+    <StackPane HBox.hgrow="ALWAYS" prefWidth="610.0" style="-fx-background-color: #f8fafc;">
+        
+        <!-- Centered Floating White Card -->
+        <VBox maxWidth="430.0" spacing="18.0"
+              style="-fx-background-color: #ffffff; -fx-padding: 38 40; -fx-background-radius: 18; -fx-border-color: #f1f5f9; -fx-border-radius: 18; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.08), 26, 0, 0, 10);">
+
+            <!-- Card Header -->
+            <VBox spacing="6.0">
+                <Label text="Sign in" style="-fx-text-fill: #0f172a; -fx-font-size: 26px; -fx-font-weight: 800;"/>
+                <Label text="Connect to the FraudShield server to access your account." style="-fx-text-fill: #64748b; -fx-font-size: 13px;"/>
+            </VBox>
+
+            <!-- Server Gateway Field -->
+            <VBox spacing="6.0">
+                <Label text="SERVER GATEWAY (TCP)" style="-fx-text-fill: #64748b; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+                <HBox spacing="10.0">
+                    <TextField fx:id="hostField" text="127.0.0.1" promptText="127.0.0.1" HBox.hgrow="ALWAYS"
+                               style="-fx-background-color: #f8fafc; -fx-text-fill: #0f172a; -fx-padding: 10 12; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-font-size: 13px;"/>
+                    <TextField fx:id="portField" text="5000" promptText="5000" prefWidth="85.0"
+                               style="-fx-background-color: #f8fafc; -fx-text-fill: #0f172a; -fx-padding: 10 12; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-font-size: 13px;"/>
+                </HBox>
+            </VBox>
+
+            <!-- Username Field -->
+            <VBox spacing="6.0">
+                <Label text="USERNAME" style="-fx-text-fill: #64748b; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+                <TextField fx:id="usernameField" promptText="Enter client username"
+                           style="-fx-background-color: #f8fafc; -fx-text-fill: #0f172a; -fx-padding: 10 12; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-font-size: 13px;"/>
+            </VBox>
+
+            <!-- Password Field -->
+            <VBox spacing="6.0">
+                <HBox alignment="CENTER_LEFT">
+                    <Label text="PASSWORD" style="-fx-text-fill: #64748b; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Hyperlink text="Forgot password?" onAction="#handleForgotPassword"
+                               style="-fx-text-fill: #2563eb; -fx-font-size: 12px; -fx-font-weight: 600; -fx-border-color: transparent; -fx-padding: 0;"/>
+                </HBox>
+                <StackPane>
+                    <PasswordField fx:id="passwordField" promptText="Enter password"
+                                   style="-fx-background-color: #f8fafc; -fx-text-fill: #0f172a; -fx-padding: 10 36 10 12; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-font-size: 13px;"/>
+                    <TextField fx:id="passwordTextField" promptText="Enter password"
+                               style="-fx-background-color: #f8fafc; -fx-text-fill: #0f172a; -fx-padding: 10 36 10 12; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-font-size: 13px;"/>
+                    <Button fx:id="eyeToggleBtn" text="👁" onAction="#togglePasswordVisibility"
+                            StackPane.alignment="CENTER_RIGHT"
+                            style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-cursor: hand; -fx-padding: 0 10 0 0; -fx-font-size: 13px;"/>
+                </StackPane>
+            </VBox>
+
+            <!-- Validation / Error Alert Box (Image 3 style) -->
+            <HBox fx:id="errorBanner" alignment="CENTER_LEFT" spacing="8.0"
+                  style="-fx-background-color: #fee2e2; -fx-padding: 10 14; -fx-background-radius: 8; -fx-border-color: #fca5a5; -fx-border-radius: 8;">
+                <Label text="ⓘ" style="-fx-text-fill: #dc2626; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                <Label fx:id="statusLabel" text="Please enter both username and password." wrapText="true"
+                       style="-fx-text-fill: #dc2626; -fx-font-size: 12px; -fx-font-weight: 600;"/>
+            </HBox>
+
+            <!-- Primary Action Button: Connect & Authenticate -->
+            <Button fx:id="loginBtn" text="Connect &amp; Authenticate" onAction="#handleLogin" maxWidth="Infinity"
+                    style="-fx-background-color: linear-gradient(to right, #dc2626, #ea580c); -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 13 20; -fx-background-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(220, 38, 38, 0.4), 16, 0, 0, 5);"/>
+
+            <!-- Create Account Link -->
+            <HBox alignment="CENTER" spacing="6.0" style="-fx-padding: 6 0 0 0;">
+                <Label text="New customer?" style="-fx-text-fill: #64748b; -fx-font-size: 12px;"/>
+                <Hyperlink text="Create Account (Register)" onAction="#handleOpenRegister"
+                           style="-fx-text-fill: #2563eb; -fx-font-size: 12px; -fx-font-weight: bold; -fx-border-color: transparent; -fx-padding: 0;"/>
+            </HBox>
+
         </VBox>
+    </StackPane>
 
-        <VBox spacing="6.0" maxWidth="Infinity">
-            <Label text="PASSWORD" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-font-weight: bold;"/>
-            <PasswordField fx:id="passwordField" promptText="••••••••"
-                           style="-fx-background-color: #0f172a; -fx-text-fill: white; -fx-padding: 10; -fx-background-radius: 6; -fx-border-color: #334155; -fx-border-radius: 6;"/>
-        </VBox>
-
-        <Label fx:id="statusLabel" text="" wrapText="true" style="-fx-font-size: 12px; -fx-font-weight: bold;"/>
-
-        <Button text="Connect &amp; Authenticate" onAction="#handleLogin" maxWidth="Infinity"
-                style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 12; -fx-background-radius: 8; -fx-cursor: hand;"/>
-
-        <HBox alignment="CENTER" spacing="6.0">
-            <Label text="New customer?" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;"/>
-            <Hyperlink text="Create Account (Register)" onAction="#handleOpenRegister"
-                       style="-fx-text-fill: #38bdf8; -fx-font-size: 12px; -fx-font-weight: bold; -fx-border-color: transparent;"/>
-        </HBox>
-
-    </VBox>
-</StackPane>
+</HBox>

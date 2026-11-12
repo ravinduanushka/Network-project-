@@ -7,11 +7,12 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import lk.fraudshield.client.net.BankClientService;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 public class LoginController {
@@ -29,52 +30,161 @@ public class LoginController {
     private PasswordField passwordField;
 
     @FXML
+    private TextField passwordTextField;
+
+    @FXML
+    private Button eyeToggleBtn;
+
+    @FXML
+    private HBox errorBanner;
+
+    @FXML
     private Label statusLabel;
 
-    // Temporary in-memory user registry before TCP backend connection
-    private static final Map<String, String> registeredUsers = new HashMap<>();
+    @FXML
+    private Button loginBtn;
 
-    static {
-        registeredUsers.put("admin", "admin123");
-        registeredUsers.put("ravindu", "pass123");
+    private boolean isPasswordVisible = false;
+
+    @FXML
+    public void initialize() {
+        if (passwordTextField != null && passwordField != null) {
+            passwordTextField.managedProperty().bind(passwordTextField.visibleProperty());
+            passwordField.managedProperty().bind(passwordField.visibleProperty());
+            passwordTextField.setVisible(false);
+
+            // Keep them synchronized
+            passwordField.textProperty().addListener((obs, oldVal, newVal) -> {
+                if (!isPasswordVisible) passwordTextField.setText(newVal);
+            });
+            passwordTextField.textProperty().addListener((obs, oldVal, newVal) -> {
+                if (isPasswordVisible) passwordField.setText(newVal);
+            });
+        }
+
+        if (errorBanner != null) {
+            errorBanner.managedProperty().bind(errorBanner.visibleProperty());
+            errorBanner.setVisible(false);
+        }
+    }
+
+    @FXML
+    private void togglePasswordVisibility() {
+        isPasswordVisible = !isPasswordVisible;
+        if (isPasswordVisible) {
+            passwordTextField.setText(passwordField.getText());
+            passwordTextField.setVisible(true);
+            passwordField.setVisible(false);
+            if (eyeToggleBtn != null) eyeToggleBtn.setText("🔒");
+        } else {
+            passwordField.setText(passwordTextField.getText());
+            passwordField.setVisible(true);
+            passwordTextField.setVisible(false);
+            if (eyeToggleBtn != null) eyeToggleBtn.setText("👁");
+        }
     }
 
     @FXML
     private void handleLogin() {
+        String host = hostField != null ? hostField.getText().trim() : "127.0.0.1";
+        String portStr = portField != null ? portField.getText().trim() : "5000";
+        int port = 5000;
+        try {
+            port = Integer.parseInt(portStr);
+        } catch (NumberFormatException ignored) {}
+
         String username = usernameField.getText().trim();
-        String password = passwordField.getText().trim();
+        String password = isPasswordVisible ? passwordTextField.getText().trim() : passwordField.getText().trim();
 
         if (username.isEmpty() || password.isEmpty()) {
-            statusLabel.setStyle("-fx-text-fill: #ef4444;");
-            statusLabel.setText("Error: Please enter both username and password.");
+            showError("Please enter both username and password.");
             return;
         }
 
-        if (registeredUsers.containsKey(username) && !registeredUsers.get(username).equals(password)) {
-            statusLabel.setStyle("-fx-text-fill: #ef4444;");
-            statusLabel.setText("Authentication Failed: Incorrect password.");
-            return;
+        if (loginBtn != null) {
+            loginBtn.setDisable(true);
+            loginBtn.setText("Connecting...");
         }
 
+        int finalPort = port;
+        new Thread(() -> {
+            BankClientService.Result result = BankClientService.getInstance().login(host, finalPort, username, password);
+
+            javafx.application.Platform.runLater(() -> {
+                if (loginBtn != null) {
+                    loginBtn.setDisable(false);
+                    loginBtn.setText("Connect & Authenticate");
+                }
+
+                if (result.isSuccess()) {
+                    openDashboard();
+                } else {
+                    showError(result.getMessage());
+                }
+            });
+        }).start();
+    }
+
+    private void showError(String message) {
+        if (statusLabel != null) {
+            statusLabel.setText(message);
+        }
+        if (errorBanner != null) {
+            errorBanner.setStyle("-fx-background-color: #fee2e2; -fx-border-color: #fca5a5; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 10 14;");
+            errorBanner.setVisible(true);
+        }
+    }
+
+    private void showSuccess(String message) {
+        if (statusLabel != null) {
+            statusLabel.setText(message);
+        }
+        if (errorBanner != null) {
+            errorBanner.setStyle("-fx-background-color: #dcfce7; -fx-border-color: #86efac; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 10 14;");
+            errorBanner.setVisible(true);
+        }
+    }
+
+    private void openDashboard() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/dashboard.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) usernameField.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            stage.getScene().setRoot(root);
             stage.setTitle("FraudShield - Customer Dashboard");
-            stage.show();
         } catch (IOException e) {
-            statusLabel.setStyle("-fx-text-fill: #ef4444;");
-            statusLabel.setText("Error loading dashboard: " + e.getMessage());
+            showError("Error loading dashboard: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     @FXML
+    private void handleBackToHome() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/home.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) usernameField.getScene().getWindow();
+            stage.getScene().setRoot(root);
+            stage.setTitle("FraudShield — Banking that guards itself");
+        } catch (IOException e) {
+            showError("Error returning to home: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleForgotPassword() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("FraudShield Security - Password Recovery");
+        alert.setHeaderText("Reset Your Account Password");
+        alert.setContentText("For security, please contact your banking administrator or use your registered branch recovery key.");
+        alert.showAndWait();
+    }
+
+    @FXML
     private void handleOpenRegister() {
         Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("FraudShield - New Customer Registration");
-        dialog.setHeaderText("Create a Secure Banking Account");
+        dialog.setTitle("FraudShield - Customer Registration");
+        dialog.setHeaderText("Create a New Bank Account on the Secure Gateway");
 
         ButtonType registerButtonType = new ButtonType("Register Account", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(registerButtonType, ButtonType.CANCEL);
@@ -115,29 +225,34 @@ public class LoginController {
             String confirmPass = confirmPasswordInput.getText().trim();
 
             if (fullName.isEmpty() || newUser.isEmpty() || newPass.isEmpty()) {
-                statusLabel.setStyle("-fx-text-fill: #ef4444;");
-                statusLabel.setText("Registration Error: All fields are required.");
+                showError("Registration Error: All fields are required.");
                 return;
             }
 
             if (!newPass.equals(confirmPass)) {
-                statusLabel.setStyle("-fx-text-fill: #ef4444;");
-                statusLabel.setText("Registration Error: Passwords do not match.");
+                showError("Registration Error: Passwords do not match.");
                 return;
             }
 
-            if (registeredUsers.containsKey(newUser)) {
-                statusLabel.setStyle("-fx-text-fill: #ef4444;");
-                statusLabel.setText("Registration Error: Username already exists.");
-                return;
-            }
+            String host = hostField != null ? hostField.getText().trim() : "127.0.0.1";
+            int port = 5000;
+            try {
+                port = Integer.parseInt(portField.getText().trim());
+            } catch (Exception ignored) {}
 
-            registeredUsers.put(newUser, newPass);
-            usernameField.setText(newUser);
-            passwordField.clear();
-
-            statusLabel.setStyle("-fx-text-fill: #22c55e;");
-            statusLabel.setText("Account created for " + fullName + "! Enter password to login.");
+            int finalPort = port;
+            new Thread(() -> {
+                BankClientService.Result regResult = BankClientService.getInstance().register(host, finalPort, newUser, fullName, newPass);
+                javafx.application.Platform.runLater(() -> {
+                    if (regResult.isSuccess()) {
+                        usernameField.setText(newUser);
+                        passwordField.setText(newPass);
+                        showSuccess("Account registered! " + regResult.getMessage() + ". Click Connect to sign in.");
+                    } else {
+                        showError("Registration Failed: " + regResult.getMessage());
+                    }
+                });
+            }).start();
         }
     }
 }
