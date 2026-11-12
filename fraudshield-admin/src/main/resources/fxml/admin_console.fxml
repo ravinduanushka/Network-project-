@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="lk.fraudshield.admin.ui.AdminController"
+            stylesheets="@../styles/admin.css" prefHeight="650.0" prefWidth="1000.0">
+
+    <top>
+        <VBox styleClass="header-bar" spacing="10">
+            <padding><Insets top="15" right="20" bottom="15" left="20"/></padding>
+            <HBox alignment="CENTER_LEFT" spacing="15">
+                <Label text="FraudShield Security Operations Console" styleClass="title-label"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="statusLabel" text="Listening on UDP 6001" styleClass="status-pill"/>
+            </HBox>
+
+            <HBox spacing="20">
+                <VBox styleClass="metric-card">
+                    <Label text="TOTAL ALERTS" styleClass="metric-title"/>
+                    <Label fx:id="totalAlertsLabel" text="0" styleClass="metric-value"/>
+                </VBox>
+                <VBox styleClass="metric-card, metric-held">
+                    <Label text="HELD TRANSACTIONS" styleClass="metric-title"/>
+                    <Label fx:id="heldCountLabel" text="0" styleClass="metric-value"/>
+                </VBox>
+                <VBox styleClass="metric-card, metric-blocked">
+                    <Label text="AUTO-BLOCKED" styleClass="metric-title"/>
+                    <Label fx:id="blockedCountLabel" text="0" styleClass="metric-value"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="10">
+            <padding><Insets top="15" right="20" bottom="15" left="20"/></padding>
+            <Label text="Real-Time Flagged &amp; Suspicious Transactions (UDP Live Stream)" styleClass="section-title"/>
+
+            <TableView fx:id="alertsTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colTxId" text="Tx ID" prefWidth="120"/>
+                    <TableColumn fx:id="colAccount" text="Account" prefWidth="110"/>
+                    <TableColumn fx:id="colScore" text="Score" prefWidth="70"/>
+                    <TableColumn fx:id="colDecision" text="Decision" prefWidth="90"/>
+                    <TableColumn fx:id="colReasons" text="Triggered Fraud Rules" prefWidth="380"/>
+                    <TableColumn fx:id="colTime" text="Timestamp" prefWidth="150"/>
+                </columns>
+            </TableView>
+
+            <HBox spacing="15" alignment="CENTER_RIGHT">
+                <Button text="Approve Transaction" onAction="#handleApprove" styleClass="btn-approve"/>
+                <Button text="Block &amp; Freeze Account" onAction="#handleBlock" styleClass="btn-block"/>
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>

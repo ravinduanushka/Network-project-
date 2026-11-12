@@ -10,12 +10,13 @@
     <packaging>pom</packaging>
     <name>FraudShield Parent</name>
 
-    <!-- Sub-modules: All 4 modules are now registered -->
+    <!-- Sub-modules: All 5 modules are now registered -->
     <modules>
         <module>fraudshield-common</module>
         <module>fraudshield-server</module>
         <module>fraudshield-client</module>
         <module>fraudshield-fraud</module>
+        <module>fraudshield-admin</module>
     </modules>
 
     <properties>
