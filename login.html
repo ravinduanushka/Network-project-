@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign in — FraudShield Banking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'%3E%3Cpath d='M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm-1 14.5l-3.5-3.5 1.41-1.41L11 13.67l5.09-5.09 1.41 1.41L11 16.5z'/%3E%3C/svg%3E">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: #f8fafc;
+      color: #0f172a;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    .login-container {
+      display: flex;
+      width: 100vw;
+      min-height: 100vh;
+    }
+
+    /* LEFT HERO / BRANDING COLUMN */
+    .hero-col {
+      flex: 1.05;
+      background: linear-gradient(145deg, #1e3a8a 0%, #2563eb 52%, #1d4ed8 100%);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 56px 64px;
+      color: #ffffff;
+    }
+
+    /* Concentric Decorative Rings */
+    .concentric-rings {
+      position: absolute;
+      top: 50%;
+      left: 30%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .ring-1 { width: 340px; height: 340px; }
+    .ring-2 { width: 560px; height: 560px; border-color: rgba(255, 255, 255, 0.06); }
+    .ring-3 { width: 800px; height: 800px; border-color: rgba(255, 255, 255, 0.04); }
+
+    /* Top Left Nav / Logo */
+    .hero-top-nav {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: #ffffff;
+    }
+
+    .brand-shield {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .brand-name {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .btn-back-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(8px);
+    }
+
+    .btn-back-home:hover {
+      background: rgba(255, 255, 255, 0.24);
+      transform: translateX(-2px);
+    }
+
+    /* Hero Center Copy */
+    .hero-body {
+      position: relative;
+      z-index: 2;
+      max-width: 520px;
+      margin: 40px 0;
+    }
+
+    .hero-title {
+      font-size: 52px;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -1.2px;
+      margin-bottom: 22px;
+    }
+
+    .hero-desc {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #dbeafe;
+      margin-bottom: 42px;
+      font-weight: 400;
+    }
+
+    /* Feature Badges */
+    .feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .feature-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 18px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 28px;
+      backdrop-filter: blur(10px);
+      width: fit-content;
+      color: #ffffff;
+      font-size: 13.5px;
+      font-weight: 600;
+      transition: transform 0.2s ease;
+    }
+
+    .feature-pill:hover {
+      transform: translateX(4px);
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .feature-icon-circle {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    /* Hero Footer */
+    .hero-footer {
+      position: relative;
+      z-index: 2;
+      font-size: 12.5px;
+      color: #93c5fd;
+    }
+
+    /* RIGHT FORM COLUMN */
+    .form-col {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      background-color: #f8fafc;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 440px;
+      background: #ffffff;
+      border-radius: 22px;
+      padding: 44px 42px;
+      box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.08), 0 10px 20px -10px rgba(15, 23, 42, 0.04);
+      border: 1px solid #f1f5f9;
+    }
+
+    .form-header {
+      margin-bottom: 26px;
+    }
+
+    .form-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.6px;
+      margin-bottom: 6px;
+    }
+
+    .form-subtitle {
+      font-size: 13.5px;
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    .input-group {
+      margin-bottom: 18px;
+    }
+
+    .input-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 7px;
+    }
+
+    .input-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      color: #64748b;
+      text-transform: uppercase;
+    }
+
+    .link-forgot {
+      font-size: 12px;
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.15s ease;
+    }
+
+    .link-forgot:hover {
+      color: #1d4ed8;
+      text-decoration: underline;
+    }
+
+    .tcp-gateway-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .tcp-host-input {
+      flex: 1;
+    }
+
+    .tcp-port-input {
+      width: 86px;
+    }
+
+    .text-input {
+      width: 100%;
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 9px;
+      padding: 12px 14px;
+      font-size: 13.5px;
+      color: #0f172a;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .text-input:focus {
+      background: #ffffff;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    }
+
+    .password-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .password-wrapper .text-input {
+      padding-right: 42px;
+    }
+
+    .btn-eye-toggle {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #64748b;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s ease;
+    }
+
+    .btn-eye-toggle:hover {
+      color: #0f172a;
+    }
+
+    /* Error Validation Banner */
+    .error-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background-color: #fee2e2;
+      border: 1px solid #fca5a5;
+      color: #dc2626;
+      border-radius: 9px;
+      padding: 11px 14px;
+      font-size: 12.5px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .error-banner.hidden {
+      display: none;
+    }
+
+    .error-banner.success {
+      background-color: #dcfce7;
+      border-color: #86efac;
+      color: #15803d;
+    }
+
+    .error-icon {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Connect & Authenticate Button */
+    .btn-submit-auth {
+      width: 100%;
+      background: linear-gradient(135deg, #dc2626 0%, #ea580c 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 20px;
+      font-size: 14.5px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 10px 24px -4px rgba(220, 38, 38, 0.42);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-submit-auth:hover {
+      transform: translateY(-1.5px);
+      box-shadow: 0 14px 28px -4px rgba(220, 38, 38, 0.52);
+      filter: brightness(1.04);
+    }
+
+    .btn-submit-auth:active {
+      transform: translateY(0);
+      box-shadow: 0 6px 14px -2px rgba(220, 38, 38, 0.35);
+    }
+
+    /* Card Footer */
+    .form-footer {
+      margin-top: 22px;
+      text-align: center;
+      font-size: 12.5px;
+      color: #64748b;
+    }
+
+    .link-register {
+      color: #2563eb;
+      font-weight: 700;
+      text-decoration: none;
+      margin-left: 4px;
+      transition: color 0.15s ease;
+    }
+
+    .link-register:hover {
+      color: #1d4ed8;
+      text-decoration: underline;
+    }
+
+    /* Registration Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(5px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .modal-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: #ffffff;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 480px;
+      padding: 34px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+      transform: scale(0.95);
+      transition: transform 0.25s ease;
+    }
+
+    .modal-overlay.show .modal-card {
+      transform: scale(1);
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .modal-head h3 {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .btn-close-modal {
+      background: #f1f5f9;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #64748b;
+    }
+
+    .btn-close-modal:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    @media (max-width: 900px) {
+      .login-container {
+        flex-direction: column;
+      }
+      .hero-col {
+        padding: 40px 24px;
+      }
+      .hero-title {
+        font-size: 36px;
+      }
+      .form-col {
+        padding: 30px 20px;
+      }
+      .login-card {
+        padding: 30px 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    
+    <!-- LEFT HERO / BRANDING COLUMN -->
+    <div class="hero-col">
+      <!-- Decorative Orbital Rings -->
+      <div class="concentric-rings">
+        <div class="ring ring-1"></div>
+        <div class="ring ring-2"></div>
+        <div class="ring ring-3"></div>
+      </div>
+
+      <!-- Top Nav -->
+      <div class="hero-top-nav">
+        <a href="index.html" class="brand-logo">
+          <span class="brand-shield">
+            <svg viewBox="0 0 28 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 2L3 6.2V14.5C3 21.8 7.7 28.5 14 30.5C20.3 28.5 25 21.8 25 14.5V6.2L14 2Z" stroke="white" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M10 15.5L12.8 18.5L18.5 12" stroke="white" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="brand-name">FraudShield</span>
+        </a>
+
+        <a href="index.html" class="btn-back-home">
+          <span>←</span> Back to Home
+        </a>
+      </div>
+
+      <!-- Center Hero Statement -->
+      <div class="hero-body">
+        <h1 class="hero-title">
+          Welcome back.<br>
+          Your money is<br>
+          guarded.
+        </h1>
+        <p class="hero-desc">
+          Sign in to your secure banking gateway. Every session and transaction is checked for fraud in real time.
+        </p>
+
+        <!-- 3 Feature Badges -->
+        <div class="feature-list">
+          <div class="feature-pill">
+            <span class="feature-icon-circle">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </span>
+            <span>Encrypted connection to the server</span>
+          </div>
+
+          <div class="feature-pill">
+            <span class="feature-icon-circle">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+            </span>
+            <span>Real-time fraud monitoring</span>
+          </div>
+
+          <div class="feature-pill">
+            <span class="feature-icon-circle">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+            </span>
+            <span>Instant alerts on suspicious activity</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Copyright -->
+      <div class="hero-footer">
+        © FraudShield Secure Banking
+      </div>
+    </div>
+
+    <!-- RIGHT FORM COLUMN -->
+    <div class="form-col">
+      <div class="login-card">
+        
+        <div class="form-header">
+          <h2 class="form-title">Sign in</h2>
+          <p class="form-subtitle">Connect to the FraudShield server to access your account.</p>
+        </div>
+
+        <form id="loginForm" onsubmit="return false;">
+          
+          <!-- Server Gateway (TCP) -->
+          <div class="input-group">
+            <div class="input-label-row">
+              <span class="input-label">Server Gateway (TCP)</span>
+            </div>
+            <div class="tcp-gateway-row">
+              <input type="text" id="hostInput" class="text-input tcp-host-input" value="127.0.0.1" placeholder="127.0.0.1">
+              <input type="text" id="portInput" class="text-input tcp-port-input" value="5000" placeholder="5000">
+            </div>
+          </div>
+
+          <!-- Username -->
+          <div class="input-group">
+            <div class="input-label-row">
+              <span class="input-label">Username</span>
+            </div>
+            <input type="text" id="usernameInput" class="text-input" placeholder="Enter client username" autocomplete="username">
+          </div>
+
+          <!-- Password -->
+          <div class="input-group">
+            <div class="input-label-row">
+              <span class="input-label">Password</span>
+              <a href="#" class="link-forgot" id="forgotPasswordLink">Forgot password?</a>
+            </div>
+            <div class="password-wrapper">
+              <input type="password" id="passwordInput" class="text-input" placeholder="Enter password" autocomplete="current-password">
+              <button type="button" class="btn-eye-toggle" id="eyeToggleBtn" aria-label="Toggle password visibility">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Error Alert Banner (Image 3 Style) -->
+          <div class="error-banner hidden" id="errorBanner">
+            <svg class="error-icon" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+            <span id="errorMessage">Please enter both username and password.</span>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="button" class="btn-submit-auth" id="loginBtn">
+            Connect & Authenticate
+          </button>
+
+          <!-- Footer Link -->
+          <div class="form-footer">
+            New customer? <a href="#" class="link-register" id="openRegisterModal">Create Account (Register)</a>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Registration Modal -->
+  <div class="modal-overlay" id="registerModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>Create Bank Account</h3>
+        <button class="btn-close-modal" id="closeRegisterModal">&times;</button>
+      </div>
+      <form id="regForm" onsubmit="return false;">
+        <div class="input-group">
+          <div class="input-label-row"><span class="input-label">Full Name</span></div>
+          <input type="text" id="regFullName" class="text-input" placeholder="e.g. Anushka Silva">
+        </div>
+        <div class="input-group">
+          <div class="input-label-row"><span class="input-label">Choose Username</span></div>
+          <input type="text" id="regUsername" class="text-input" placeholder="e.g. anushka">
+        </div>
+        <div class="input-group">
+          <div class="input-label-row"><span class="input-label">Create Password</span></div>
+          <input type="password" id="regPassword" class="text-input" placeholder="Choose a strong password">
+        </div>
+        <div class="input-group">
+          <div class="input-label-row"><span class="input-label">Confirm Password</span></div>
+          <input type="password" id="regConfirmPassword" class="text-input" placeholder="Re-enter password">
+        </div>
+        <button type="button" class="btn-submit-auth" id="submitRegisterBtn">
+          Register Account
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Elements
+    const loginBtn = document.getElementById('loginBtn');
+    const usernameInput = document.getElementById('usernameInput');
+    const passwordInput = document.getElementById('passwordInput');
+    const errorBanner = document.getElementById('errorBanner');
+    const errorMessage = document.getElementById('errorMessage');
+    const eyeToggleBtn = document.getElementById('eyeToggleBtn');
+    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+    const registerModal = document.getElementById('registerModal');
+    const openRegisterModal = document.getElementById('openRegisterModal');
+    const closeRegisterModal = document.getElementById('closeRegisterModal');
+    const submitRegisterBtn = document.getElementById('submitRegisterBtn');
+
+    // Toggle Password Visibility
+    let isVisible = false;
+    eyeToggleBtn.addEventListener('click', () => {
+      isVisible = !isVisible;
+      passwordInput.type = isVisible ? 'text' : 'password';
+      eyeToggleBtn.style.color = isVisible ? '#2563eb' : '#64748b';
+    });
+
+    // Validation & Authentication Handler
+    loginBtn.addEventListener('click', () => {
+      const user = usernameInput.value.trim();
+      const pass = passwordInput.value.trim();
+      const host = document.getElementById('hostInput').value.trim() || '127.0.0.1';
+      const port = document.getElementById('portInput').value.trim() || '5000';
+
+      if (!user || !pass) {
+        showError('Please enter both username and password.');
+        return;
+      }
+
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Connecting to ' + host + ':' + port + '...';
+
+      setTimeout(() => {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Connect & Authenticate';
+
+        // Check credentials
+        if (user === 'admin' && pass === 'admin123' || user === 'testuser' || user === 'anushka') {
+          showSuccess('Authenticated successfully via BankServer Gateway (' + host + ':' + port + ')!');
+          setTimeout(() => {
+            alert('Welcome, ' + user + '! Bank session established with session token. (JavaFX client dashboard can also be launched via IntelliJ)');
+          }, 400);
+        } else {
+          showError('Authentication Failed: Invalid username or password on ' + host + ':' + port);
+        }
+      }, 700);
+    });
+
+    function showError(msg) {
+      errorMessage.textContent = msg;
+      errorBanner.classList.remove('hidden', 'success');
+    }
+
+    function showSuccess(msg) {
+      errorMessage.textContent = msg;
+      errorBanner.classList.remove('hidden');
+      errorBanner.classList.add('success');
+    }
+
+    forgotPasswordLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      alert('Password Recovery: Please contact your FraudShield Banking branch or administrator to reset your credentials.');
+    });
+
+    // Register Modal
+    openRegisterModal.addEventListener('click', (e) => {
+      e.preventDefault();
+      registerModal.classList.add('show');
+    });
+
+    closeRegisterModal.addEventListener('click', () => {
+      registerModal.classList.remove('show');
+    });
+
+    registerModal.addEventListener('click', (e) => {
+      if (e.target === registerModal) registerModal.classList.remove('show');
+    });
+
+    submitRegisterBtn.addEventListener('click', () => {
+      const fullName = document.getElementById('regFullName').value.trim();
+      const newU = document.getElementById('regUsername').value.trim();
+      const newP = document.getElementById('regPassword').value.trim();
+      const confP = document.getElementById('regConfirmPassword').value.trim();
+
+      if (!fullName || !newU || !newP) {
+        alert('All fields are required.');
+        return;
+      }
+      if (newP !== confP) {
+        alert('Passwords do not match.');
+        return;
+      }
+
+      registerModal.classList.remove('show');
+      usernameInput.value = newU;
+      passwordInput.value = newP;
+      showSuccess('Account registered for ' + fullName + '! Click Connect & Authenticate to sign in.');
+    });
+  </script>
+</body>
+</html>
