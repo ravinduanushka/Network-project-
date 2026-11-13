@@ -10,28 +10,17 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/** Data access for user registration and login. Passwords are only ever stored salted + hashed. */
 public class UserDao {
 
     private static final Logger LOG = Logger.getLogger(UserDao.class.getName());
 
-    /** Opening balance given to every new customer. */
-    private static final double DEFAULT_BALANCE = 10000.0;
+        private static final double DEFAULT_BALANCE = 10000.0;
 
-    /** Consecutive wrong passwords before the account is locked. */
-    private static final int MAX_FAILED_LOGINS = 5;
+        private static final int MAX_FAILED_LOGINS = 5;
 
-    /** Valid-looking salt used to burn the same hashing time for unknown usernames. */
-    private static final String DUMMY_SALT = PasswordUtils.generateSalt();
+        private static final String DUMMY_SALT = PasswordUtils.generateSalt();
 
-    /**
-     * Creates a user and their default account in ONE atomic transaction: either both rows exist
-     * or neither does.
-     *
-     * @return true if committed; false on invalid input, duplicate user id / username, or any
-     *         database error (the transaction is rolled back)
-     */
-    public boolean registerUser(String userId, String username, String fullName, String password) {
+        public boolean registerUser(String userId, String username, String fullName, String password) {
         if (isBlank(userId) || isBlank(username) || isBlank(password)) {
             return false;
         }
@@ -77,20 +66,7 @@ public class UserDao {
         }
     }
 
-    /**
-     * Checks a username/password pair.
-     *
-     * <ul>
-     *   <li>Locked accounts are always refused, even with the right password.</li>
-     *   <li>A wrong password increments {@code failed_logins}; reaching
-     *       {@value #MAX_FAILED_LOGINS} locks the account. A correct one resets the counter.</li>
-     *   <li>Unknown usernames and wrong passwords look identical to the caller (same result,
-     *       same hashing work), so the method does not reveal which usernames exist.</li>
-     * </ul>
-     *
-     * @return true only if the account exists, is not locked and the password matches
-     */
-    public boolean authenticate(String username, String password) {
+        public boolean authenticate(String username, String password) {
         if (isBlank(username) || password == null) {
             return false;
         }
@@ -132,8 +108,7 @@ public class UserDao {
         }
     }
 
-    /** Resets the failure counter on success; otherwise increments it and locks at the limit. */
-    private void recordLoginAttempt(Connection conn, String username, boolean success) throws SQLException {
+        private void recordLoginAttempt(Connection conn, String username, boolean success) throws SQLException {
         String sql = success
                 ? "UPDATE users SET failed_logins = 0 WHERE username = ?"
                 : "UPDATE users SET failed_logins = failed_logins + 1, "
@@ -149,12 +124,7 @@ public class UserDao {
         }
     }
 
-    /**
-     * Looks up the internal user id for a username (used after a successful login).
-     *
-     * @return the user id, or null if the user does not exist or on a database error
-     */
-    public String findUserId(String username) {
+        public String findUserId(String username) {
         if (isBlank(username)) {
             return null;
         }

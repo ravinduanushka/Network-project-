@@ -3,11 +3,6 @@ package lk.fraudshield.fraud.rules;
 import lk.fraudshield.common.fraud.TransactionContext;
 import lk.fraudshield.fraud.profile.UserBehaviourProfile;
 
-/**
- * Rule 8: DrainAccountRule
- * Triggers if transfer amount exceeds 90% of current account balance.
- * Points: +20
- */
 public class DrainAccountRule implements FraudRule {
     @Override
     public String getName() {

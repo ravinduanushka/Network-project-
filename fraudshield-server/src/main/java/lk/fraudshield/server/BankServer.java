@@ -17,14 +17,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * FraudShield server entry point. Accepts TLS/SSL clients on port 5000 and hands each
- * {@link SSLSocket} to a fixed pool of worker threads running {@link ClientHandler}.
- *
- * <p>KeyStore: {@code keystore.jks} / {@code password123} in the working directory, unless overridden
- * with {@code -Djavax.net.ssl.keyStore=...} and {@code -Djavax.net.ssl.keyStorePassword=...}.
- * (Hard-coded password is acceptable for the university project only.)
- */
 public class BankServer {
 
     private static final Logger LOG = Logger.getLogger(BankServer.class.getName());
@@ -52,8 +44,7 @@ public class BankServer {
         }
     }
 
-    /** Must run before the first use of the default SSL factory. Command-line -D values win. */
-    private static void configureKeyStore() throws IOException {
+        private static void configureKeyStore() throws IOException {
         if (System.getProperty("javax.net.ssl.keyStore") == null) {
             System.setProperty("javax.net.ssl.keyStore", "keystore.jks");
         }
@@ -66,8 +57,7 @@ public class BankServer {
         }
     }
 
-    /** Blocks, accepting connections until {@link #stop()} is called. */
-    public void start() throws IOException {
+        public void start() throws IOException {
         SSLServerSocketFactory factory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
         SSLServerSocket ss = (SSLServerSocket) factory.createServerSocket(PORT); // may throw BindException
         ss.setEnabledProtocols(new String[] {"TLSv1.3", "TLSv1.2"});             // no legacy protocols
@@ -97,8 +87,7 @@ public class BankServer {
         }
     }
 
-    /** Worker-thread entry: complete the handshake (bounded by a timeout), then run the handler. */
-    private void serve(SSLSocket client) {
+        private void serve(SSLSocket client) {
         String peer = String.valueOf(client.getRemoteSocketAddress());
         try {
             client.startHandshake();
@@ -123,8 +112,7 @@ public class BankServer {
         }
     }
 
-    /** Idempotent; stops accepting and lets running handlers finish (up to 5 s). */
-    public void stop() {
+        public void stop() {
         running = false;
         closeQuietly(serverSocket);
         pool.shutdown();

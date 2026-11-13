@@ -10,29 +10,15 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/** Data access for money movement. Every transfer is one atomic database transaction. */
 public class TransactionDao {
 
     private static final Logger LOG = Logger.getLogger(TransactionDao.class.getName());
 
-    /**
-     * Atomically moves {@code amount} from one account to another.
-     *
-     * <p>Debit, credit and the audit row are committed together or not at all.
-     *
-     * <p>The balance check is part of the debit statement itself
-     * ({@code WHERE balance >= ?}). Checking in Java and then updating would let two concurrent
-     * transfers both pass the check and overdraw the account; a single conditional UPDATE cannot.
-     *
-     * @return true if the transfer was committed; false if it was rejected or failed
-     *         (invalid input, unknown/inactive account, insufficient funds, or a database error)
-     */
-    public boolean transferFunds(String fromAcc, String toAcc, double amount) {
+        public boolean transferFunds(String fromAcc, String toAcc, double amount) {
         return transferFunds(fromAcc, toAcc, amount, 0);
     }
 
-    /** Same as above, but records the fraud engine's {@code riskScore} on the transaction row. */
-    public boolean transferFunds(String fromAcc, String toAcc, double amount, int riskScore) {
+        public boolean transferFunds(String fromAcc, String toAcc, double amount, int riskScore) {
         if (fromAcc == null || toAcc == null || fromAcc.equals(toAcc)
                 || Double.isNaN(amount) || Double.isInfinite(amount)) {
             return false;
@@ -93,12 +79,7 @@ public class TransactionDao {
         }
     }
 
-    /**
-     * Runs an UPDATE with (amount, account[, amountAgain]) parameters.
-     *
-     * @return true if exactly one row changed
-     */
-    private boolean updateOne(Connection conn, String sql, double amount, String account, Double minBalance)
+        private boolean updateOne(Connection conn, String sql, double amount, String account, Double minBalance)
             throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setDouble(1, amount);
@@ -110,32 +91,11 @@ public class TransactionDao {
         }
     }
 
-    /** Convenience overload with risk score 0. */
-    public boolean performTransfer(String senderUsername, String targetAccount, double amount, String status) {
+        public boolean performTransfer(String senderUsername, String targetAccount, double amount, String status) {
         return performTransfer(senderUsername, targetAccount, amount, status, 0);
     }
 
-    /**
-     * Logs a transfer attempt and, only if {@code status} is "APPROVED", moves the money - all in
-     * ONE database transaction.
-     *
-     * <ul>
-     *   <li>Every attempt (APPROVED, FLAGGED, BLOCKED) gets a row in {@code transactions}.</li>
-     *   <li>APPROVED: debit sender (only if active and balance >= amount), credit target (must exist
-     *       and be active). If either step fails, both are undone and the row is logged as
-     *       "FAILED" instead, so the log never claims money moved when it did not.</li>
-     *   <li>FLAGGED / BLOCKED: only the log row is written; no balance changes.</li>
-     * </ul>
-     *
-     * Schema mapping: the sender's account is found via {@code users.username -> accounts.user_id};
-     * columns are {@code from_acc, to_acc, amount, status, risk_score} and {@code timestamp} holds
-     * epoch milliseconds (the schema uses a LONG, so {@code datetime('now')} is not used).
-     * The foreign keys mean an attempt to a NON-EXISTENT target cannot be logged.
-     *
-     * @return true only if money actually moved; false for flagged/blocked/failed attempts and
-     *         for any database error (everything rolled back)
-     */
-    public boolean performTransfer(String senderUsername, String targetAccount, double amount,
+        public boolean performTransfer(String senderUsername, String targetAccount, double amount,
                                    String status, int riskScore) {
         if (senderUsername == null || targetAccount == null || status == null
                 || Double.isNaN(amount) || Double.isInfinite(amount)
@@ -209,8 +169,7 @@ public class TransactionDao {
         }
     }
 
-    /** @return the user's account number, or null if the user or account does not exist */
-    private String findAccountByUsername(Connection conn, String username) throws SQLException {
+        private String findAccountByUsername(Connection conn, String username) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(
                 "SELECT a.account_no FROM accounts a JOIN users u ON a.user_id = u.user_id "
                         + "WHERE u.username = ? ORDER BY a.account_no LIMIT 1")) {
@@ -221,14 +180,7 @@ public class TransactionDao {
         }
     }
 
-    /**
-     * Counts transactions (any status) sent FROM {@code account} since {@code sinceMillis}.
-     * Used by the velocity rule.
-     *
-     * @return the count; on a database error {@link Integer#MAX_VALUE}, so the fraud check
-     *         fails closed (blocks) rather than silently skipping the rule
-     */
-    public int countRecentTransactions(String account, long sinceMillis) {
+        public int countRecentTransactions(String account, long sinceMillis) {
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(
                      "SELECT COUNT(*) FROM transactions WHERE from_acc = ? AND timestamp >= ?")) {
@@ -243,11 +195,7 @@ public class TransactionDao {
         }
     }
 
-    /**
-     * Writes an audit row for a transfer that was NOT executed (status FLAGGED or BLOCKED).
-     * No balances change. Fails quietly if the accounts do not exist (foreign keys).
-     */
-    public void logAttempt(String fromAcc, String toAcc, double amount, String status, int riskScore) {
+        public void logAttempt(String fromAcc, String toAcc, double amount, String status, int riskScore) {
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(
                      "INSERT INTO transactions (tx_id, from_acc, to_acc, amount, status, risk_score, timestamp) "

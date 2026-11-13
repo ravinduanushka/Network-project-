@@ -20,24 +20,6 @@ import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-/**
- * Integration test for authentication and the fraud rules, on ONE connection.
- *
- * <p>Start {@link BankServer} (TLS) first, then run this class from the same working directory
- * (it needs {@code keystore.jks} there, used as the trust store)
- * (optional arguments: {@code [username] [password] [targetAccount]}).
- *
- * <pre>
- * Phase 1  LOGIN (REQ-102)                       -> must return a session token, else abort
- * Test 1   TRANSFER 500      to a valid account  -> expect APPROVED
- * Test 2   TRANSFER 75,000   to a valid account  -> expect FLAGGED  (above the 50,000 limit)
- * Test 3   TRANSFER 100      to OWN username     -> expect BLOCKED  (self-transfer)
- * </pre>
- *
- * Each test prints PASS or FAIL against its expected status, and the process exits with code 1
- * if anything failed. With default credentials the user and a receiver account are created
- * automatically on the first run. Dummy credentials only: requests are printed to the console.
- */
 public class TestClient {
 
     private static final String HOST = "localhost";
@@ -122,12 +104,7 @@ public class TestClient {
         }
     }
 
-    /**
-     * Opens the connection: TLS by default, plaintext only with {@code -Dfraudshield.tls=false}.
-     * The server certificate is verified against the truststore, found through the standard
-     * {@code javax.net.ssl.trustStore*} properties (default {@code truststore.jks} / {@code changeit}).
-     */
-    private static Socket openSocket() throws IOException {
+        private static Socket openSocket() throws IOException {
         // Must be set before the default SSL factory is first used. Development setup: the client
         // trusts the server's self-signed keystore directly. -D values on the command line win.
         if (System.getProperty("javax.net.ssl.trustStore") == null) {
@@ -156,8 +133,7 @@ public class TestClient {
         }
     }
 
-    /** Sends one TRANSFER and compares the status in the reply with the expected one. */
-    private static void runCase(PrintWriter out, BufferedReader in, String token, String title, String reqId,
+        private static void runCase(PrintWriter out, BufferedReader in, String token, String title, String reqId,
                                 String target, double amount, String expectedStatus) throws IOException {
         banner(title + "  (expect " + expectedStatus + ")");
         Message reply = exchange(out, in, new Message(MessageType.TRANSFER, token, reqId, null)
@@ -173,11 +149,7 @@ public class TestClient {
         }
     }
 
-    /**
-     * Sends LOGIN (REQ-102) and returns the session token, or null unless the reply is a
-     * successful LOGIN_RESULT carrying a non-blank token.
-     */
-    private static String login(PrintWriter out, BufferedReader in, String username, String password)
+        private static String login(PrintWriter out, BufferedReader in, String username, String password)
             throws IOException {
         Message reply = exchange(out, in, new Message(MessageType.LOGIN, null, "REQ-102", null)
                 .setPayload(Map.of("username", username, "password", password)));
@@ -194,8 +166,7 @@ public class TestClient {
                 .setPayload(Map.of("username", username, "fullName", "Test User", "password", password));
     }
 
-    /** Sends one request line, prints it, then reads, prints and returns the one-line reply. */
-    private static Message exchange(PrintWriter out, BufferedReader in, Message request) throws IOException {
+        private static Message exchange(PrintWriter out, BufferedReader in, Message request) throws IOException {
         String requestJson = request.toJson(); // Gson serialisation happens inside Message
         System.out.println(">>> SENT     : " + requestJson);
         out.println(requestJson);
@@ -215,8 +186,7 @@ public class TestClient {
         }
     }
 
-    /** Reads one field from a response's JSON {@code data}; null if absent or unparsable. */
-    private static String field(Message response, String name) {
+        private static String field(Message response, String name) {
         if (response.getData() == null) {
             return null;
         }

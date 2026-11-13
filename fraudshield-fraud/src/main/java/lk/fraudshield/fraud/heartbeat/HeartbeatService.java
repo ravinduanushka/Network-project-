@@ -8,10 +8,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Periodically broadcasts a UDP heartbeat on port 6002 every 3 seconds.
- * Enables Customer and Admin clients to show live "Online / Offline" status dots.
- */
 public class HeartbeatService {
 
     public static final int HEARTBEAT_PORT = 6002;

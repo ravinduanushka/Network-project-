@@ -20,10 +20,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Handles TCP / TLS socket communications between the FraudShield Client UI
- * and the backend BankServer.
- */
 public class BankClientService {
 
     private static final Logger LOG = Logger.getLogger(BankClientService.class.getName());
@@ -99,10 +95,7 @@ public class BankClientService {
         }
     }
 
-    /**
-     * Authenticate customer with backend server using TLS/SSL socket.
-     */
-    public Result login(String host, int port, String username, String password) {
+        public Result login(String host, int port, String username, String password) {
         this.connectedHost = (host != null && !host.isBlank()) ? host.trim() : "127.0.0.1";
         this.connectedPort = port > 0 ? port : 5000;
 
@@ -161,10 +154,7 @@ public class BankClientService {
         }
     }
 
-    /**
-     * Register new customer account on the backend server.
-     */
-    public Result register(String host, int port, String username, String fullName, String password) {
+        public Result register(String host, int port, String username, String fullName, String password) {
         this.connectedHost = (host != null && !host.isBlank()) ? host.trim() : "127.0.0.1";
         this.connectedPort = port > 0 ? port : 5000;
 
@@ -216,10 +206,7 @@ public class BankClientService {
         }
     }
 
-    /**
-     * Transfer funds using the active server session.
-     */
-    public Result transfer(String targetAccount, double amount) {
+        public Result transfer(String targetAccount, double amount) {
         if (sessionToken == null) {
             return Result.failure("Not authenticated.");
         }

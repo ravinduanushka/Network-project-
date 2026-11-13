@@ -7,15 +7,6 @@ import lk.fraudshield.fraud.RuleBasedFraudDetector;
 
 import java.util.UUID;
 
-/**
- * Demo Attack Simulator for Viva presentation.
- * Demonstrates scripted fraud scenarios:
- * 1. Normal transfer (ALLOW)
- * 2. Medium risk transfer with new payee (OTP)
- * 3. High amount transfer exceeding threshold (HOLD)
- * 4. Transfer to blacklisted mule account (BLOCK)
- * 5. Account drain attempt (HOLD / BLOCK)
- */
 public class FraudAttackSimulator {
 
     public static void main(String[] args) {

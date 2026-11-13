@@ -233,10 +233,7 @@ public class HomeController {
         Platform.runLater(this::playAccountsEntrance);
     }
 
-    /**
-     * Smooth hover popup transition for buttons: expands slightly (1.06x) on hover with springy ease.
-     */
-    private void applyButtonHoverEffect(Button button) {
+        private void applyButtonHoverEffect(Button button) {
         if (button == null) return;
         button.setOnMouseEntered(e -> {
             ScaleTransition st = new ScaleTransition(Duration.millis(180), button);
@@ -262,11 +259,7 @@ public class HomeController {
         });
     }
 
-    /**
-     * Interactive popup hover effect for header navigation links:
-     * Scales up slightly (1.10x) with springy ease and subtle translucent pill background on hover.
-     */
-    private void applyNavHoverEffect(Node navItem) {
+        private void applyNavHoverEffect(Node navItem) {
         if (navItem == null) return;
         navItem.setOnMouseEntered(e -> {
             ScaleTransition st = new ScaleTransition(Duration.millis(160), navItem);
@@ -294,10 +287,7 @@ public class HomeController {
         });
     }
 
-    /**
-     * Subtle upward lift hover effect for main cards.
-     */
-    private void applyCardHoverEffect(Node card) {
+        private void applyCardHoverEffect(Node card) {
         if (card == null) return;
         card.setOnMouseEntered(e -> {
             TranslateTransition tt = new TranslateTransition(Duration.millis(200), card);
@@ -313,11 +303,7 @@ public class HomeController {
         });
     }
 
-    /**
-     * Accounts Section Entrance Transition:
-     * Card 1 arrives from Left, Card 2 arrives from Bottom, Card 3 arrives from Right into correct places.
-     */
-    public void playAccountsEntrance() {
+        public void playAccountsEntrance() {
         if (accountCard1 != null && accountCard2 != null && accountCard3 != null) {
             accountCard1.setTranslateX(-160.0);
             accountCard1.setOpacity(0.0);
@@ -347,10 +333,7 @@ public class HomeController {
         }
     }
 
-    /**
-     * Cards Section Entrance Transition: Left card arrives from Left, Right panel arrives from Right.
-     */
-    public void playCardsEntrance() {
+        public void playCardsEntrance() {
         if (cardsLeftPane != null && cardsRightPane != null) {
             cardsLeftPane.setTranslateX(-150.0);
             cardsLeftPane.setOpacity(0.0);
@@ -372,10 +355,7 @@ public class HomeController {
         }
     }
 
-    /**
-     * Transfers Section Entrance Transition: Left steps arrive from Left, Right card arrives from Right.
-     */
-    public void playTransfersEntrance() {
+        public void playTransfersEntrance() {
         if (transfersLeftBox != null && transfersRightCard != null) {
             transfersLeftBox.setTranslateX(-150.0);
             transfersLeftBox.setOpacity(0.0);
@@ -397,11 +377,7 @@ public class HomeController {
         }
     }
 
-    /**
-     * Security Section Entrance Transition:
-     * Left 6 feature cards arrive from Left, Right Live monitor arrives from Right into correct places.
-     */
-    public void playSecurityEntrance() {
+        public void playSecurityEntrance() {
         if (securityLeftGrid != null && liveMonitorCard != null) {
             securityLeftGrid.setTranslateX(-170.0);
             securityLeftGrid.setOpacity(0.0);

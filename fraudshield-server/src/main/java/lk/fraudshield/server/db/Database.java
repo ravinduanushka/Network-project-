@@ -6,30 +6,17 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Logger;
 
-/**
- * SQLite access point for the FraudShield server.
- *
- * <p>SQLite connections are cheap, so every DAO call (or transaction) opens its own
- * {@link Connection} with try-with-resources. Threads therefore never share connection state.
- */
 public final class Database {
 
     private static final Logger LOG = Logger.getLogger(Database.class.getName());
 
-    /** Database file is created in the server's working directory. */
-    public static final String URL = "jdbc:sqlite:fraudshield.db";
+        public static final String URL = "jdbc:sqlite:fraudshield.db";
 
     private Database() {
         // static utility class
     }
 
-    /**
-     * Opens a new connection. Foreign keys are enabled and writers wait up to 5 s for a lock
-     * instead of failing immediately with SQLITE_BUSY.
-     *
-     * <p>The caller must close the returned connection.
-     */
-    public static Connection getConnection() throws SQLException {
+        public static Connection getConnection() throws SQLException {
         Connection conn = DriverManager.getConnection(URL);
         try (Statement st = conn.createStatement()) {
             st.execute("PRAGMA foreign_keys = ON");
@@ -41,12 +28,7 @@ public final class Database {
         return conn;
     }
 
-    /**
-     * Creates the tables if they do not exist yet. Safe to call on every startup.
-     *
-     * @throws SQLException if the database cannot be opened or a statement fails
-     */
-    public static void initializeDatabase() throws SQLException {
+        public static void initializeDatabase() throws SQLException {
         try (Connection conn = getConnection(); Statement st = conn.createStatement()) {
             // WAL lets readers proceed while a writer is active
             st.execute("PRAGMA journal_mode = WAL");

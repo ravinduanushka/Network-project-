@@ -24,17 +24,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Load test: many clients, each on its own TLS connection, hit {@link BankServer} at the same time.
- *
- * <p>Start the server first, then run from the directory containing {@code keystore.jks}
- * (used as the trust store). Optional arguments: {@code [clients=50] [poolThreads=20]}.
- *
- * <p>Every client opens a fresh TLS connection, sends one LOGIN request, reads the one-line JSON
- * reply, closes the socket and records its latency. A request counts as successful when the server
- * answers with a LOGIN_RESULT carrying {@code success=true}. The test user is registered once
- * before the load starts. Dummy credentials only.
- */
 public class StressTestClient {
 
     private static final String HOST = "localhost";
@@ -44,8 +33,7 @@ public class StressTestClient {
     private static final String USER = "stressuser";
     private static final String PASSWORD = "Stress@1234";
 
-    /** Outcome of one client task. */
-    private record Result(int id, boolean ok, long latencyMs, String detail) { }
+        private record Result(int id, boolean ok, long latencyMs, String detail) { }
 
     public static void main(String[] args) throws InterruptedException {
         int clients = clampArg(args, 0, 50, 1, 500);
@@ -92,8 +80,7 @@ public class StressTestClient {
         report(futures, clients, totalMs);
     }
 
-    /** One client: connect, send LOGIN, read the reply, close. Never throws. */
-    private static Result runClient(int id) {
+        private static Result runClient(int id) {
         long t0 = System.nanoTime();
         try {
             Message reply = roundTrip(new Message(MessageType.LOGIN, null, "STRESS-" + id, null)
@@ -113,8 +100,7 @@ public class StressTestClient {
         }
     }
 
-    /** Opens a TLS connection, sends one request line, reads one reply line, closes everything. */
-    private static Message roundTrip(Message request) throws IOException {
+        private static Message roundTrip(Message request) throws IOException {
         SSLSocket socket = (SSLSocket) SSLSocketFactory.getDefault().createSocket(); // unconnected
         try (socket) {
             socket.connect(new InetSocketAddress(HOST, PORT), TIMEOUT_MS);
@@ -196,8 +182,7 @@ public class StressTestClient {
         }
     }
 
-    /** Reads one field from a response's JSON {@code data}; null if absent or unparsable. */
-    private static String field(Message response, String name) {
+        private static String field(Message response, String name) {
         if (response.getData() == null) {
             return null;
         }
