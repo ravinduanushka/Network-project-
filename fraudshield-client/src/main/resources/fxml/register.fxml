@@ -82,6 +82,15 @@
         <VBox maxWidth="440.0" prefHeight="650.0" spacing="14.0"
               style="-fx-background-color: #ffffff; -fx-padding: 28 38; -fx-background-radius: 18; -fx-border-color: #f1f5f9; -fx-border-radius: 18; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.08), 26, 0, 0, 10);">
 
+            <!-- Top Back Navigation Row -->
+            <HBox alignment="CENTER_LEFT" maxWidth="Infinity">
+                <Button text="← Back to Sign in" onAction="#handleGoToLogin"
+                        style="-fx-background-color: transparent; -fx-text-fill: #2563eb; -fx-font-size: 12.5px; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 0;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Home" onAction="#handleBackToHome"
+                        style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-font-size: 12.5px; -fx-font-weight: 600; -fx-cursor: hand; -fx-padding: 0;"/>
+            </HBox>
+
             <!-- Card Header -->
             <VBox spacing="6.0" alignment="CENTER">
                 <Label text="Create a Secure Banking&#10;Account" textAlignment="CENTER"

@@ -85,6 +85,12 @@
         <VBox maxWidth="440.0" prefHeight="650.0" spacing="16.0" alignment="TOP_CENTER"
               style="-fx-background-color: #ffffff; -fx-padding: 32 38; -fx-background-radius: 18; -fx-border-color: #f1f5f9; -fx-border-radius: 18; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.08), 24, 0, 0, 8);">
 
+            <!-- Top Back Navigation Row -->
+            <HBox alignment="CENTER_LEFT" maxWidth="Infinity">
+                <Button text="← Back to Home" onAction="#handleBackToHome"
+                        style="-fx-background-color: transparent; -fx-text-fill: #2563eb; -fx-font-size: 12.5px; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 0;"/>
+            </HBox>
+
             <!-- Card Header (Centered Sign In) -->
             <VBox spacing="6.0" alignment="CENTER">
                 <Label text="Sign in"
