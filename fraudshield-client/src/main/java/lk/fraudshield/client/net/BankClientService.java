@@ -40,6 +40,7 @@ public class BankClientService {
     private String connectedHost = "127.0.0.1";
     private int connectedPort = 5000;
     private String currentUsername;
+    private String currentFullName;
     private String sessionToken;
     private String accountNumber;
 
@@ -193,6 +194,9 @@ public class BankClientService {
                 String acc = resp.containsKey("accountNo") ? String.valueOf(resp.get("accountNo")) : null;
 
                 if (ok) {
+                    this.currentFullName = fullName;
+                    this.currentUsername = username;
+                    if (acc != null) this.accountNumber = acc;
                     DEMO_USERS.put(username, password);
                     return Result.success(msg, null, acc);
                 } else {
@@ -354,5 +358,13 @@ public class BankClientService {
 
     public String getAccountNumber() {
         return accountNumber;
+    }
+
+    public String getCurrentFullName() {
+        return currentFullName;
+    }
+
+    public void setCurrentFullName(String currentFullName) {
+        this.currentFullName = currentFullName;
     }
 }
