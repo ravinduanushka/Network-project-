@@ -516,57 +516,53 @@ public class HomeController {
     }
 
     private void navigateToLogin() {
-        Platform.runLater(() -> {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
-                Parent root = loader.load();
-                Stage stage = getStage();
-                if (stage != null) {
-                    stage.setScene(new Scene(root, 1180, 750));
-                    stage.setTitle("FraudShield — Sign In");
-                    stage.show();
-                } else {
-                    System.err.println("[WARN] Could not find stage for Login navigation");
-                }
-            } catch (Exception e) {
-                System.err.println("[ERROR] Failed to navigate to login: " + e.getMessage());
-                e.printStackTrace();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
+            Parent root = loader.load();
+            Stage stage = getStage();
+            if (stage != null) {
+                stage.setScene(new Scene(root, 1180, 750));
+                stage.setTitle("FraudShield — Sign In");
+                stage.show();
+            } else {
+                System.err.println("[WARN] Could not find stage for Login navigation");
             }
-        });
+        } catch (Exception e) {
+            System.err.println("[ERROR] Failed to navigate to login: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void navigateToRegister() {
-        Platform.runLater(() -> {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/register.fxml"));
-                Parent root = loader.load();
-                Stage stage = getStage();
-                if (stage != null) {
-                    stage.setScene(new Scene(root, 1180, 750));
-                    stage.setTitle("FraudShield — Create a Secure Banking Account");
-                    stage.show();
-                } else {
-                    System.err.println("[WARN] Could not find stage for Register navigation");
-                }
-            } catch (Exception e) {
-                System.err.println("[ERROR] Failed to navigate to register: " + e.getMessage());
-                e.printStackTrace();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/register.fxml"));
+            Parent root = loader.load();
+            Stage stage = getStage();
+            if (stage != null) {
+                stage.setScene(new Scene(root, 1180, 750));
+                stage.setTitle("FraudShield — Create a Secure Banking Account");
+                stage.show();
+            } else {
+                System.err.println("[WARN] Could not find stage for Register navigation");
             }
-        });
+        } catch (Exception e) {
+            System.err.println("[ERROR] Failed to navigate to register: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private Stage getStage() {
+        if (rootPane != null && rootPane.getScene() != null && rootPane.getScene().getWindow() != null) {
+            return (Stage) rootPane.getScene().getWindow();
+        }
+        if (mainScrollPane != null && mainScrollPane.getScene() != null && mainScrollPane.getScene().getWindow() != null) {
+            return (Stage) mainScrollPane.getScene().getWindow();
+        }
         if (signUpBtn != null && signUpBtn.getScene() != null && signUpBtn.getScene().getWindow() != null) {
             return (Stage) signUpBtn.getScene().getWindow();
         }
         if (getStartedBtn != null && getStartedBtn.getScene() != null && getStartedBtn.getScene().getWindow() != null) {
             return (Stage) getStartedBtn.getScene().getWindow();
-        }
-        if (mainScrollPane != null && mainScrollPane.getScene() != null && mainScrollPane.getScene().getWindow() != null) {
-            return (Stage) mainScrollPane.getScene().getWindow();
-        }
-        if (rootPane != null && rootPane.getScene() != null && rootPane.getScene().getWindow() != null) {
-            return (Stage) rootPane.getScene().getWindow();
         }
         // Fallback: iterate over active showing windows
         for (Window window : Window.getWindows()) {
