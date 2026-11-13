@@ -3,11 +3,6 @@ package lk.fraudshield.fraud.rules;
 import lk.fraudshield.common.fraud.TransactionContext;
 import lk.fraudshield.fraud.profile.UserBehaviourProfile;
 
-/**
- * Rule 1: HighAmountRule
- * Triggers if transfer amount exceeds configurable threshold (default LKR 100,000).
- * Points: +30
- */
 public class HighAmountRule implements FraudRule {
     private final double threshold;
 

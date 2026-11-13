@@ -5,11 +5,6 @@ import lk.fraudshield.fraud.profile.UserBehaviourProfile;
 
 import java.util.concurrent.ConcurrentLinkedDeque;
 
-/**
- * Rule 9: RoundAmountBurstRule
- * Triggers if multiple identical round amounts (e.g. 50,000, 50,000, 50,000) occur in succession.
- * Points: +15
- */
 public class RoundAmountBurstRule implements FraudRule {
     @Override
     public String getName() {

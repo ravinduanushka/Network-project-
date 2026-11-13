@@ -7,9 +7,6 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.DoubleAdder;
 
-/**
- * Thread-safe profile storing behavioral history for an account.
- */
 public class UserBehaviourProfile {
     private final String accountNo;
     private final DoubleAdder totalAmount = new DoubleAdder();

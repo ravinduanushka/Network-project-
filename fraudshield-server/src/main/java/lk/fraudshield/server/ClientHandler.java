@@ -23,32 +23,17 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Serves ONE client connection on a pool thread.
- *
- * <p>Protocol: the client sends one JSON {@link Message} per line and receives exactly one JSON
- * line in reply. Request/response payloads (inside {@code Message.data}):
- * <pre>
- * REGISTER        {username, fullName, password}   -> REGISTER_RESULT {success, message, accountNo}
- * LOGIN           {username, password}             -> LOGIN_RESULT    {success, message}  + token
- * TRANSFER        {targetAccount, amount}  (needs token) -> TRANSFER_RESULT {success, message}
- * </pre>
- */
 public class ClientHandler implements Runnable {
 
     private static final Logger LOG = Logger.getLogger(ClientHandler.class.getName());
 
-    /** Longest accepted request line, to stop a client from exhausting server memory. */
-    private static final int MAX_LINE_LENGTH = 8192;
+        private static final int MAX_LINE_LENGTH = 8192;
 
-    /** Max inactivity (ms) between requests before the connection is dropped. */
-    private static final int READ_TIMEOUT_MS = 30_000;
+        private static final int READ_TIMEOUT_MS = 30_000;
 
-    /** Shared by every handler thread. */
-    private static final SessionManager SESSIONS = new SessionManager();
+        private static final SessionManager SESSIONS = new SessionManager();
 
-    /** Stateless, so one instance serves all handler threads. */
-    private static final FraudDetector FRAUD_DETECTOR = new FraudDetector();
+        private static final FraudDetector FRAUD_DETECTOR = new FraudDetector();
 
     // ---- request payload shapes (deserialised by Gson) ----
     private static class RegisterRequest {
@@ -72,8 +57,7 @@ public class ClientHandler implements Runnable {
     private final UserDao userDao = new UserDao();
     private final TransactionDao transactionDao = new TransactionDao();
 
-    /** Token issued to THIS connection; invalidated when the connection ends. */
-    private String sessionToken;
+        private String sessionToken;
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
@@ -121,8 +105,7 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    /** Parses and dispatches one request. Never throws: any failure becomes an ERROR reply. */
-    private Message handle(String line) {
+        private Message handle(String line) {
         Message request;
         try {
             request = Message.fromJson(line);

@@ -7,11 +7,6 @@ import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZoneId;
 
-/**
- * Rule 5: OddHourRule
- * Triggers if transaction occurs between 00:00 and 05:00 local time.
- * Points: +10
- */
 public class OddHourRule implements FraudRule {
     @Override
     public String getName() {

@@ -12,10 +12,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Core Rule-Based Fraud Detection Engine implementing FraudDetector.
- * Thread-safe and pluggable into BankServer.
- */
 public class RuleBasedFraudDetector implements FraudDetector {
 
     private final List<FraudRule> rules = new ArrayList<>();

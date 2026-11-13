@@ -2,9 +2,6 @@ package lk.fraudshield.fraud.profile;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Thread-safe store for UserBehaviourProfiles.
- */
 public class ProfileStore {
     private final ConcurrentHashMap<String, UserBehaviourProfile> profiles = new ConcurrentHashMap<>();
 

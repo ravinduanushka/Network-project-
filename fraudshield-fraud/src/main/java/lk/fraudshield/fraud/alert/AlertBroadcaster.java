@@ -12,11 +12,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * Non-blocking UDP broadcaster for fraud alerts.
- * Uses a BlockingQueue worker thread so banking operations never wait on UDP I/O.
- * Broadcasts alerts to Customer (port 6000) and Admin console (port 6001).
- */
 public class AlertBroadcaster extends Thread implements AlertSink {
 
     public static final int CLIENT_ALERT_PORT = 6000;

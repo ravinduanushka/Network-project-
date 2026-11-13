@@ -3,12 +3,6 @@ package lk.fraudshield.fraud.rules;
 import lk.fraudshield.common.fraud.TransactionContext;
 import lk.fraudshield.fraud.profile.UserBehaviourProfile;
 
-/**
- * Rule 2: AboveUserAverageRule
- * Triggers if transfer amount exceeds 3x user's average transfer amount.
- * Requires at least 2 historical transactions to have a meaningful average.
- * Points: +25
- */
 public class AboveUserAverageRule implements FraudRule {
     @Override
     public String getName() {

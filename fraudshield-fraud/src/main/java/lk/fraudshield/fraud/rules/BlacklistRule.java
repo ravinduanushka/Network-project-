@@ -6,11 +6,6 @@ import lk.fraudshield.fraud.profile.UserBehaviourProfile;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Rule 10: BlacklistRule
- * Triggers if destination account is present on admin blacklist.
- * Points: +100 (forces BLOCK decision).
- */
 public class BlacklistRule implements FraudRule {
     private final Set<String> blacklistedAccounts = ConcurrentHashMap.newKeySet();
 

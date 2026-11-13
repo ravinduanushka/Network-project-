@@ -3,11 +3,6 @@ package lk.fraudshield.fraud.rules;
 import lk.fraudshield.common.fraud.TransactionContext;
 import lk.fraudshield.fraud.profile.UserBehaviourProfile;
 
-/**
- * Rule 4: NewPayeeRule
- * Triggers if receiver is newly added or never paid before.
- * Points: +15
- */
 public class NewPayeeRule implements FraudRule {
     @Override
     public String getName() {
