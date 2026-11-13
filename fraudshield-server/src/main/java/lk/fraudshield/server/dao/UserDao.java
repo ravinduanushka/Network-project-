@@ -32,9 +32,15 @@ public class UserDao {
      *         database error (the transaction is rolled back)
      */
     public boolean registerUser(String userId, String username, String fullName, String password) {
+        return registerUser(userId, username, fullName, password, DEFAULT_BALANCE);
+    }
+
+    public boolean registerUser(String userId, String username, String fullName, String password, double initialBalance) {
         if (isBlank(userId) || isBlank(username) || isBlank(password)) {
             return false;
         }
+
+        double balance = initialBalance >= 0 ? initialBalance : DEFAULT_BALANCE;
 
         // hash before opening the connection so the DB lock is held as briefly as possible
         String salt = PasswordUtils.generateSalt();
@@ -60,7 +66,7 @@ public class UserDao {
                     "INSERT INTO accounts (account_no, user_id, balance, status) VALUES (?, ?, ?, 'ACTIVE')")) {
                 ps.setString(1, "ACC-" + userId);
                 ps.setString(2, userId);
-                ps.setDouble(3, DEFAULT_BALANCE);
+                ps.setDouble(3, balance);
                 ps.executeUpdate();
             }
 

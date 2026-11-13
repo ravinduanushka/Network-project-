@@ -302,8 +302,8 @@ public class DashboardController {
 
                         HBox card = new HBox(16);
                         card.setAlignment(Pos.CENTER_LEFT);
-                        card.setStyle("-fx-background-color: #ffffff; -fx-padding: 14 20; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: "
-                                + borderColor + " #e2e8f0 #e2e8f0 #e2e8f0; -fx-border-width: 0 0 0 4.5; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.04), 8, 0, 0, 2);");
+                        card.setStyle("-fx-background-color: #ffffff; -fx-padding: 14 20; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #e2e8f0 #e2e8f0 #e2e8f0 "
+                                + borderColor + "; -fx-border-width: 1.2 1.2 1.2 4.5; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.04), 8, 0, 0, 2);");
 
                         VBox contentBox = new VBox(4);
                         HBox.setHgrow(contentBox, Priority.ALWAYS);
@@ -477,6 +477,20 @@ public class DashboardController {
     private void loadActualTransactions(String username) {
         transactionList.clear();
         currentUsernameKey = (username != null && !username.isBlank()) ? username.toLowerCase() : "customer";
+
+        File balanceFile = new File("balance_" + currentUsernameKey + ".json");
+        if (balanceFile.exists()) {
+            try (Reader reader = new FileReader(balanceFile, StandardCharsets.UTF_8)) {
+                JsonObject obj = gson.fromJson(reader, JsonObject.class);
+                if (obj != null && obj.has("balance")) {
+                    currentBalance = obj.get("balance").getAsDouble();
+                }
+            } catch (Exception ignored) {}
+        } else {
+            currentBalance = 250000.00;
+            saveActualBalance();
+        }
+
         File file = new File("transactions_" + currentUsernameKey + ".json");
         if (file.exists()) {
             try (Reader reader = new FileReader(file, StandardCharsets.UTF_8)) {
@@ -496,18 +510,6 @@ public class DashboardController {
             saveActualTransactions();
         }
 
-        File balanceFile = new File("balance_" + currentUsernameKey + ".json");
-        if (balanceFile.exists()) {
-            try (Reader reader = new FileReader(balanceFile, StandardCharsets.UTF_8)) {
-                JsonObject obj = gson.fromJson(reader, JsonObject.class);
-                if (obj != null && obj.has("balance")) {
-                    currentBalance = obj.get("balance").getAsDouble();
-                }
-            } catch (Exception ignored) {}
-        } else {
-            currentBalance = 250000.00;
-            saveActualBalance();
-        }
         updateBalanceDisplay();
         updateTxCountLabel();
     }
@@ -670,9 +672,16 @@ public class DashboardController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/home.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) balanceLabel.getScene().getWindow();
-            stage.setScene(new Scene(root, 1180, 750));
+            Scene scene = stage.getScene();
+            if (scene != null) {
+                scene.setRoot(root);
+            } else {
+                stage.setScene(new Scene(root));
+            }
             stage.setTitle("FraudShield — Banking that guards itself");
+            stage.setMaximized(true);
             stage.show();
+            Platform.runLater(() -> stage.setMaximized(true));
         } catch (IOException e) {
             System.err.println("Navigation to Home failed: " + e.getMessage());
         }
@@ -692,9 +701,16 @@ public class DashboardController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) balanceLabel.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            Scene scene = stage.getScene();
+            if (scene != null) {
+                scene.setRoot(root);
+            } else {
+                stage.setScene(new Scene(root));
+            }
             stage.setTitle("FraudShield - Customer Client");
+            stage.setMaximized(true);
             stage.show();
+            Platform.runLater(() -> stage.setMaximized(true));
         } catch (IOException e) {
             System.err.println("Logout navigation failed: " + e.getMessage());
         }

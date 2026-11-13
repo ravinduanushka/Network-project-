@@ -165,6 +165,10 @@ public class BankClientService {
      * Register new customer account on the backend server.
      */
     public Result register(String host, int port, String username, String fullName, String password) {
+        return register(host, port, username, fullName, password, 250000.0);
+    }
+
+    public Result register(String host, int port, String username, String fullName, String password, double initialBalance) {
         this.connectedHost = (host != null && !host.isBlank()) ? host.trim() : "127.0.0.1";
         this.connectedPort = port > 0 ? port : 5000;
 
@@ -172,10 +176,11 @@ public class BankClientService {
             ensureConnection(this.connectedHost, this.connectedPort);
 
             Message request = new Message(MessageType.REGISTER, null, "REQ-REG-" + System.currentTimeMillis(), null);
-            Map<String, String> data = new HashMap<>();
+            Map<String, Object> data = new HashMap<>();
             data.put("username", username);
             data.put("fullName", fullName);
             data.put("password", password);
+            data.put("initialBalance", initialBalance);
             request.setPayload(data);
 
             out.println(request.toJson());
