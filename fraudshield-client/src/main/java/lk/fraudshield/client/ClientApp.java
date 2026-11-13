@@ -1,6 +1,7 @@
 package lk.fraudshield.client;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -37,10 +38,13 @@ public class ClientApp extends Application {
         primaryStage.setScene(scene);
         primaryStage.setMinWidth(900);
         primaryStage.setMinHeight(620);
+        primaryStage.setMaximized(true);
         primaryStage.show();
+        Platform.runLater(() -> primaryStage.setMaximized(true));
     }
 
     public static void main(String[] args) {
         launch(args);
     }
 }
+

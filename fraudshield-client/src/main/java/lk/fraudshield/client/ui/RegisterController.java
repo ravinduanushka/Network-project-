@@ -1,5 +1,8 @@
 package lk.fraudshield.client.ui;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -10,7 +13,15 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import lk.fraudshield.client.net.BankClientService;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RegisterController {
 
@@ -19,6 +30,9 @@ public class RegisterController {
 
     @FXML
     private TextField usernameField;
+
+    @FXML
+    private TextField initialBalanceField;
 
     @FXML
     private PasswordField passwordField;
@@ -99,13 +113,34 @@ public class RegisterController {
             return;
         }
 
+        String initialBalText = initialBalanceField != null ? initialBalanceField.getText().trim().replace(",", "") : "250000";
+        double parsedBalance = 250000.00;
+        try {
+            if (!initialBalText.isEmpty()) {
+                parsedBalance = Double.parseDouble(initialBalText);
+            }
+        } catch (NumberFormatException e) {
+            showError("Invalid initial deposit amount.");
+            return;
+        }
+
+        if (parsedBalance < 0) {
+            showError("Initial deposit cannot be negative.");
+            return;
+        }
+
+        final double finalInitialBalance = parsedBalance;
+
         if (registerBtn != null) {
             registerBtn.setDisable(true);
             registerBtn.setText("Registering...");
         }
 
         new Thread(() -> {
-            BankClientService.Result result = BankClientService.getInstance().register("127.0.0.1", 5000, username, fullName, password);
+            BankClientService.Result result = BankClientService.getInstance().register("127.0.0.1", 5000, username, fullName, password, finalInitialBalance);
+
+            // Pre-save the user balance and initial deposit transaction locally so dashboard loads it
+            saveInitialUserData(username, finalInitialBalance);
 
             javafx.application.Platform.runLater(() -> {
                 if (registerBtn != null) {
@@ -129,6 +164,35 @@ public class RegisterController {
         }).start();
     }
 
+    private void saveInitialUserData(String username, double balance) {
+        try {
+            String userKey = username.toLowerCase().trim();
+            // 1. Save user balance file
+            File balanceFile = new File("balance_" + userKey + ".json");
+            try (Writer writer = new FileWriter(balanceFile, StandardCharsets.UTF_8)) {
+                JsonObject obj = new JsonObject();
+                obj.addProperty("balance", balance);
+                new Gson().toJson(obj, writer);
+            }
+
+            // 2. Save initial deposit transaction record
+            File txFile = new File("transactions_" + userKey + ".json");
+            List<JsonObject> list = new ArrayList<>();
+            JsonObject tx = new JsonObject();
+            String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            tx.addProperty("timestamp", now);
+            tx.addProperty("recipient", "INITIAL-DEPOSIT");
+            tx.addProperty("amount", String.format("%,.2f", balance));
+            tx.addProperty("status", "Cleared");
+            list.add(tx);
+            try (Writer writer = new FileWriter(txFile, StandardCharsets.UTF_8)) {
+                new Gson().toJson(list, writer);
+            }
+        } catch (Exception e) {
+            System.err.println("Could not save initial user data: " + e.getMessage());
+        }
+    }
+
     @FXML
     private void handleCancel() {
         navigateToLogin();
@@ -146,9 +210,16 @@ public class RegisterController {
             Parent root = loader.load();
             Stage stage = getStage();
             if (stage != null) {
-                stage.setScene(new Scene(root, 1180, 750));
+                Scene scene = stage.getScene();
+                if (scene != null) {
+                    scene.setRoot(root);
+                } else {
+                    stage.setScene(new Scene(root));
+                }
                 stage.setTitle("FraudShield — Banking that guards itself");
+                stage.setMaximized(true);
                 stage.show();
+                Platform.runLater(() -> stage.setMaximized(true));
             }
         } catch (IOException e) {
             showError("Error navigating to home: " + e.getMessage());
@@ -161,9 +232,16 @@ public class RegisterController {
             Parent root = loader.load();
             Stage stage = getStage();
             if (stage != null) {
-                stage.setScene(new Scene(root, 1180, 750));
+                Scene scene = stage.getScene();
+                if (scene != null) {
+                    scene.setRoot(root);
+                } else {
+                    stage.setScene(new Scene(root));
+                }
                 stage.setTitle("FraudShield — Sign In");
+                stage.setMaximized(true);
                 stage.show();
+                Platform.runLater(() -> stage.setMaximized(true));
             }
         } catch (IOException e) {
             showError("Error navigating to login: " + e.getMessage());

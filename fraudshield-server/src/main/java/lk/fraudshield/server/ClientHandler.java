@@ -40,6 +40,7 @@ public class ClientHandler implements Runnable {
         String username;
         String fullName;
         String password;
+        Double initialBalance;
     }
 
     private static class LoginRequest {
@@ -142,7 +143,8 @@ public class ClientHandler implements Runnable {
 
         // the server picks the id, so clients cannot choose (or collide with) someone else's id
         String userId = "U" + UUID.randomUUID().toString().replace("-", "").substring(0, 10).toUpperCase();
-        boolean ok = userDao.registerUser(userId, body.username, body.fullName, body.password);
+        double balance = (body.initialBalance != null && body.initialBalance >= 0) ? body.initialBalance : 250000.0;
+        boolean ok = userDao.registerUser(userId, body.username, body.fullName, body.password, balance);
 
         Message reply = new Message(MessageType.REGISTER_RESULT, null, request.getReqId(), null);
         if (ok) {

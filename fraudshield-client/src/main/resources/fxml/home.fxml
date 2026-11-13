@@ -41,10 +41,13 @@
 
             <!-- Right Nav Items: Language Pill + Sign Up Button (With smooth popup scale on hover) -->
             <HBox alignment="CENTER" spacing="14.0">
-                <!-- Language Pill -->
-                <HBox alignment="CENTER" spacing="6.0" style="-fx-background-color: rgba(255,255,255,0.15); -fx-padding: 7 14; -fx-background-radius: 20; -fx-cursor: hand;">
-                    <Label text="🌐 Eng ▾" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;"/>
-                </HBox>
+                <!-- Language Dropdown Menu (English / Sinhala) -->
+                <MenuButton fx:id="languageMenuBtn" text="🌐 Eng" styleClass="lang-menu-btn">
+                    <items>
+                        <MenuItem text="English" onAction="#handleLanguageEnglish"/>
+                        <MenuItem text="සිංහල (Sinhala)" onAction="#handleLanguageSinhala"/>
+                    </items>
+                </MenuButton>
 
                 <!-- Sign Up Button -->
                 <Button fx:id="signUpBtn" text="Sign Up" onAction="#handleSignUp"
@@ -71,12 +74,12 @@
                             <VBox spacing="18.0">
                                 <!-- Headline divided into 2 lines with Clean Geometric Typography, Increased Size & Expanded Word Gap -->
                                 <VBox spacing="4.0">
-                                    <Label text="Easy Banking in"
+                                    <Label fx:id="heroTitleLine1" text="Easy Banking in"
                                            style="-fx-text-fill: white; -fx-font-size: 58px; -fx-font-weight: 800; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', 'Segoe UI', -apple-system, sans-serif; -fx-padding: 0;"/>
-                                    <Label text="your busy life."
+                                    <Label fx:id="heroTitleLine2" text="your busy life."
                                            style="-fx-text-fill: white; -fx-font-size: 58px; -fx-font-weight: 800; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', 'Segoe UI', -apple-system, sans-serif; -fx-padding: 0;"/>
                                 </VBox>
-                                <Label text="Secure accounts, instant transfers and real-time&#10;fraud detection — all in one app."
+                                <Label fx:id="heroSubtitle" text="Secure accounts, instant transfers and real-time&#10;fraud detection — all in one app."
                                        style="-fx-text-fill: #dbeafe; -fx-font-size: 15px; -fx-line-spacing: 4px;"/>
                             </VBox>
 
@@ -140,7 +143,7 @@
                                             <Label text="A" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 11px;"/>
                                         </StackPane>
                                         <VBox>
-                                            <Label text="Welcome back" style="-fx-font-size: 9px; -fx-text-fill: #64748b;"/>
+                                            <Label fx:id="phoneWelcomeLabel" text="Welcome back" style="-fx-font-size: 9px; -fx-text-fill: #64748b;"/>
                                             <Label text="Anushka" style="-fx-font-size: 12px; -fx-text-fill: #0f172a; -fx-font-weight: bold;"/>
                                         </VBox>
                                         <Region HBox.hgrow="ALWAYS"/>
@@ -149,7 +152,7 @@
 
                                     <!-- Balance Card Inside Phone -->
                                     <VBox spacing="4.0" style="-fx-background-color: linear-gradient(to right, #1d4ed8, #3b82f6); -fx-background-radius: 14; -fx-padding: 12 12;">
-                                        <Label text="Total Balance" style="-fx-text-fill: #dbeafe; -fx-font-size: 10px;"/>
+                                        <Label fx:id="phoneTotalBalanceLabel" text="Total Balance" style="-fx-text-fill: #dbeafe; -fx-font-size: 10px;"/>
                                         <Label text="\$24,850.75" style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;"/>
                                         <HBox spacing="12.0" style="-fx-padding: 6 0 0 0;">
                                             <Label text="↑ \$1,240.00" style="-fx-text-fill: #86efac; -fx-font-size: 9px; -fx-font-weight: bold;"/>
@@ -163,46 +166,46 @@
                                             <StackPane prefWidth="32.0" prefHeight="32.0" style="-fx-background-color: #eff6ff; -fx-background-radius: 16;">
                                                 <Label text="↗" style="-fx-text-fill: #2563eb; -fx-font-weight: bold;"/>
                                             </StackPane>
-                                            <Label text="Send" style="-fx-font-size: 9px; -fx-text-fill: #475569;"/>
+                                            <Label fx:id="phoneSendLabel" text="Send" style="-fx-font-size: 9px; -fx-text-fill: #475569;"/>
                                         </VBox>
                                         <VBox alignment="CENTER" spacing="3.0">
                                             <StackPane prefWidth="32.0" prefHeight="32.0" style="-fx-background-color: #eff6ff; -fx-background-radius: 16;">
                                                 <Label text="↙" style="-fx-text-fill: #2563eb; -fx-font-weight: bold;"/>
                                             </StackPane>
-                                            <Label text="Request" style="-fx-font-size: 9px; -fx-text-fill: #475569;"/>
+                                            <Label fx:id="phoneRequestLabel" text="Request" style="-fx-font-size: 9px; -fx-text-fill: #475569;"/>
                                         </VBox>
                                         <VBox alignment="CENTER" spacing="3.0">
                                             <StackPane prefWidth="32.0" prefHeight="32.0" style="-fx-background-color: #eff6ff; -fx-background-radius: 16;">
                                                 <Label text="🛡" style="-fx-font-size: 11px;"/>
                                             </StackPane>
-                                            <Label text="Shield" style="-fx-font-size: 9px; -fx-text-fill: #475569;"/>
+                                            <Label fx:id="phoneShieldLabel" text="Shield" style="-fx-font-size: 9px; -fx-text-fill: #475569;"/>
                                         </VBox>
                                         <VBox alignment="CENTER" spacing="3.0">
                                             <StackPane prefWidth="32.0" prefHeight="32.0" style="-fx-background-color: #eff6ff; -fx-background-radius: 16;">
                                                 <Label text="⋯" style="-fx-text-fill: #2563eb; -fx-font-weight: bold;"/>
                                             </StackPane>
-                                            <Label text="More" style="-fx-font-size: 9px; -fx-text-fill: #475569;"/>
+                                            <Label fx:id="phoneMoreLabel" text="More" style="-fx-font-size: 9px; -fx-text-fill: #475569;"/>
                                         </VBox>
                                     </HBox>
 
                                     <!-- Recent Transactions inside Phone -->
                                     <VBox spacing="6.0">
-                                        <Label text="Recent Activity" style="-fx-font-size: 10px; -fx-text-fill: #0f172a; -fx-font-weight: bold;"/>
+                                        <Label fx:id="phoneRecentActivityLabel" text="Recent Activity" style="-fx-font-size: 10px; -fx-text-fill: #0f172a; -fx-font-weight: bold;"/>
                                         <HBox alignment="CENTER_LEFT" spacing="8.0" style="-fx-background-color: #f8fafc; -fx-padding: 5 8; -fx-background-radius: 8;">
                                             <Label text="🛍" style="-fx-font-size: 11px;"/>
-                                            <Label text="Shopping" style="-fx-font-size: 9px; -fx-text-fill: #334155; -fx-font-weight: bold;"/>
+                                            <Label fx:id="phoneShoppingLabel" text="Shopping" style="-fx-font-size: 9px; -fx-text-fill: #334155; -fx-font-weight: bold;"/>
                                             <Region HBox.hgrow="ALWAYS"/>
                                             <Label text="\$1,240" style="-fx-font-size: 9px; -fx-text-fill: #0f172a; -fx-font-weight: bold;"/>
                                         </HBox>
                                         <HBox alignment="CENTER_LEFT" spacing="8.0" style="-fx-background-color: #f8fafc; -fx-padding: 5 8; -fx-background-radius: 8;">
                                             <Label text="⚡" style="-fx-font-size: 11px;"/>
-                                            <Label text="Bills Paid" style="-fx-font-size: 9px; -fx-text-fill: #334155; -fx-font-weight: bold;"/>
+                                            <Label fx:id="phoneBillsPaidLabel" text="Bills Paid" style="-fx-font-size: 9px; -fx-text-fill: #334155; -fx-font-weight: bold;"/>
                                             <Region HBox.hgrow="ALWAYS"/>
                                             <Label text="-\$85.00" style="-fx-font-size: 9px; -fx-text-fill: #dc2626; -fx-font-weight: bold;"/>
                                         </HBox>
                                         <HBox alignment="CENTER_LEFT" spacing="8.0" style="-fx-background-color: #f8fafc; -fx-padding: 5 8; -fx-background-radius: 8;">
                                             <Label text="✈" style="-fx-font-size: 11px;"/>
-                                            <Label text="Travel Booked" style="-fx-font-size: 9px; -fx-text-fill: #334155; -fx-font-weight: bold;"/>
+                                            <Label fx:id="phoneTravelLabel" text="Travel Booked" style="-fx-font-size: 9px; -fx-text-fill: #334155; -fx-font-weight: bold;"/>
                                             <Region HBox.hgrow="ALWAYS"/>
                                             <Label text="-\$420" style="-fx-font-size: 9px; -fx-text-fill: #dc2626; -fx-font-weight: bold;"/>
                                         </HBox>
@@ -217,9 +220,9 @@
                                     <StackPane prefWidth="24.0" prefHeight="24.0" style="-fx-background-color: #fee2e2; -fx-background-radius: 12;">
                                         <Label text="🛡" style="-fx-text-fill: #dc2626; -fx-font-size: 12px;"/>
                                     </StackPane>
-                                    <Label text="Fraud blocked" style="-fx-font-size: 12px; -fx-font-weight: 800; -fx-text-fill: #991b1b;"/>
+                                    <Label fx:id="fraudToastTitle" text="Fraud blocked" style="-fx-font-size: 12px; -fx-font-weight: 800; -fx-text-fill: #991b1b;"/>
                                 </HBox>
-                                <Label text="Suspicious payment&#10;stopped in real time" wrapText="true"
+                                <Label fx:id="fraudToastSub" text="Suspicious payment&#10;stopped in real time" wrapText="true"
                                        style="-fx-font-size: 10px; -fx-text-fill: #78350f; -fx-line-spacing: 1px;"/>
                             </VBox>
 
@@ -231,9 +234,9 @@
                 <VBox fx:id="accountsSection" alignment="CENTER" spacing="32.0" style="-fx-background-color: #ffffff; -fx-padding: 65 50;">
                     <!-- Section Header -->
                     <VBox alignment="CENTER" spacing="8.0">
-                        <Label text="An account for every goal"
+                        <Label fx:id="accountsTitle" text="An account for every goal"
                                style="-fx-font-size: 32px; -fx-font-weight: 800; -fx-text-fill: #0f172a; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', sans-serif;"/>
-                        <Label text="Open an account in minutes. Every account is protected by FraudShield's real-time monitoring from day one."
+                        <Label fx:id="accountsSubtitle" text="Open an account in minutes. Every account is protected by FraudShield's real-time monitoring from day one."
                                style="-fx-font-size: 16px; -fx-text-fill: #1e293b; -fx-font-weight: 500;"/>
                     </VBox>
 
@@ -249,14 +252,14 @@
                                 </StackPane>
                             </StackPane>
                             <VBox spacing="4.0">
-                                <Label text="Current Account" style="-fx-font-size: 18px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
-                                <Label text="For your everyday spending, salary and bill payments." wrapText="true" style="-fx-font-size: 13.5px; -fx-text-fill: #334155;"/>
+                                <Label fx:id="accountCard1Title" text="Current Account" style="-fx-font-size: 18px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
+                                <Label fx:id="accountCard1Desc" text="For your everyday spending, salary and bill payments." wrapText="true" style="-fx-font-size: 13.5px; -fx-text-fill: #334155;"/>
                             </VBox>
-                            <Label text="\$0 / monthly fee" style="-fx-font-size: 20px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
+                            <Label fx:id="accountCard1Fee" text="\$0 / monthly fee" style="-fx-font-size: 20px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
                             <VBox spacing="8.0">
-                                <Label text="✓  Free debit card" style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
-                                <Label text="✓  Unlimited local transfers" style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
-                                <Label text="✓  Instant spending alerts" style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
+                                <Label fx:id="accountCard1B1" text="✓  Free debit card" style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
+                                <Label fx:id="accountCard1B2" text="✓  Unlimited local transfers" style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
+                                <Label fx:id="accountCard1B3" text="✓  Instant spending alerts" style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
                             </VBox>
                             <Region VBox.vgrow="ALWAYS"/>
                             <Button fx:id="openAccountBtn" text="Open account" onAction="#handleSignUp" maxWidth="Infinity"
@@ -271,17 +274,17 @@
                                     <SVGPath content="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" fill="WHITE"/>
                                 </StackPane>
                                 <Region HBox.hgrow="ALWAYS"/>
-                                <Label text="Popular" style="-fx-background-color: #ea580c; -fx-text-fill: white; -fx-font-size: 10.5px; -fx-font-weight: bold; -fx-padding: 4 10; -fx-background-radius: 12;"/>
+                                <Label fx:id="accountCard2Badge" text="Popular" style="-fx-background-color: #ea580c; -fx-text-fill: white; -fx-font-size: 10.5px; -fx-font-weight: bold; -fx-padding: 4 10; -fx-background-radius: 12;"/>
                             </HBox>
                             <VBox spacing="4.0">
-                                <Label text="Savings Account" style="-fx-font-size: 18px; -fx-font-weight: 800; -fx-text-fill: white;"/>
-                                <Label text="Grow your money with competitive interest, paid monthly." wrapText="true" style="-fx-font-size: 12px; -fx-text-fill: #dbeafe;"/>
+                                <Label fx:id="accountCard2Title" text="Savings Account" style="-fx-font-size: 18px; -fx-font-weight: 800; -fx-text-fill: white;"/>
+                                <Label fx:id="accountCard2Desc" text="Grow your money with competitive interest, paid monthly." wrapText="true" style="-fx-font-size: 12px; -fx-text-fill: #dbeafe;"/>
                             </VBox>
-                            <Label text="6.5% p.a. interest" style="-fx-font-size: 20px; -fx-font-weight: 800; -fx-text-fill: white;"/>
+                            <Label fx:id="accountCard2Rate" text="6.5% p.a. interest" style="-fx-font-size: 20px; -fx-font-weight: 800; -fx-text-fill: white;"/>
                             <VBox spacing="8.0">
-                                <Label text="✓  Monthly interest payout" style="-fx-font-size: 12.5px; -fx-text-fill: white;"/>
-                                <Label text="✓  Savings goals &amp; round-ups" style="-fx-font-size: 12.5px; -fx-text-fill: white;"/>
-                                <Label text="✓  No minimum balance" style="-fx-font-size: 12.5px; -fx-text-fill: white;"/>
+                                <Label fx:id="accountCard2B1" text="✓  Monthly interest payout" style="-fx-font-size: 12.5px; -fx-text-fill: white;"/>
+                                <Label fx:id="accountCard2B2" text="✓  Savings goals &amp; round-ups" style="-fx-font-size: 12.5px; -fx-text-fill: white;"/>
+                                <Label fx:id="accountCard2B3" text="✓  No minimum balance" style="-fx-font-size: 12.5px; -fx-text-fill: white;"/>
                             </VBox>
                             <Region VBox.vgrow="ALWAYS"/>
                             <Button fx:id="startSavingBtn" text="Start saving" onAction="#handleSignUp" maxWidth="Infinity"
@@ -297,14 +300,14 @@
                                 </StackPane>
                             </StackPane>
                             <VBox spacing="4.0">
-                                <Label text="Fixed Deposit" style="-fx-font-size: 18px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
-                                <Label text="Lock in a higher rate for a fixed period with guaranteed returns." wrapText="true" style="-fx-font-size: 13.5px; -fx-text-fill: #334155;"/>
+                                <Label fx:id="accountCard3Title" text="Fixed Deposit" style="-fx-font-size: 18px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
+                                <Label fx:id="accountCard3Desc" text="Lock in a higher rate for a fixed period with guaranteed returns." wrapText="true" style="-fx-font-size: 13.5px; -fx-text-fill: #334155;"/>
                             </VBox>
-                            <Label text="9.0% p.a. up to 24 months" style="-fx-font-size: 20px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
+                            <Label fx:id="accountCard3Rate" text="9.0% p.a. up to 24 months" style="-fx-font-size: 20px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
                             <VBox spacing="8.0">
-                                <Label text="✓  Terms from 3 to 24 months" style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
-                                <Label text="✓  Guaranteed returns" style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
-                                <Label text="✓  Auto-renew option" style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
+                                <Label fx:id="accountCard3B1" text="✓  Terms from 3 to 24 months" style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
+                                <Label fx:id="accountCard3B2" text="✓  Guaranteed returns" style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
+                                <Label fx:id="accountCard3B3" text="✓  Auto-renew option" style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
                             </VBox>
                             <Region VBox.vgrow="ALWAYS"/>
                             <Button fx:id="openDepositBtn" text="Open deposit" onAction="#handleSignUp" maxWidth="Infinity"
@@ -357,9 +360,9 @@
                     <!-- Right: Interactive Control Switches (Arrives from Right) -->
                     <VBox fx:id="cardsRightPane" spacing="20.0" prefWidth="480.0">
                         <VBox spacing="6.0">
-                            <Label text="Your card, fully under&#10;your control"
+                            <Label fx:id="cardsTitle" text="Your card, fully under&#10;your control"
                                    style="-fx-font-size: 30px; -fx-font-weight: 800; -fx-text-fill: #0f172a; -fx-line-spacing: -2px; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', sans-serif;"/>
-                            <Label text="Physical and virtual debit cards with controls you can change in a tap. Try them below."
+                            <Label fx:id="cardsSubtitle" text="Physical and virtual debit cards with controls you can change in a tap. Try them below."
                                    wrapText="true" style="-fx-font-size: 15.5px; -fx-text-fill: #1e293b; -fx-font-weight: 500;"/>
                         </VBox>
 
@@ -370,8 +373,8 @@
                                 <SVGPath content="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" fill="#2563eb"/>
                             </StackPane>
                             <VBox spacing="2.0">
-                                <Label text="Freeze card" style="-fx-font-size: 13.5px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
-                                <Label text="Lost it? Freeze it instantly, unfreeze anytime." style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
+                                <Label fx:id="cardFreezeTitle" text="Freeze card" style="-fx-font-size: 13.5px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                                <Label fx:id="cardFreezeDesc" text="Lost it? Freeze it instantly, unfreeze anytime." style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
                             </VBox>
                             <Region HBox.hgrow="ALWAYS"/>
                             <CheckBox selected="false" style="-fx-cursor: hand;"/>
@@ -384,8 +387,8 @@
                                 <SVGPath content="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" fill="#2563eb"/>
                             </StackPane>
                             <VBox spacing="2.0">
-                                <Label text="Online payments" style="-fx-font-size: 13.5px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
-                                <Label text="Allow or block online &amp; overseas purchases." style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
+                                <Label fx:id="cardOnlineTitle" text="Online payments" style="-fx-font-size: 13.5px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                                <Label fx:id="cardOnlineDesc" text="Allow or block online &amp; overseas purchases." style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
                             </VBox>
                             <Region HBox.hgrow="ALWAYS"/>
                             <CheckBox selected="true" style="-fx-cursor: hand;"/>
@@ -394,7 +397,7 @@
                         <!-- Interactive Slider 3: Daily spending limit -->
                         <VBox spacing="8.0" style="-fx-background-color: #ffffff; -fx-padding: 14 18; -fx-background-radius: 14; -fx-border-color: #e2e8f0; -fx-border-radius: 14;">
                             <HBox alignment="CENTER_LEFT">
-                                <Label text="Daily spending limit" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                                <Label fx:id="cardLimitTitle" text="Daily spending limit" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
                                 <Region HBox.hgrow="ALWAYS"/>
                                 <Label fx:id="spendingLimitLabel" text="Current limit: $1,500" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #ea580c;"/>
                             </HBox>
@@ -411,12 +414,12 @@
                     <!-- Left: Process Steps (Arrives from Left) -->
                     <VBox fx:id="transfersLeftBox" spacing="20.0" prefWidth="480.0">
                         <HBox>
-                            <Label text="TRANSFERS" style="-fx-background-color: #ffedd5; -fx-text-fill: #ea580c; -fx-font-size: 10.5px; -fx-font-weight: 800; -fx-padding: 4 10; -fx-background-radius: 12;"/>
+                            <Label fx:id="transfersBadge" text="TRANSFERS" style="-fx-background-color: #ffedd5; -fx-text-fill: #ea580c; -fx-font-size: 10.5px; -fx-font-weight: 800; -fx-padding: 4 10; -fx-background-radius: 12;"/>
                         </HBox>
                         <VBox spacing="6.0">
-                            <Label text="Send money instantly —&#10;and safely"
+                            <Label fx:id="transfersTitle" text="Send money instantly —&#10;and safely"
                                    style="-fx-font-size: 30px; -fx-font-weight: 800; -fx-text-fill: #0f172a; -fx-line-spacing: -2px; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', sans-serif;"/>
-                            <Label text="Every transfer is scored for fraud risk before it leaves your account. Safe payments go through in seconds."
+                            <Label fx:id="transfersSubtitle" text="Every transfer is scored for fraud risk before it leaves your account. Safe payments go through in seconds."
                                    wrapText="true" style="-fx-font-size: 15.5px; -fx-text-fill: #1e293b; -fx-font-weight: 500;"/>
                         </VBox>
 
@@ -428,8 +431,8 @@
                                     <Label text="1" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;"/>
                                 </StackPane>
                                 <VBox>
-                                    <Label text="Choose a recipient" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
-                                    <Label text="Pick a saved contact or enter an account number." style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
+                                    <Label fx:id="step1Title" text="Choose a recipient" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                                    <Label fx:id="step1Desc" text="Pick a saved contact or enter an account number." style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
                                 </VBox>
                             </HBox>
 
@@ -439,8 +442,8 @@
                                     <Label text="2" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;"/>
                                 </StackPane>
                                 <VBox>
-                                    <Label text="Enter the amount" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
-                                    <Label text="Add a note so you both remember what it was for." style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
+                                    <Label fx:id="step2Title" text="Enter the amount" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                                    <Label fx:id="step2Desc" text="Add a note so you both remember what it was for." style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
                                 </VBox>
                             </HBox>
 
@@ -450,8 +453,8 @@
                                     <Label text="3" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;"/>
                                 </StackPane>
                                 <VBox>
-                                    <Label text="Real-time fraud check" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
-                                    <Label text="Our engine checks amount, device, location and behaviour patterns." style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
+                                    <Label fx:id="step3Title" text="Real-time fraud check" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                                    <Label fx:id="step3Desc" text="Our engine checks amount, device, location and behaviour patterns." style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
                                 </VBox>
                             </HBox>
 
@@ -461,8 +464,8 @@
                                     <Label text="4" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;"/>
                                 </StackPane>
                                 <VBox>
-                                    <Label text="Done" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
-                                    <Label text="Money arrives instantly and both sides get a notification." style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
+                                    <Label fx:id="step4Title" text="Done" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                                    <Label fx:id="step4Desc" text="Money arrives instantly and both sides get a notification." style="-fx-font-size: 12.5px; -fx-text-fill: #334155;"/>
                                 </VBox>
                             </HBox>
                         </VBox>
@@ -472,14 +475,14 @@
                     <VBox fx:id="transfersRightCard" prefWidth="380.0" spacing="14.0"
                           style="-fx-background-color: #ffffff; -fx-padding: 26 28; -fx-background-radius: 18; -fx-border-color: #e2e8f0; -fx-border-width: 1.4; -fx-border-radius: 18; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.08), 24, 0, 0, 8);">
                         <HBox alignment="CENTER_LEFT">
-                            <Label text="Quick transfer" style="-fx-font-size: 16px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
+                            <Label fx:id="previewTransferTitle" text="Quick transfer" style="-fx-font-size: 16px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
                             <Region HBox.hgrow="ALWAYS"/>
-                            <Label text="● Protected" style="-fx-background-color: #dcfce7; -fx-text-fill: #15803d; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 3 8; -fx-background-radius: 10;"/>
+                            <Label fx:id="previewProtectedBadge" text="● Protected" style="-fx-background-color: #dcfce7; -fx-text-fill: #15803d; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 3 8; -fx-background-radius: 10;"/>
                         </HBox>
 
                         <!-- Read-Only Field: From Account -->
                         <VBox spacing="4.0">
-                            <Label text="From" style="-fx-font-size: 11px; -fx-text-fill: #64748b;"/>
+                            <Label fx:id="previewFromLabel" text="From" style="-fx-font-size: 11px; -fx-text-fill: #64748b;"/>
                             <TextField text="Current Account •••• 4821 — \$12,480.50"
                                        editable="false" focusTraversable="false" mouseTransparent="true"
                                        style="-fx-background-color: #f1f5f9; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-padding: 9 12; -fx-font-size: 12px; -fx-text-fill: #334155; -fx-cursor: default;"/>
@@ -487,7 +490,7 @@
 
                         <!-- Read-Only Field: To Account -->
                         <VBox spacing="4.0">
-                            <Label text="To account" style="-fx-font-size: 11px; -fx-text-fill: #64748b;"/>
+                            <Label fx:id="previewToLabel" text="To account" style="-fx-font-size: 11px; -fx-text-fill: #64748b;"/>
                             <TextField text="1002 3345 6789 (Emma Watson)"
                                        editable="false" focusTraversable="false" mouseTransparent="true"
                                        style="-fx-background-color: #f1f5f9; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-padding: 9 12; -fx-font-size: 12px; -fx-text-fill: #334155; -fx-cursor: default;"/>
@@ -495,7 +498,7 @@
 
                         <!-- Read-Only Field: Amount -->
                         <VBox spacing="4.0">
-                            <Label text="Amount (USD)" style="-fx-font-size: 11px; -fx-text-fill: #64748b;"/>
+                            <Label fx:id="previewAmountLabel" text="Amount (USD)" style="-fx-font-size: 11px; -fx-text-fill: #64748b;"/>
                             <TextField text="\$250.00"
                                        editable="false" focusTraversable="false" mouseTransparent="true"
                                        style="-fx-background-color: #f1f5f9; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-padding: 9 12; -fx-font-size: 12px; -fx-text-fill: #0f172a; -fx-font-weight: bold; -fx-cursor: default;"/>
@@ -507,7 +510,7 @@
                         <!-- Live Risk Verdict Indicator -->
                         <HBox alignment="CENTER_LEFT" spacing="6.0" style="-fx-background-color: #dcfce7; -fx-padding: 8 12; -fx-background-radius: 8;">
                             <Label text="✓" style="-fx-text-fill: #15803d; -fx-font-weight: bold; -fx-font-size: 12px;"/>
-                            <Label text="Risk score: low  ·  \$250.00 sent to 1002 3345 6789" style="-fx-font-size: 11px; -fx-text-fill: #15803d; -fx-font-weight: 600;"/>
+                            <Label fx:id="previewVerdictLabel" text="Risk score: low  ·  \$250.00 sent to 1002 3345 6789" style="-fx-font-size: 11px; -fx-text-fill: #15803d; -fx-font-weight: 600;"/>
                         </HBox>
                     </VBox>
 
@@ -520,9 +523,9 @@
 
                     <!-- Section Header with Crisp Dark Slate Typography -->
                     <VBox alignment="CENTER" spacing="8.0">
-                        <Label text="Fraud stopped before it happens"
+                        <Label fx:id="securityTitle" text="Fraud stopped before it happens"
                                style="-fx-font-size: 32px; -fx-font-weight: 800; -fx-text-fill: #0f172a; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', sans-serif;"/>
-                        <Label text="FraudShield watches every transaction in real time and blocks suspicious activity in milliseconds."
+                        <Label fx:id="securitySubtitle" text="FraudShield watches every transaction in real time and blocks suspicious activity in milliseconds."
                                style="-fx-font-size: 16px; -fx-text-fill: #1e293b; -fx-font-weight: 500;"/>
                     </VBox>
 
@@ -534,43 +537,43 @@
                             <!-- Card 1: Real-time risk scoring -->
                             <VBox fx:id="secCard1" spacing="6.0" prefWidth="255.0" GridPane.columnIndex="0" GridPane.rowIndex="0"
                                   style="-fx-background-color: #ffffff; -fx-padding: 22 20; -fx-background-radius: 14; -fx-border-color: #e2e8f0; -fx-border-width: 1.3; -fx-border-radius: 14; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.04), 12, 0, 0, 3);">
-                                <Label text="Real-time risk scoring" style="-fx-font-size: 16px; -fx-font-weight: 800; -fx-text-fill: #0f172a; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', 'Segoe UI', sans-serif;"/>
-                                <Label text="Each transaction gets a risk score before approval." wrapText="true" style="-fx-font-size: 13.5px; -fx-text-fill: #334155; -fx-line-spacing: 2px;"/>
+                                <Label fx:id="sec1Title" text="Real-time risk scoring" style="-fx-font-size: 16px; -fx-font-weight: 800; -fx-text-fill: #0f172a; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', 'Segoe UI', sans-serif;"/>
+                                <Label fx:id="sec1Desc" text="Each transaction gets a risk score before approval." wrapText="true" style="-fx-font-size: 13.5px; -fx-text-fill: #334155; -fx-line-spacing: 2px;"/>
                             </VBox>
 
                             <!-- Card 2: End-to-end encryption -->
                             <VBox fx:id="secCard2" spacing="6.0" prefWidth="255.0" GridPane.columnIndex="1" GridPane.rowIndex="0"
                                   style="-fx-background-color: #ffffff; -fx-padding: 22 20; -fx-background-radius: 14; -fx-border-color: #e2e8f0; -fx-border-width: 1.3; -fx-border-radius: 14; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.04), 12, 0, 0, 3);">
-                                <Label text="End-to-end encryption" style="-fx-font-size: 16px; -fx-font-weight: 800; -fx-text-fill: #0f172a; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', 'Segoe UI', sans-serif;"/>
-                                <Label text="All client-server traffic travels over TLS-secured sockets." wrapText="true" style="-fx-font-size: 13.5px; -fx-text-fill: #334155; -fx-line-spacing: 2px;"/>
+                                <Label fx:id="sec2Title" text="End-to-end encryption" style="-fx-font-size: 16px; -fx-font-weight: 800; -fx-text-fill: #0f172a; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', 'Segoe UI', sans-serif;"/>
+                                <Label fx:id="sec2Desc" text="All client-server traffic travels over TLS-secured sockets." wrapText="true" style="-fx-font-size: 13.5px; -fx-text-fill: #334155; -fx-line-spacing: 2px;"/>
                             </VBox>
 
                             <!-- Card 3: Two-factor login -->
                             <VBox fx:id="secCard3" spacing="6.0" prefWidth="255.0" GridPane.columnIndex="0" GridPane.rowIndex="1"
                                   style="-fx-background-color: #ffffff; -fx-padding: 22 20; -fx-background-radius: 14; -fx-border-color: #e2e8f0; -fx-border-width: 1.3; -fx-border-radius: 14; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.04), 12, 0, 0, 3);">
-                                <Label text="Two-factor login" style="-fx-font-size: 16px; -fx-font-weight: 800; -fx-text-fill: #0f172a; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', 'Segoe UI', sans-serif;"/>
-                                <Label text="One-time codes and trusted-device checks on sign in." wrapText="true" style="-fx-font-size: 13.5px; -fx-text-fill: #334155; -fx-line-spacing: 2px;"/>
+                                <Label fx:id="sec3Title" text="Two-factor login" style="-fx-font-size: 16px; -fx-font-weight: 800; -fx-text-fill: #0f172a; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', 'Segoe UI', sans-serif;"/>
+                                <Label fx:id="sec3Desc" text="One-time codes and trusted-device checks on sign in." wrapText="true" style="-fx-font-size: 13.5px; -fx-text-fill: #334155; -fx-line-spacing: 2px;"/>
                             </VBox>
 
                             <!-- Card 4: Instant alerts -->
                             <VBox fx:id="secCard4" spacing="6.0" prefWidth="255.0" GridPane.columnIndex="1" GridPane.rowIndex="1"
                                   style="-fx-background-color: #ffffff; -fx-padding: 22 20; -fx-background-radius: 14; -fx-border-color: #e2e8f0; -fx-border-width: 1.3; -fx-border-radius: 14; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.04), 12, 0, 0, 3);">
-                                <Label text="Instant alerts" style="-fx-font-size: 16px; -fx-font-weight: 800; -fx-text-fill: #0f172a; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', 'Segoe UI', sans-serif;"/>
-                                <Label text="Get notified the moment something looks unusual." wrapText="true" style="-fx-font-size: 13.5px; -fx-text-fill: #334155; -fx-line-spacing: 2px;"/>
+                                <Label fx:id="sec4Title" text="Instant alerts" style="-fx-font-size: 16px; -fx-font-weight: 800; -fx-text-fill: #0f172a; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', 'Segoe UI', sans-serif;"/>
+                                <Label fx:id="sec4Desc" text="Get notified the moment something looks unusual." wrapText="true" style="-fx-font-size: 13.5px; -fx-text-fill: #334155; -fx-line-spacing: 2px;"/>
                             </VBox>
 
                             <!-- Card 5: Location checks -->
                             <VBox fx:id="secCard5" spacing="6.0" prefWidth="255.0" GridPane.columnIndex="0" GridPane.rowIndex="2"
                                   style="-fx-background-color: #ffffff; -fx-padding: 22 20; -fx-background-radius: 14; -fx-border-color: #e2e8f0; -fx-border-width: 1.3; -fx-border-radius: 14; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.04), 12, 0, 0, 3);">
-                                <Label text="Location checks" style="-fx-font-size: 16px; -fx-font-weight: 800; -fx-text-fill: #0f172a; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', 'Segoe UI', sans-serif;"/>
-                                <Label text="Flags logins and payments from unexpected places." wrapText="true" style="-fx-font-size: 13.5px; -fx-text-fill: #334155; -fx-line-spacing: 2px;"/>
+                                <Label fx:id="sec5Title" text="Location checks" style="-fx-font-size: 16px; -fx-font-weight: 800; -fx-text-fill: #0f172a; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', 'Segoe UI', sans-serif;"/>
+                                <Label fx:id="sec5Desc" text="Flags logins and payments from unexpected places." wrapText="true" style="-fx-font-size: 13.5px; -fx-text-fill: #334155; -fx-line-spacing: 2px;"/>
                             </VBox>
 
                             <!-- Card 6: Behaviour analysis -->
                             <VBox fx:id="secCard6" spacing="6.0" prefWidth="255.0" GridPane.columnIndex="1" GridPane.rowIndex="2"
                                   style="-fx-background-color: #ffffff; -fx-padding: 22 20; -fx-background-radius: 14; -fx-border-color: #e2e8f0; -fx-border-width: 1.3; -fx-border-radius: 14; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.04), 12, 0, 0, 3);">
-                                <Label text="Behaviour analysis" style="-fx-font-size: 16px; -fx-font-weight: 800; -fx-text-fill: #0f172a; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', 'Segoe UI', sans-serif;"/>
-                                <Label text="Learns your normal spending to catch what isn't." wrapText="true" style="-fx-font-size: 13.5px; -fx-text-fill: #334155; -fx-line-spacing: 2px;"/>
+                                <Label fx:id="sec6Title" text="Behaviour analysis" style="-fx-font-size: 16px; -fx-font-weight: 800; -fx-text-fill: #0f172a; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', 'Segoe UI', sans-serif;"/>
+                                <Label fx:id="sec6Desc" text="Learns your normal spending to catch what isn't." wrapText="true" style="-fx-font-size: 13.5px; -fx-text-fill: #334155; -fx-line-spacing: 2px;"/>
                             </VBox>
                         </GridPane>
 
@@ -580,11 +583,11 @@
 
                             <!-- Monitor Header -->
                             <HBox alignment="CENTER_LEFT">
-                                <Label text="Live Fraud monitor" style="-fx-font-size: 15px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
+                                <Label fx:id="monitorTitle" text="Live Fraud monitor" style="-fx-font-size: 15px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
                                 <Region HBox.hgrow="ALWAYS"/>
                                 <HBox alignment="CENTER" spacing="6.0" style="-fx-background-color: #f0fdf4; -fx-padding: 4 10; -fx-background-radius: 12;">
                                     <Circle radius="4.0" fill="#16a34a"/>
-                                    <Label text="Live" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #16a34a;"/>
+                                    <Label fx:id="monitorLiveBadge" text="Live" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #16a34a;"/>
                                 </HBox>
                             </HBox>
 
@@ -615,7 +618,7 @@
                                             <Label text="\$300.00 · 11:26:46 PM · risk 17" style="-fx-font-size: 10.5px; -fx-text-fill: #64748b;"/>
                                         </VBox>
                                         <Region HBox.hgrow="ALWAYS"/>
-                                        <Label text="Approved" style="-fx-background-color: #dcfce7; -fx-text-fill: #15803d; -fx-font-size: 10.5px; -fx-font-weight: bold; -fx-padding: 3 9; -fx-background-radius: 10;"/>
+                                        <Label fx:id="monitorStat1Label" text="Approved" style="-fx-background-color: #dcfce7; -fx-text-fill: #15803d; -fx-font-size: 10.5px; -fx-font-weight: bold; -fx-padding: 3 9; -fx-background-radius: 10;"/>
                                     </HBox>
                                     <!-- Progress indicator bar (Green) -->
                                     <StackPane alignment="CENTER_LEFT" prefHeight="4.0" style="-fx-background-color: #e2e8f0; -fx-background-radius: 2;">
@@ -667,12 +670,12 @@
                                 <VBox alignment="CENTER" spacing="3.0" HBox.hgrow="ALWAYS"
                                       style="-fx-background-color: #f8fafc; -fx-padding: 10; -fx-background-radius: 10; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 10;">
                                     <Label text="178" style="-fx-font-size: 18px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
-                                    <Label text="Reviewed" style="-fx-font-size: 10.5px; -fx-text-fill: #64748b;"/>
+                                    <Label fx:id="monitorStat2Label" text="Reviewed" style="-fx-font-size: 10.5px; -fx-text-fill: #64748b;"/>
                                 </VBox>
                                 <VBox alignment="CENTER" spacing="3.0" HBox.hgrow="ALWAYS"
                                       style="-fx-background-color: #f8fafc; -fx-padding: 10; -fx-background-radius: 10; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 10;">
                                     <Label text="85" style="-fx-font-size: 18px; -fx-font-weight: 800; -fx-text-fill: #0f172a;"/>
-                                    <Label text="Blocked" style="-fx-font-size: 10.5px; -fx-text-fill: #64748b;"/>
+                                    <Label fx:id="monitorStat3Label" text="Blocked" style="-fx-font-size: 10.5px; -fx-text-fill: #64748b;"/>
                                 </VBox>
                             </HBox>
 
@@ -695,7 +698,7 @@
                                 </StackPane>
                                 <Label text="FraudShield" style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;"/>
                             </HBox>
-                            <Label text="Secure banking with real-time fraud detection. Every transaction checked before it goes through."
+                            <Label fx:id="footerDesc" text="Secure banking with real-time fraud detection. Every transaction checked before it goes through."
                                    wrapText="true" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-line-spacing: 2px;"/>
                             <!-- Social icons -->
                             <HBox spacing="10.0">
@@ -718,7 +721,7 @@
 
                         <!-- Col 2: Banking -->
                         <VBox spacing="10.0" prefWidth="120.0">
-                            <Label text="Banking" style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                            <Label fx:id="footerBankingHeader" text="Banking" style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"/>
                             <Label text="Accounts" onMouseClicked="#scrollToAccounts" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
                             <Label text="Cards" onMouseClicked="#scrollToCards" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
                             <Label text="Transfers" onMouseClicked="#scrollToTransfers" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
@@ -727,26 +730,26 @@
 
                         <!-- Col 3: Company -->
                         <VBox spacing="10.0" prefWidth="120.0">
-                            <Label text="Company" style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"/>
-                            <Label text="About us" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
-                            <Label text="Our team" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
-                            <Label text="Careers" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
-                            <Label text="Blog" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                            <Label fx:id="footerCompanyHeader" text="Company" style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                            <Label fx:id="footerAboutUs" text="About us" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                            <Label fx:id="footerOurTeam" text="Our team" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                            <Label fx:id="footerCareers" text="Careers" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                            <Label fx:id="footerBlog" text="Blog" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
                         </VBox>
 
                         <!-- Col 4: Support -->
                         <VBox spacing="10.0" prefWidth="120.0">
-                            <Label text="Support" style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"/>
-                            <Label text="Help center" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
-                            <Label text="Report fraud" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
-                            <Label text="FAQs" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
-                            <Label text="Contact us" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                            <Label fx:id="footerSupportHeader" text="Support" style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                            <Label fx:id="footerHelpCenter" text="Help center" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                            <Label fx:id="footerReportFraud" text="Report fraud" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                            <Label fx:id="footerFaqs" text="FAQs" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                            <Label fx:id="footerContactUs" text="Contact us" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;"/>
                         </VBox>
 
                         <!-- Col 5: Stay updated -->
                         <VBox spacing="10.0" prefWidth="250.0">
-                            <Label text="Stay updated" style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"/>
-                            <Label text="Security tips and product news, once a month." style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;"/>
+                            <Label fx:id="footerStayUpdatedHeader" text="Stay updated" style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                            <Label fx:id="footerNewsletterSub" text="Security tips and product news, once a month." style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;"/>
                             <HBox spacing="8.0" alignment="CENTER_LEFT" style="-fx-background-color: rgba(255,255,255,0.08); -fx-padding: 4 6 4 12; -fx-background-radius: 20;">
                                 <TextField promptText="Your email" HBox.hgrow="ALWAYS"
                                            style="-fx-background-color: transparent; -fx-text-fill: white; -fx-prompt-text-fill: #64748b; -fx-font-size: 12px;"/>

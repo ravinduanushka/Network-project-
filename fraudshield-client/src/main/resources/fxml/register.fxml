@@ -78,9 +78,9 @@
     <!-- ================= RIGHT COLUMN: REGISTRATION FORM (SOFT WARM WHITE) ================= -->
     <StackPane HBox.hgrow="ALWAYS" prefWidth="610.0" alignment="CENTER" style="-fx-background-color: #f8fafc;">
 
-        <!-- Centered Floating White Card -->
-        <VBox maxWidth="440.0" prefHeight="650.0" spacing="14.0"
-              style="-fx-background-color: #ffffff; -fx-padding: 28 38; -fx-background-radius: 18; -fx-border-color: #f1f5f9; -fx-border-radius: 18; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.08), 26, 0, 0, 10);">
+        <!-- Centered Floating White Card (Height snugly matches details) -->
+        <VBox maxWidth="440.0" maxHeight="-Infinity" spacing="13.0" alignment="TOP_CENTER" StackPane.alignment="CENTER"
+              style="-fx-background-color: #ffffff; -fx-padding: 24 36 26 36; -fx-background-radius: 18; -fx-border-color: #e2e8f0; -fx-border-width: 1.2; -fx-border-radius: 18; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.08), 26, 0, 0, 10);">
 
             <!-- Top Back Navigation Row -->
             <HBox alignment="CENTER_LEFT" maxWidth="Infinity">
@@ -110,6 +110,13 @@
                 <Label text="USERNAME" style="-fx-text-fill: #64748b; -fx-font-size: 11px; -fx-font-weight: bold;"/>
                 <TextField fx:id="usernameField" promptText="Choose Username"
                            style="-fx-background-color: #f8fafc; -fx-text-fill: #0f172a; -fx-padding: 10 12; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-font-size: 13px;"/>
+            </VBox>
+
+            <!-- Initial Deposit Field -->
+            <VBox spacing="6.0">
+                <Label text="INITIAL DEPOSIT (LKR)" style="-fx-text-fill: #64748b; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+                <TextField fx:id="initialBalanceField" text="250,000.00" promptText="e.g. 50,000.00"
+                           style="-fx-background-color: #f8fafc; -fx-text-fill: #0f172a; -fx-padding: 10 12; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-font-size: 13px; -fx-font-weight: bold;"/>
             </VBox>
 
             <!-- Password Field -->

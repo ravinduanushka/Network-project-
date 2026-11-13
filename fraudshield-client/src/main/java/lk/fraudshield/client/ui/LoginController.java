@@ -1,5 +1,6 @@
 package lk.fraudshield.client.ui;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -154,9 +155,16 @@ public class LoginController {
             Parent root = loader.load();
             Stage stage = getStage();
             if (stage != null) {
-                stage.setScene(new Scene(root, 1180, 750));
+                Scene scene = stage.getScene();
+                if (scene != null) {
+                    scene.setRoot(root);
+                } else {
+                    stage.setScene(new Scene(root));
+                }
                 stage.setTitle("FraudShield - Customer Dashboard");
+                stage.setMaximized(true);
                 stage.show();
+                Platform.runLater(() -> stage.setMaximized(true));
             }
         } catch (IOException e) {
             showError("Error loading dashboard: " + e.getMessage());
@@ -171,9 +179,16 @@ public class LoginController {
             Parent root = loader.load();
             Stage stage = getStage();
             if (stage != null) {
-                stage.setScene(new Scene(root, 1180, 750));
+                Scene scene = stage.getScene();
+                if (scene != null) {
+                    scene.setRoot(root);
+                } else {
+                    stage.setScene(new Scene(root));
+                }
                 stage.setTitle("FraudShield — Banking that guards itself");
+                stage.setMaximized(true);
                 stage.show();
+                Platform.runLater(() -> stage.setMaximized(true));
             }
         } catch (IOException e) {
             showError("Error returning to home: " + e.getMessage());
@@ -196,9 +211,16 @@ public class LoginController {
             Parent root = loader.load();
             Stage stage = getStage();
             if (stage != null) {
-                stage.setScene(new Scene(root, 1180, 750));
+                Scene scene = stage.getScene();
+                if (scene != null) {
+                    scene.setRoot(root);
+                } else {
+                    stage.setScene(new Scene(root));
+                }
                 stage.setTitle("FraudShield — Create a Secure Banking Account");
+                stage.setMaximized(true);
                 stage.show();
+                Platform.runLater(() -> stage.setMaximized(true));
             }
         } catch (IOException e) {
             showError("Error loading register page: " + e.getMessage());
