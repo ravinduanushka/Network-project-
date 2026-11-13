@@ -58,6 +58,19 @@ public class HomeController {
     @FXML
     private VBox footerSection;
 
+    // Header navigation links
+    @FXML
+    private Label navAccounts;
+
+    @FXML
+    private Label navCards;
+
+    @FXML
+    private Label navTransfers;
+
+    @FXML
+    private Label navSecurity;
+
     // Accounts section animated cards
     @FXML
     private VBox accountCard1;
@@ -85,6 +98,24 @@ public class HomeController {
     // Security section animated parts
     @FXML
     private GridPane securityLeftGrid;
+
+    @FXML
+    private VBox secCard1;
+
+    @FXML
+    private VBox secCard2;
+
+    @FXML
+    private VBox secCard3;
+
+    @FXML
+    private VBox secCard4;
+
+    @FXML
+    private VBox secCard5;
+
+    @FXML
+    private VBox secCard6;
 
     @FXML
     private VBox liveMonitorCard;
@@ -144,32 +175,56 @@ public class HomeController {
         applyButtonHoverEffect(sendMoneyBtn);
         applyButtonHoverEffect(subscribeBtn);
 
-        // Apply subtle hover popup to account cards
+        // Apply interactive popup hover effect to header navigation items
+        applyNavHoverEffect(navAccounts);
+        applyNavHoverEffect(navCards);
+        applyNavHoverEffect(navTransfers);
+        applyNavHoverEffect(navSecurity);
+
+        // Apply subtle hover popup to cards
         applyCardHoverEffect(accountCard1);
         applyCardHoverEffect(accountCard2);
         applyCardHoverEffect(accountCard3);
         applyCardHoverEffect(transfersRightCard);
         applyCardHoverEffect(liveMonitorCard);
+        applyCardHoverEffect(secCard1);
+        applyCardHoverEffect(secCard2);
+        applyCardHoverEffect(secCard3);
+        applyCardHoverEffect(secCard4);
+        applyCardHoverEffect(secCard5);
+        applyCardHoverEffect(secCard6);
 
-        // Scroll listener to trigger entrance animations dynamically as user scrolls
+        // Scroll listener to trigger entrance animations dynamically as user scrolls down and up
         if (mainScrollPane != null) {
             mainScrollPane.vvalueProperty().addListener((obs, oldVal, newVal) -> {
                 double val = newVal.doubleValue();
+
                 if (val > 0.08 && !accountsAnimated) {
                     accountsAnimated = true;
                     playAccountsEntrance();
+                } else if (val < 0.03) {
+                    accountsAnimated = false;
                 }
+
                 if (val > 0.28 && !cardsAnimated) {
                     cardsAnimated = true;
                     playCardsEntrance();
+                } else if (val < 0.16) {
+                    cardsAnimated = false;
                 }
+
                 if (val > 0.48 && !transfersAnimated) {
                     transfersAnimated = true;
                     playTransfersEntrance();
+                } else if (val < 0.36) {
+                    transfersAnimated = false;
                 }
+
                 if (val > 0.68 && !securityAnimated) {
                     securityAnimated = true;
                     playSecurityEntrance();
+                } else if (val < 0.54) {
+                    securityAnimated = false;
                 }
             });
         }
@@ -204,6 +259,38 @@ public class HomeController {
         button.setOnMouseReleased(e -> {
             button.setScaleX(1.06);
             button.setScaleY(1.06);
+        });
+    }
+
+    /**
+     * Interactive popup hover effect for header navigation links:
+     * Scales up slightly (1.10x) with springy ease and subtle translucent pill background on hover.
+     */
+    private void applyNavHoverEffect(Node navItem) {
+        if (navItem == null) return;
+        navItem.setOnMouseEntered(e -> {
+            ScaleTransition st = new ScaleTransition(Duration.millis(160), navItem);
+            st.setToX(1.10);
+            st.setToY(1.10);
+            st.setInterpolator(Interpolator.EASE_OUT);
+            st.play();
+            navItem.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 14.5px; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 6 12; -fx-background-radius: 14; -fx-background-color: rgba(255, 255, 255, 0.18);");
+        });
+        navItem.setOnMouseExited(e -> {
+            ScaleTransition st = new ScaleTransition(Duration.millis(160), navItem);
+            st.setToX(1.0);
+            st.setToY(1.0);
+            st.setInterpolator(Interpolator.EASE_OUT);
+            st.play();
+            navItem.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 14.5px; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 6 12; -fx-background-radius: 14; -fx-background-color: transparent;");
+        });
+        navItem.setOnMousePressed(e -> {
+            navItem.setScaleX(0.95);
+            navItem.setScaleY(0.95);
+        });
+        navItem.setOnMouseReleased(e -> {
+            navItem.setScaleX(1.10);
+            navItem.setScaleY(1.10);
         });
     }
 
