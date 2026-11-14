@@ -41,6 +41,7 @@ public class AdminNetworkService {
             if (responseLine != null) {
                 Message resp = Message.fromJson(responseLine);
                 if (resp.getMessageType() == MessageType.ADMIN_DECISION_RESULT) {
+                    @SuppressWarnings("unchecked")
                     Map<String, Object> payload = resp.getPayload(Map.class);
                     if (payload != null) {
                         Object successObj = payload.get("success");
