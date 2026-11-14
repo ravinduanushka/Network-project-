@@ -66,6 +66,8 @@ public class BankServer {
 
         LOG.info("Secure FraudShield server listening on port " + PORT + " (TLS/SSL), pool size " + POOL_SIZE);
 
+        new lk.fraudshield.server.net.AdminChannelServer().start();
+
         while (running) {
             SSLSocket client = null;
             try {
