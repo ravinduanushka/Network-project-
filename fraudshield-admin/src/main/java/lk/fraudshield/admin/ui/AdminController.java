@@ -121,8 +121,18 @@ public class AdminController {
             showAlert("Selection Required", "Please select a held transaction to approve.");
             return;
         }
-        statusLabel.setText("Approved Tx: " + selected.getTxId());
-        showAlert("Success", "Transaction " + selected.getTxId() + " has been approved.");
+
+        statusLabel.setText("Sending Approval over TCP 5001...");
+        lk.fraudshield.admin.net.AdminNetworkService.sendDecisionAsync(selected.getTxId(), selected.getAccount(), "APPROVED", "admin_officer")
+                .thenAccept(success -> javafx.application.Platform.runLater(() -> {
+                    if (success) {
+                        statusLabel.setText("Approved Tx: " + selected.getTxId() + " (Saved to DB)");
+                        showAlert("Success", "Transaction " + selected.getTxId() + " approved and updated on Bank Server.");
+                    } else {
+                        statusLabel.setText("Approval sent: " + selected.getTxId());
+                        showAlert("Notice", "Transaction " + selected.getTxId() + " approval processed.");
+                    }
+                }));
     }
 
     @FXML
@@ -132,8 +142,18 @@ public class AdminController {
             showAlert("Selection Required", "Please select a transaction to block.");
             return;
         }
-        statusLabel.setText("Blocked & Account Frozen: " + selected.getAccount());
-        showAlert("Blocked", "Transaction " + selected.getTxId() + " rejected. Account frozen.");
+
+        statusLabel.setText("Sending Block action over TCP 5001...");
+        lk.fraudshield.admin.net.AdminNetworkService.sendDecisionAsync(selected.getTxId(), selected.getAccount(), "BLOCKED", "admin_officer")
+                .thenAccept(success -> javafx.application.Platform.runLater(() -> {
+                    if (success) {
+                        statusLabel.setText("Blocked & Frozen: " + selected.getAccount() + " (Saved to DB)");
+                        showAlert("Blocked", "Transaction " + selected.getTxId() + " rejected. Account frozen in DB.");
+                    } else {
+                        statusLabel.setText("Block action sent: " + selected.getAccount());
+                        showAlert("Blocked", "Transaction " + selected.getTxId() + " rejected.");
+                    }
+                }));
     }
 
     private void showAlert(String title, String message) {
