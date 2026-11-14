@@ -581,7 +581,7 @@ public class DashboardController {
                             String reasons = alert.reasons() != null && !alert.reasons().isEmpty()
                                     ? String.join(", ", alert.reasons())
                                     : "Rule Triggered";
-                            String formatted = String.format("[%s] 🚨 %s ALERT: Tx %s | Score: %d | %s",
+                            String formatted = String.format("[%s] %s ALERT: Tx %s | Score: %d | %s",
                                     timestamp, alert.decision(), alert.txId(), alert.score(), reasons);
 
                             Platform.runLater(() -> {

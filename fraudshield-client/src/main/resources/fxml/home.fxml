@@ -42,7 +42,7 @@
             <!-- Right Nav Items: Language Pill + Sign Up Button (With smooth popup scale on hover) -->
             <HBox alignment="CENTER" spacing="14.0">
                 <!-- Language Dropdown Menu (English / Sinhala) -->
-                <MenuButton fx:id="languageMenuBtn" text="🌐 Eng" styleClass="lang-menu-btn">
+                <MenuButton fx:id="languageMenuBtn" text="English" styleClass="lang-menu-btn">
                     <items>
                         <MenuItem text="English" onAction="#handleLanguageEnglish"/>
                         <MenuItem text="සිංහල (Sinhala)" onAction="#handleLanguageSinhala"/>
@@ -147,7 +147,7 @@
                                             <Label text="Anushka" style="-fx-font-size: 12px; -fx-text-fill: #0f172a; -fx-font-weight: bold;"/>
                                         </VBox>
                                         <Region HBox.hgrow="ALWAYS"/>
-                                        <Label text="🔔" style="-fx-font-size: 12px;"/>
+                                        <Label text="*" style="-fx-font-size: 12px;"/>
                                     </HBox>
 
                                     <!-- Balance Card Inside Phone -->
@@ -176,7 +176,7 @@
                                         </VBox>
                                         <VBox alignment="CENTER" spacing="3.0">
                                             <StackPane prefWidth="32.0" prefHeight="32.0" style="-fx-background-color: #eff6ff; -fx-background-radius: 16;">
-                                                <Label text="🛡" style="-fx-font-size: 11px;"/>
+                                                <Label text="[SEC]" style="-fx-font-size: 11px;"/>
                                             </StackPane>
                                             <Label fx:id="phoneShieldLabel" text="Shield" style="-fx-font-size: 9px; -fx-text-fill: #475569;"/>
                                         </VBox>
@@ -192,19 +192,19 @@
                                     <VBox spacing="6.0">
                                         <Label fx:id="phoneRecentActivityLabel" text="Recent Activity" style="-fx-font-size: 10px; -fx-text-fill: #0f172a; -fx-font-weight: bold;"/>
                                         <HBox alignment="CENTER_LEFT" spacing="8.0" style="-fx-background-color: #f8fafc; -fx-padding: 5 8; -fx-background-radius: 8;">
-                                            <Label text="🛍" style="-fx-font-size: 11px;"/>
+                                            <Label text="[SHOP]" style="-fx-font-size: 11px;"/>
                                             <Label fx:id="phoneShoppingLabel" text="Shopping" style="-fx-font-size: 9px; -fx-text-fill: #334155; -fx-font-weight: bold;"/>
                                             <Region HBox.hgrow="ALWAYS"/>
                                             <Label text="\$1,240" style="-fx-font-size: 9px; -fx-text-fill: #0f172a; -fx-font-weight: bold;"/>
                                         </HBox>
                                         <HBox alignment="CENTER_LEFT" spacing="8.0" style="-fx-background-color: #f8fafc; -fx-padding: 5 8; -fx-background-radius: 8;">
-                                            <Label text="⚡" style="-fx-font-size: 11px;"/>
+                                            <Label text="[BILL]" style="-fx-font-size: 11px;"/>
                                             <Label fx:id="phoneBillsPaidLabel" text="Bills Paid" style="-fx-font-size: 9px; -fx-text-fill: #334155; -fx-font-weight: bold;"/>
                                             <Region HBox.hgrow="ALWAYS"/>
                                             <Label text="-\$85.00" style="-fx-font-size: 9px; -fx-text-fill: #dc2626; -fx-font-weight: bold;"/>
                                         </HBox>
                                         <HBox alignment="CENTER_LEFT" spacing="8.0" style="-fx-background-color: #f8fafc; -fx-padding: 5 8; -fx-background-radius: 8;">
-                                            <Label text="✈" style="-fx-font-size: 11px;"/>
+                                            <Label text="[TRIP]" style="-fx-font-size: 11px;"/>
                                             <Label fx:id="phoneTravelLabel" text="Travel Booked" style="-fx-font-size: 9px; -fx-text-fill: #334155; -fx-font-weight: bold;"/>
                                             <Region HBox.hgrow="ALWAYS"/>
                                             <Label text="-\$420" style="-fx-font-size: 9px; -fx-text-fill: #dc2626; -fx-font-weight: bold;"/>
@@ -218,7 +218,7 @@
                                   style="-fx-background-color: #fffbeb; -fx-background-radius: 16; -fx-border-color: #fef08a; -fx-border-width: 1.5; -fx-border-radius: 16; -fx-padding: 12 14; -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.22), 20, 0, 0, 8);">
                                 <HBox alignment="CENTER_LEFT" spacing="8.0">
                                     <StackPane prefWidth="24.0" prefHeight="24.0" style="-fx-background-color: #fee2e2; -fx-background-radius: 12;">
-                                        <Label text="🛡" style="-fx-text-fill: #dc2626; -fx-font-size: 12px;"/>
+                                        <Label text="[SEC]" style="-fx-text-fill: #dc2626; -fx-font-size: 12px;"/>
                                     </StackPane>
                                     <Label fx:id="fraudToastTitle" text="Fraud blocked" style="-fx-font-size: 12px; -fx-font-weight: 800; -fx-text-fill: #991b1b;"/>
                                 </HBox>
@@ -757,8 +757,8 @@
                                         style="-fx-background-color: #fc831bf2; -fx-text-fill: white; -fx-font-size: 11.5px; -fx-font-weight: bold; -fx-padding: 6 16; -fx-background-radius: 16; -fx-cursor: hand;"/>
                             </HBox>
                             <VBox spacing="4.0" style="-fx-padding: 6 0 0 0;">
-                                <Label text="📞  +94 11 234 5678" style="-fx-text-fill: #94a3b8; -fx-font-size: 11.5px;"/>
-                                <Label text="✉  support@fraudshield.lk" style="-fx-text-fill: #94a3b8; -fx-font-size: 11.5px;"/>
+                                <Label text="Tel: +94 11 234 5678" style="-fx-text-fill: #94a3b8; -fx-font-size: 11.5px;"/>
+                                <Label text="Email: support@fraudshield.lk" style="-fx-text-fill: #94a3b8; -fx-font-size: 11.5px;"/>
                             </VBox>
                         </VBox>
                     </HBox>

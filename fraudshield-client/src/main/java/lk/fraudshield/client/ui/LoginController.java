@@ -76,12 +76,12 @@ public class LoginController {
             passwordTextField.setText(passwordField.getText());
             passwordTextField.setVisible(true);
             passwordField.setVisible(false);
-            if (eyeToggleBtn != null) eyeToggleBtn.setText("🔒");
+            if (eyeToggleBtn != null) eyeToggleBtn.setText("Hide");
         } else {
             passwordField.setText(passwordTextField.getText());
             passwordField.setVisible(true);
             passwordTextField.setVisible(false);
-            if (eyeToggleBtn != null) eyeToggleBtn.setText("👁");
+            if (eyeToggleBtn != null) eyeToggleBtn.setText("Show");
         }
     }
 
