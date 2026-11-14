@@ -4,79 +4,104 @@
 <?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.SVGPath?>
 
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="lk.fraudshield.admin.ui.AdminController"
-            stylesheets="@../styles/admin.css" prefHeight="720.0" prefWidth="1180.0">
+            stylesheets="@../styles/admin.css" prefHeight="750.0" prefWidth="1200.0"
+            style="-fx-background-color: #f8fafc;">
 
+    <!-- ================= TOP HEADER BAR (VIBRANT ROYAL BLUE GRADIENT MATCHING CLIENT) ================= -->
     <top>
-        <VBox styleClass="header-bar" spacing="10">
-            <padding><Insets top="15" right="20" bottom="15" left="20"/></padding>
-            <HBox alignment="CENTER_LEFT" spacing="15">
-                <Label text="FraudShield Security Operations Console" styleClass="title-label"/>
+        <VBox styleClass="header-bar" spacing="12">
+            <HBox alignment="CENTER_LEFT" spacing="14">
+                <!-- Brand Shield Icon -->
+                <StackPane prefWidth="32.0" prefHeight="32.0" style="-fx-background-color: rgba(255, 255, 255, 0.22); -fx-background-radius: 8;">
+                    <SVGPath content="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm-1 14.5l-3.5-3.5 1.41-1.41L11 13.67l5.09-5.09 1.41 1.41L11 16.5z"
+                             fill="WHITE"/>
+                </StackPane>
+
+                <HBox alignment="BASELINE_LEFT" spacing="6.0">
+                    <Label text="FraudShield" styleClass="title-label"/>
+                    <Label text="Security Operations" styleClass="title-sublabel"/>
+                </HBox>
+
                 <Region HBox.hgrow="ALWAYS"/>
-                <Label fx:id="statusLabel" text="Listening on UDP 6001" styleClass="status-pill"/>
+
+                <!-- Live Status Badge -->
+                <HBox alignment="CENTER" spacing="8" styleClass="status-pill">
+                    <Circle radius="4.0" fill="#4ade80"/>
+                    <Label fx:id="statusLabel" text="UDP 6001 Live Stream · TCP 5001" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+                </HBox>
             </HBox>
 
-            <HBox spacing="20">
-                <VBox styleClass="metric-card">
+            <!-- Stat Metric Cards Row -->
+            <HBox spacing="18" style="-fx-padding: 4 0 2 0;">
+                <VBox styleClass="metric-card" HBox.hgrow="ALWAYS">
                     <Label text="TOTAL ALERTS" styleClass="metric-title"/>
                     <Label fx:id="totalAlertsLabel" text="0" styleClass="metric-value"/>
                 </VBox>
-                <VBox styleClass="metric-card, metric-held">
+                <VBox styleClass="metric-card, metric-held" HBox.hgrow="ALWAYS">
                     <Label text="HELD TRANSACTIONS" styleClass="metric-title"/>
-                    <Label fx:id="heldCountLabel" text="0" styleClass="metric-value"/>
+                    <Label fx:id="heldCountLabel" text="0" styleClass="metric-value" style="-fx-text-fill: #d97706;"/>
                 </VBox>
-                <VBox styleClass="metric-card, metric-blocked">
+                <VBox styleClass="metric-card, metric-blocked" HBox.hgrow="ALWAYS">
                     <Label text="AUTO-BLOCKED" styleClass="metric-title"/>
-                    <Label fx:id="blockedCountLabel" text="0" styleClass="metric-value"/>
+                    <Label fx:id="blockedCountLabel" text="0" styleClass="metric-value" style="-fx-text-fill: #dc2626;"/>
                 </VBox>
             </HBox>
         </VBox>
     </top>
 
+    <!-- ================= MAIN CONTENT (CHARTS & TABLE) ================= -->
     <center>
-        <VBox spacing="15">
-            <padding><Insets top="15" right="20" bottom="15" left="20"/></padding>
+        <VBox spacing="16">
+            <padding><Insets top="18" right="28" bottom="20" left="28"/></padding>
 
-            <!-- Real-time Interactive Charts Section -->
-            <HBox spacing="15" prefHeight="240.0" minHeight="240.0">
-                <!-- Pie Chart: Risk Decisions Breakdown -->
-                <VBox styleClass="chart-card" HBox.hgrow="ALWAYS" prefWidth="480.0">
+            <!-- Charts Row (Cards with White Background & Soft Shadows) -->
+            <HBox spacing="18" prefHeight="250.0" minHeight="250.0">
+                <!-- Pie Chart Card -->
+                <VBox styleClass="chart-card" HBox.hgrow="ALWAYS" prefWidth="500.0">
                     <Label text="Live Risk Decisions Distribution" styleClass="chart-card-title"/>
                     <PieChart fx:id="decisionPieChart" legendVisible="true" animated="true" VBox.vgrow="ALWAYS"/>
                 </VBox>
 
-                <!-- Bar Chart: Live Anomaly Scores of Flagged Transactions -->
-                <VBox styleClass="chart-card" HBox.hgrow="ALWAYS" prefWidth="600.0">
-                    <Label text="Recent Anomaly Risk Scores (0-100)" styleClass="chart-card-title"/>
+                <!-- Bar Chart Card -->
+                <VBox styleClass="chart-card" HBox.hgrow="ALWAYS" prefWidth="640.0">
+                    <Label text="Recent Anomaly Risk Scores (0 - 100)" styleClass="chart-card-title"/>
                     <BarChart fx:id="scoreBarChart" animated="true" legendVisible="false" VBox.vgrow="ALWAYS">
                         <xAxis>
-                            <CategoryAxis fx:id="barXAxis" label="Transaction ID" tickLabelFill="#94a3b8"/>
+                            <CategoryAxis fx:id="barXAxis" label="Transaction ID" tickLabelFill="#64748b"/>
                         </xAxis>
                         <yAxis>
-                            <NumberAxis fx:id="barYAxis" label="Risk Score" autoRanging="false" lowerBound="0" upperBound="100" tickUnit="20" tickLabelFill="#94a3b8"/>
+                            <NumberAxis fx:id="barYAxis" label="Risk Score" autoRanging="false" lowerBound="0" upperBound="100" tickUnit="20" tickLabelFill="#64748b"/>
                         </yAxis>
                     </BarChart>
                 </VBox>
             </HBox>
 
-            <!-- Table View Section -->
-            <VBox spacing="8" VBox.vgrow="ALWAYS">
-                <Label text="Real-Time Flagged &amp; Suspicious Transactions (UDP Live Stream)" styleClass="section-title"/>
+            <!-- Live Table Section -->
+            <VBox spacing="10" VBox.vgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT">
+                    <Label text="Real-Time Flagged Transactions (UDP 6001 Feed)" styleClass="section-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label text="Select a held transaction to take action" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;"/>
+                </HBox>
 
                 <TableView fx:id="alertsTable" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="colTxId" text="Tx ID" prefWidth="140"/>
-                        <TableColumn fx:id="colAccount" text="Account" prefWidth="120"/>
-                        <TableColumn fx:id="colScore" text="Score" prefWidth="80"/>
-                        <TableColumn fx:id="colDecision" text="Decision" prefWidth="100"/>
-                        <TableColumn fx:id="colReasons" text="Triggered Fraud Rules" prefWidth="420"/>
-                        <TableColumn fx:id="colTime" text="Timestamp" prefWidth="160"/>
+                        <TableColumn fx:id="colTxId" text="Transaction ID" prefWidth="160"/>
+                        <TableColumn fx:id="colAccount" text="Account No" prefWidth="130"/>
+                        <TableColumn fx:id="colScore" text="Score" prefWidth="85"/>
+                        <TableColumn fx:id="colDecision" text="Decision" prefWidth="110"/>
+                        <TableColumn fx:id="colReasons" text="Triggered Fraud Rules" prefWidth="440"/>
+                        <TableColumn fx:id="colTime" text="Timestamp" prefWidth="170"/>
                     </columns>
                 </TableView>
 
-                <HBox spacing="15" alignment="CENTER_RIGHT" style="-fx-padding: 6 0 0 0;">
+                <!-- Bottom Action Controls: Orange Approve & Vibrant Red Block -->
+                <HBox spacing="16" alignment="CENTER_RIGHT" style="-fx-padding: 8 0 0 0;">
                     <Button text="Approve Transaction" onAction="#handleApprove" styleClass="btn-approve"/>
                     <Button text="Block &amp; Freeze Account" onAction="#handleBlock" styleClass="btn-block"/>
                 </HBox>
