@@ -4,6 +4,7 @@ import lk.fraudshield.common.protocol.Message;
 import lk.fraudshield.common.protocol.MessageType;
 import lk.fraudshield.server.dao.TransactionDao;
 import lk.fraudshield.server.dao.UserDao;
+import lk.fraudshield.server.security.RateLimiter;
 import lk.fraudshield.server.security.SessionManager;
 import lk.fraudshield.server.service.FraudDetector;
 import lk.fraudshield.server.service.FraudDetector.FraudResult;
@@ -34,6 +35,8 @@ public class ClientHandler implements Runnable {
         private static final SessionManager SESSIONS = new SessionManager();
 
         private static final FraudDetector FRAUD_DETECTOR = new FraudDetector();
+
+        private static final RateLimiter RATE_LIMITER = new RateLimiter();
 
     // ---- request payload shapes (deserialised by Gson) ----
     private static class RegisterRequest {
@@ -106,6 +109,14 @@ public class ClientHandler implements Runnable {
     }
 
         private Message handle(String line) {
+        String clientIp = socket.getInetAddress() != null ? socket.getInetAddress().getHostAddress() : "unknown";
+
+        if (!RATE_LIMITER.allowRequest(clientIp)) {
+            long remaining = RATE_LIMITER.getRemainingBlockSeconds(clientIp);
+            LOG.warning("Rate limit exceeded for IP: " + clientIp + ". Blocked for " + remaining + "s");
+            return Message.error(null, "429: Too Many Requests - IP Blocked for " + remaining + "s");
+        }
+
         Message request;
         try {
             request = Message.fromJson(line);
