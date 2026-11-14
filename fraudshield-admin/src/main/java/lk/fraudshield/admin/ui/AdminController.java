@@ -3,6 +3,11 @@ package lk.fraudshield.admin.ui;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import lk.fraudshield.admin.net.AdminAlertListener;
@@ -22,10 +27,24 @@ public class AdminController {
     @FXML private Label heldCountLabel;
     @FXML private Label statusLabel;
 
+    // Real-Time Charts
+    @FXML private PieChart decisionPieChart;
+    @FXML private BarChart<String, Number> scoreBarChart;
+    @FXML private CategoryAxis barXAxis;
+    @FXML private NumberAxis barYAxis;
+
     private final ObservableList<AlertItem> alertItems = FXCollections.observableArrayList();
+    private final ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
+    private final XYChart.Series<String, Number> barSeries = new XYChart.Series<>();
+
     private AdminAlertListener alertListener;
     private int blockedCount = 0;
     private int heldCount = 0;
+    private int safeCount = 0;
+
+    private PieChart.Data heldData;
+    private PieChart.Data blockedData;
+    private PieChart.Data safeData;
 
     @FXML
     public void initialize() {
@@ -38,21 +57,60 @@ public class AdminController {
 
         alertsTable.setItems(alertItems);
 
+        setupCharts();
+
         alertListener = new AdminAlertListener(this::handleNewAlert);
         alertListener.start();
         statusLabel.setText("System Active - Listening on UDP 6001");
+    }
+
+    private void setupCharts() {
+        // Setup Decision PieChart with initial reactive slices
+        heldData = new PieChart.Data("HELD (Review)", 0);
+        blockedData = new PieChart.Data("BLOCKED", 0);
+        safeData = new PieChart.Data("APPROVED / SAFE", 1); // seed 1 so chart renders nicely
+
+        pieChartData.addAll(heldData, blockedData, safeData);
+        if (decisionPieChart != null) {
+            decisionPieChart.setData(pieChartData);
+        }
+
+        // Setup Anomaly Scores BarChart
+        barSeries.setName("Risk Scores");
+        if (scoreBarChart != null) {
+            scoreBarChart.getData().add(barSeries);
+        }
     }
 
     private void handleNewAlert(AlertItem alert) {
         alertItems.add(0, alert);
         totalAlertsLabel.setText(String.valueOf(alertItems.size()));
 
-        if ("BLOCK".equalsIgnoreCase(alert.getDecision())) {
+        String decision = alert.getDecision();
+        if ("BLOCK".equalsIgnoreCase(decision)) {
             blockedCount++;
             blockedCountLabel.setText(String.valueOf(blockedCount));
-        } else if ("HOLD".equalsIgnoreCase(alert.getDecision())) {
+            blockedData.setPieValue(blockedCount);
+        } else if ("HOLD".equalsIgnoreCase(decision)) {
             heldCount++;
             heldCountLabel.setText(String.valueOf(heldCount));
+            heldData.setPieValue(heldCount);
+        } else {
+            safeCount++;
+            safeData.setPieValue(safeCount);
+        }
+
+        // Add live bar to Anomaly Score BarChart
+        String shortTxId = alert.getTxId().length() > 8 
+                ? alert.getTxId().substring(0, 8) 
+                : alert.getTxId();
+        
+        XYChart.Data<String, Number> bar = new XYChart.Data<>(shortTxId, alert.getScore());
+        barSeries.getData().add(bar);
+
+        // Keep at most 8 bars in view
+        if (barSeries.getData().size() > 8) {
+            barSeries.getData().remove(0);
         }
     }
 
