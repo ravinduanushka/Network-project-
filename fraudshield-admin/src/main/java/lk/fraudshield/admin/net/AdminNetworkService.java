@@ -40,9 +40,12 @@ public class AdminNetworkService {
             String responseLine = in.readLine();
             if (responseLine != null) {
                 Message resp = Message.fromJson(responseLine);
-                if (resp.getMessageType() == MessageType.ADMIN_DECISION_RESULT && resp.getPayload() != null) {
-                    Object successObj = resp.getPayload().get("success");
-                    return Boolean.TRUE.equals(successObj);
+                if (resp.getMessageType() == MessageType.ADMIN_DECISION_RESULT) {
+                    Map<String, Object> payload = resp.getPayload(Map.class);
+                    if (payload != null) {
+                        Object successObj = payload.get("success");
+                        return Boolean.TRUE.equals(successObj);
+                    }
                 }
             }
         } catch (Exception e) {
