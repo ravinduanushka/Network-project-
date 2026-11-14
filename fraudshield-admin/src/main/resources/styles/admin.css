@@ -1,142 +1,176 @@
-/* Main Background */
+/* FraudShield Admin Security Operations Console - Modern Vibrant Royal Blue & Light Theme */
+
 .root {
-    -fx-font-family: 'Segoe UI', Arial, sans-serif;
-    -fx-background-color: #0f172a;
+    -fx-font-family: 'Poppins', 'Urbanist', 'Segoe UI', Arial, sans-serif;
+    -fx-background-color: #f8fafc;
 }
 
-/* Header Bar */
+/* Top Header Bar */
 .header-bar {
-    -fx-background-color: #1e293b;
-    -fx-border-color: #334155;
-    -fx-border-width: 0 0 1 0;
+    -fx-background-color: linear-gradient(to right, #1d4ed8 0%, #2563eb 55%, #3b82f6 100%);
+    -fx-padding: 14 30;
+    -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.22), 16, 0, 0, 4);
 }
 
 .title-label {
     -fx-font-size: 20px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #f8fafc;
+    -fx-font-weight: 800;
+    -fx-text-fill: #ffffff;
+}
+
+.title-sublabel {
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-text-fill: rgba(255, 255, 255, 0.82);
 }
 
 .status-pill {
-    -fx-background-color: #064e3b;
-    -fx-text-fill: #34d399;
-    -fx-padding: 4 10;
-    -fx-background-radius: 12;
+    -fx-background-color: rgba(255, 255, 255, 0.18);
+    -fx-text-fill: #ffffff;
+    -fx-padding: 6 14;
+    -fx-background-radius: 20;
+    -fx-border-color: rgba(255, 255, 255, 0.3);
+    -fx-border-radius: 20;
     -fx-font-size: 12px;
+    -fx-font-weight: bold;
 }
 
 .section-title {
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 15px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #0f172a;
 }
 
 /* Metric Cards */
 .metric-card {
-    -fx-background-color: #334155;
-    -fx-padding: 10 15;
-    -fx-background-radius: 8;
-    -fx-min-width: 140px;
+    -fx-background-color: #ffffff;
+    -fx-padding: 14 20;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1px;
+    -fx-min-width: 170px;
+    -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.05), 10, 0, 0, 3);
 }
 
 .metric-held {
     -fx-border-color: #f59e0b;
-    -fx-border-width: 0 0 0 4;
-    -fx-background-radius: 8;
+    -fx-border-width: 0 0 0 5;
 }
 
 .metric-blocked {
     -fx-border-color: #ef4444;
-    -fx-border-width: 0 0 0 4;
-    -fx-background-radius: 8;
+    -fx-border-width: 0 0 0 5;
 }
 
 .metric-title {
-    -fx-font-size: 10px;
-    -fx-text-fill: #94a3b8;
-    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+    -fx-text-fill: #64748b;
+    -fx-font-weight: 700;
+    -fx-text-transform: uppercase;
 }
 
 .metric-value {
-    -fx-font-size: 20px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #f8fafc;
+    -fx-font-size: 26px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #0f172a;
 }
 
-/* Table View */
-.table-view {
-    -fx-background-color: #1e293b;
-    -fx-border-color: #334155;
-    -fx-border-radius: 6;
-}
-
-.table-view .column-header {
-    -fx-background-color: #334155;
-}
-
-.table-view .column-header .label {
-    -fx-text-fill: #e2e8f0;
-    -fx-font-weight: bold;
-}
-
-.table-row-cell {
-    -fx-background-color: #1e293b;
-    -fx-text-fill: #f8fafc;
-}
-
-.table-row-cell:hover {
-    -fx-background-color: #334155;
-}
-
-/* Action Buttons */
-.btn-approve {
-    -fx-background-color: #059669;
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
-    -fx-padding: 8 16;
-    -fx-background-radius: 6;
-}
-
-.btn-block {
-    -fx-background-color: #dc2626;
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
-    -fx-padding: 8 16;
-    -fx-background-radius: 6;
-}
-
-
-/* Chart Cards & Dark Theme Styling */
+/* Chart Cards */
 .chart-card {
-    -fx-background-color: #1e293b;
-    -fx-padding: 12 16;
-    -fx-background-radius: 8;
-    -fx-border-color: #334155;
-    -fx-border-radius: 8;
+    -fx-background-color: #ffffff;
+    -fx-padding: 14 18;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-border-color: #e2e8f0;
     -fx-border-width: 1px;
+    -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.05), 10, 0, 0, 3);
 }
 
 .chart-card-title {
-    -fx-font-size: 13px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #94a3b8;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #334155;
 }
 
 .chart {
-    -fx-padding: 4px;
+    -fx-padding: 6px;
 }
 
 .chart-legend {
     -fx-background-color: transparent;
-    -fx-padding: 4px;
+    -fx-padding: 6px;
 }
 
 .chart-legend-item {
-    -fx-text-fill: #cbd5e1;
+    -fx-text-fill: #475569;
     -fx-font-size: 11px;
+    -fx-font-weight: 600;
 }
 
 .axis-label {
-    -fx-text-fill: #94a3b8;
-    -fx-font-size: 10px;
+    -fx-text-fill: #64748b;
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+}
+
+/* Modern Clean Table View */
+.table-view {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.04), 10, 0, 0, 3);
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #f1f5f9;
+    -fx-background-radius: 12 12 0 0;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-padding: 10 12;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #475569;
+    -fx-font-weight: 700;
+    -fx-font-size: 12px;
+}
+
+.table-row-cell {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #1e293b;
+    -fx-font-size: 13px;
+    -fx-padding: 4 6;
+    -fx-border-color: #f1f5f9;
+    -fx-border-width: 0 0 1 0;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: #f8fafc;
+}
+
+/* Action Buttons */
+.btn-approve {
+    -fx-background-color: #fc831bf2;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-padding: 10 22;
+    -fx-background-radius: 20;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(252, 131, 27, 0.45), 14, 0, 0, 4);
+}
+
+.btn-block {
+    -fx-background-color: #ef4444;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-padding: 10 22;
+    -fx-background-radius: 20;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(239, 68, 68, 0.45), 14, 0, 0, 4);
 }

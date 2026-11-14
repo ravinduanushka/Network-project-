@@ -539,7 +539,7 @@ public class HomeController {
 
     private void applyLanguage(boolean isSinhala) {
         if (isSinhala) {
-            if (languageMenuBtn != null) languageMenuBtn.setText("🌐 සිං");
+            if (languageMenuBtn != null) languageMenuBtn.setText("Sinhala");
             if (navAccounts != null) navAccounts.setText("ගිණුම්");
             if (navCards != null) navCards.setText("කාඩ්පත්");
             if (navTransfers != null) navTransfers.setText("මුදල් හුවමාරු");
@@ -666,7 +666,7 @@ public class HomeController {
 
         } else {
             // English (Original)
-            if (languageMenuBtn != null) languageMenuBtn.setText("🌐 Eng");
+            if (languageMenuBtn != null) languageMenuBtn.setText("English");
             if (navAccounts != null) navAccounts.setText("Accounts");
             if (navCards != null) navCards.setText("Cards");
             if (navTransfers != null) navTransfers.setText("Transfers");

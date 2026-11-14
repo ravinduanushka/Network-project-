@@ -3,8 +3,8 @@ package lk.fraudshield.client.util;
 public class LanguageManager {
 
     public enum Language {
-        ENGLISH("en", "🌐 Eng"),
-        SINHALA("si", "🌐 සිං");
+        ENGLISH("en", "English"),
+        SINHALA("si", "Sinhala");
 
         private final String code;
         private final String label;
