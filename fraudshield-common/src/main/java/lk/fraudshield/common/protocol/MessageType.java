@@ -24,6 +24,8 @@ public enum MessageType {
     // ---- administration ----
         ADMIN_LOGIN,
         ADMIN_LOGIN_RESULT,
+        ADMIN_DECISION,
+        ADMIN_DECISION_RESULT,
 
     // ---- generic ----
         ERROR;
