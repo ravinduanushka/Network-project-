@@ -104,3 +104,39 @@
     -fx-padding: 8 16;
     -fx-background-radius: 6;
 }
+
+
+/* Chart Cards & Dark Theme Styling */
+.chart-card {
+    -fx-background-color: #1e293b;
+    -fx-padding: 12 16;
+    -fx-background-radius: 8;
+    -fx-border-color: #334155;
+    -fx-border-radius: 8;
+    -fx-border-width: 1px;
+}
+
+.chart-card-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #94a3b8;
+}
+
+.chart {
+    -fx-padding: 4px;
+}
+
+.chart-legend {
+    -fx-background-color: transparent;
+    -fx-padding: 4px;
+}
+
+.chart-legend-item {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 11px;
+}
+
+.axis-label {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 10px;
+}
