@@ -195,7 +195,23 @@ public class TransactionDao {
         }
     }
 
-        public void logAttempt(String fromAcc, String toAcc, double amount, String status, int riskScore) {
+        public boolean updateTransactionStatus(String txId, String newStatus, String adminUser) {
+        if (txId == null || newStatus == null) return false;
+        String sql = "UPDATE transactions SET status = ? WHERE tx_id = ?";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, newStatus.toUpperCase());
+            ps.setString(2, txId);
+            int rows = ps.executeUpdate();
+            LOG.info("Transaction " + txId + " updated to " + newStatus + " by admin: " + adminUser + " (rows affected: " + rows + ")");
+            return rows > 0;
+        } catch (SQLException e) {
+            LOG.log(Level.SEVERE, "Failed to update status for tx " + txId, e);
+            return false;
+        }
+    }
+
+    public void logAttempt(String fromAcc, String toAcc, double amount, String status, int riskScore) {
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(
                      "INSERT INTO transactions (tx_id, from_acc, to_acc, amount, status, risk_score, timestamp) "
