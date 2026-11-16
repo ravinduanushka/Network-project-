@@ -1,4 +1,4 @@
-package lk.fraudshield.client.ui;
+﻿package lk.fraudshield.client.ui;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -415,26 +415,51 @@ public class DashboardController {
     }
 
     private void executeTransfer(String recipient, double amount, String status) {
-        currentBalance -= amount;
-        saveActualBalance();
-        updateBalanceDisplay();
-
         if (BankClientService.getInstance().getSessionToken() != null) {
-            new Thread(() -> BankClientService.getInstance().transfer(recipient, amount)).start();
-        }
+            new Thread(() -> {
+                BankClientService.Result res = BankClientService.getInstance().transfer(recipient, amount);
+                Platform.runLater(() -> {
+                    // Refresh balance from server database
+                    BankClientService.Result balRes = BankClientService.getInstance().getBalance();
+                    if (balRes.isSuccess()) {
+                        try {
+                            currentBalance = Double.parseDouble(balRes.getMessage());
+                            updateBalanceDisplay();
+                        } catch (Exception ignored) {}
+                    } else {
+                        currentBalance -= amount;
+                        updateBalanceDisplay();
+                    }
 
-        String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        transactionList.add(0, new TransactionRecord(now, recipient, String.format("%,.2f", amount), status));
-        saveActualTransactions();
-        updateTxCountLabel();
+                    String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                    String finalStatus = res.isSuccess() ? status : "HELD (" + res.getMessage() + ")";
+                    transactionList.add(0, new TransactionRecord(now, recipient, String.format("%,.2f", amount), finalStatus));
+                    updateTxCountLabel();
 
-        transferStatusLabel.setVisible(true);
-        transferStatusLabel.setStyle("-fx-background-color: #dcfce7; -fx-text-fill: #15803d; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 8 14; -fx-background-radius: 8;");
-        transferStatusLabel.setText("✓ Risk score low — LKR " + String.format("%,.2f", amount) + " sent to " + recipient + ".");
+                    transferStatusLabel.setVisible(true);
+                    if (res.isSuccess()) {
+                        transferStatusLabel.setStyle("-fx-background-color: #dcfce7; -fx-text-fill: #15803d; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 8 14; -fx-background-radius: 8;");
+                        transferStatusLabel.setText("Transfer Successful: LKR " + String.format("%,.2f", amount) + " sent to " + recipient + ".");
+                    } else {
+                        transferStatusLabel.setStyle("-fx-background-color: #fee2e2; -fx-text-fill: #dc2626; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 8 14; -fx-background-radius: 8;");
+                        transferStatusLabel.setText("Transfer Flagged: " + res.getMessage());
+                    }
 
-        if (fraudAlertsListView != null) {
-            fraudAlertsListView.getItems().add(0, "[" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + "] Transfer of LKR " + String.format("%,.2f", amount) + " to " + recipient + " cleared");
-            saveActualAlerts();
+                    if (fraudAlertsListView != null) {
+                        fraudAlertsListView.getItems().add(0, "[" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + "] Transfer of LKR " + String.format("%,.2f", amount) + " to " + recipient + ": " + (res.isSuccess() ? "Cleared" : "Flagged"));
+                    }
+                });
+            }).start();
+        } else {
+            // Offline demo fallback
+            currentBalance -= amount;
+            updateBalanceDisplay();
+            String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            transactionList.add(0, new TransactionRecord(now, recipient, String.format("%,.2f", amount), status));
+            updateTxCountLabel();
+            transferStatusLabel.setVisible(true);
+            transferStatusLabel.setStyle("-fx-background-color: #dcfce7; -fx-text-fill: #15803d; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 8 14; -fx-background-radius: 8;");
+            transferStatusLabel.setText("Transfer recorded: LKR " + String.format("%,.2f", amount) + " sent to " + recipient + ".");
         }
 
         recipientAccountField.clear();
@@ -444,122 +469,56 @@ public class DashboardController {
 
     private String currentUsernameKey = "customer";
 
-    public static class TransactionData {
-        public String timestamp;
-        public String recipient;
-        public String amount;
-        public String status;
-
-        public TransactionData() {}
-        public TransactionData(String timestamp, String recipient, String amount, String status) {
-            this.timestamp = timestamp;
-            this.recipient = recipient;
-            this.amount = amount;
-            this.status = status;
-        }
-    }
-
-    private void saveActualTransactions() {
-        try {
-            List<TransactionData> list = new ArrayList<>();
-            for (TransactionRecord r : transactionList) {
-                list.add(new TransactionData(r.getTimestamp(), r.getRecipient(), r.getAmount(), r.getStatus()));
-            }
-            File file = new File("transactions_" + currentUsernameKey + ".json");
-            try (Writer writer = new FileWriter(file, StandardCharsets.UTF_8)) {
-                gson.toJson(list, writer);
-            }
-        } catch (Exception e) {
-            System.err.println("Failed to persist transactions: " + e.getMessage());
-        }
-    }
-
     private void loadActualTransactions(String username) {
         transactionList.clear();
         currentUsernameKey = (username != null && !username.isBlank()) ? username.toLowerCase() : "customer";
 
-        File balanceFile = new File("balance_" + currentUsernameKey + ".json");
-        if (balanceFile.exists()) {
-            try (Reader reader = new FileReader(balanceFile, StandardCharsets.UTF_8)) {
-                JsonObject obj = gson.fromJson(reader, JsonObject.class);
-                if (obj != null && obj.has("balance")) {
-                    currentBalance = obj.get("balance").getAsDouble();
-                }
-            } catch (Exception ignored) {}
+        // 1. Fetch balance and history directly from Server SQLite Database
+        if (BankClientService.getInstance().getSessionToken() != null) {
+            new Thread(() -> {
+                BankClientService.Result balRes = BankClientService.getInstance().getBalance();
+                List<Map<String, Object>> history = BankClientService.getInstance().getTransactionHistory();
+
+                Platform.runLater(() -> {
+                    if (balRes.isSuccess()) {
+                        try {
+                            currentBalance = Double.parseDouble(balRes.getMessage());
+                        } catch (Exception ignored) {}
+                    }
+                    updateBalanceDisplay();
+
+                    if (history != null && !history.isEmpty()) {
+                        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                        for (Map<String, Object> h : history) {
+                            long ts = ((Number) h.getOrDefault("timestamp", System.currentTimeMillis())).longValue();
+                            String timeStr = LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(ts), java.time.ZoneId.systemDefault()).format(fmt);
+                            String toAcc = String.valueOf(h.getOrDefault("toAcc", "Unknown"));
+                            double amt = ((Number) h.getOrDefault("amount", 0.0)).doubleValue();
+                            String st = String.valueOf(h.getOrDefault("status", "COMPLETED"));
+                            transactionList.add(new TransactionRecord(timeStr, toAcc, String.format("%,.2f", amt), st));
+                        }
+                    } else {
+                        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                        transactionList.add(new TransactionRecord(LocalDateTime.now().format(fmt), "INITIAL-DEPOSIT", String.format("%,.2f", currentBalance), "Cleared"));
+                    }
+                    updateTxCountLabel();
+                });
+            }).start();
         } else {
             currentBalance = 250000.00;
-            saveActualBalance();
-        }
-
-        File file = new File("transactions_" + currentUsernameKey + ".json");
-        if (file.exists()) {
-            try (Reader reader = new FileReader(file, StandardCharsets.UTF_8)) {
-                Type listType = new TypeToken<List<TransactionData>>(){}.getType();
-                List<TransactionData> list = gson.fromJson(reader, listType);
-                if (list != null) {
-                    for (TransactionData d : list) {
-                        transactionList.add(new TransactionRecord(d.timestamp, d.recipient, d.amount, d.status));
-                    }
-                }
-            } catch (Exception e) {
-                System.err.println("Failed to load transactions: " + e.getMessage());
-            }
-        } else {
             DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             transactionList.add(new TransactionRecord(LocalDateTime.now().format(fmt), "INITIAL-DEPOSIT", String.format("%,.2f", currentBalance), "Cleared"));
-            saveActualTransactions();
-        }
-
-        updateBalanceDisplay();
-        updateTxCountLabel();
-    }
-
-    private void saveActualBalance() {
-        try {
-            File balanceFile = new File("balance_" + currentUsernameKey + ".json");
-            try (Writer writer = new FileWriter(balanceFile, StandardCharsets.UTF_8)) {
-                JsonObject obj = new JsonObject();
-                obj.addProperty("balance", currentBalance);
-                gson.toJson(obj, writer);
-            }
-        } catch (Exception e) {
-            System.err.println("Failed to save balance: " + e.getMessage());
-        }
-    }
-
-    private void saveActualAlerts() {
-        if (fraudAlertsListView == null) return;
-        try {
-            List<String> list = new ArrayList<>(fraudAlertsListView.getItems());
-            File file = new File("alerts_" + currentUsernameKey + ".json");
-            try (Writer writer = new FileWriter(file, StandardCharsets.UTF_8)) {
-                gson.toJson(list, writer);
-            }
-        } catch (Exception e) {
-            System.err.println("Failed to save alerts: " + e.getMessage());
+            updateBalanceDisplay();
+            updateTxCountLabel();
         }
     }
 
     private void loadActualAlerts() {
         if (fraudAlertsListView == null) return;
         fraudAlertsListView.getItems().clear();
-        File file = new File("alerts_" + currentUsernameKey + ".json");
-        if (file.exists()) {
-            try (Reader reader = new FileReader(file, StandardCharsets.UTF_8)) {
-                Type listType = new TypeToken<List<String>>(){}.getType();
-                List<String> list = gson.fromJson(reader, listType);
-                if (list != null) {
-                    fraudAlertsListView.getItems().addAll(list);
-                }
-            } catch (Exception e) {
-                System.err.println("Failed to load alerts: " + e.getMessage());
-            }
-        }
-        if (fraudAlertsListView.getItems().isEmpty()) {
-            Label emptyLbl = new Label("No alerts recorded yet. Live monitoring active on UDP Port 6000.");
-            emptyLbl.setStyle("-fx-text-fill: #64748b; -fx-font-size: 13px; -fx-font-weight: 600;");
-            fraudAlertsListView.setPlaceholder(emptyLbl);
-        }
+        Label emptyLbl = new Label("No alerts recorded yet. Live monitoring active on UDP Port 6000.");
+        emptyLbl.setStyle("-fx-text-fill: #64748b; -fx-font-size: 13px; -fx-font-weight: 600;");
+        fraudAlertsListView.setPlaceholder(emptyLbl);
     }
 
     private void startUdpAlertListener() {
