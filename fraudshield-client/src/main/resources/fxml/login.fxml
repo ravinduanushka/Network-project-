@@ -130,9 +130,9 @@
                                    style="-fx-background-color: #f8fafc; -fx-text-fill: #0f172a; -fx-padding: 10 36 10 12; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-font-size: 13px;"/>
                     <TextField fx:id="passwordTextField" promptText="Enter password"
                                style="-fx-background-color: #f8fafc; -fx-text-fill: #0f172a; -fx-padding: 10 36 10 12; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-font-size: 13px;"/>
-                    <Button fx:id="eyeToggleBtn" text="Show" style="-fx-font-size: 11px; -fx-padding: 3 8;" onAction="#togglePasswordVisibility"
+                    <Button fx:id="eyeToggleBtn" text="Show" onAction="#togglePasswordVisibility"
                             StackPane.alignment="CENTER_RIGHT"
-                            style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-cursor: hand; -fx-padding: 0 10 0 0; -fx-font-size: 13px;"/>
+                            style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-cursor: hand; -fx-padding: 0 10 0 0; -fx-font-size: 11px;"/>
                 </StackPane>
             </VBox>
 
