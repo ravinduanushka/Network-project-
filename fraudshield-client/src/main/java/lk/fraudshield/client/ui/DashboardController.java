@@ -1,4 +1,4 @@
-﻿package lk.fraudshield.client.ui;
+package lk.fraudshield.client.ui;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
