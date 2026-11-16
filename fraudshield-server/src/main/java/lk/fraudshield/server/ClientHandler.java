@@ -134,6 +134,8 @@ public class ClientHandler implements Runnable {
                 case REGISTER -> handleRegister(request);
                 case LOGIN -> handleLogin(request);
                 case TRANSFER -> handleTransfer(request);
+                case GET_BALANCE -> handleGetBalance(request);
+                case GET_HISTORY -> handleGetHistory(request);
                 default -> Message.error(request.getReqId(), type + " is not supported yet");
             };
         } catch (IllegalArgumentException e) {
@@ -221,5 +223,39 @@ public class ClientHandler implements Runnable {
                 "reason", reason,
                 "targetAccount", body.targetAccount,
                 "amount", body.amount));
+    }
+
+    private Message handleGetBalance(Message request) {
+        SessionManager.Session session =
+                (sessionToken != null && sessionToken.equals(request.getToken())) ? SESSIONS.get(sessionToken) : null;
+        if (session == null) {
+            return Message.error(request.getReqId(), "Not authenticated");
+        }
+
+        Double balance = transactionDao.getBalanceByUsername(session.username());
+        String accountNo = transactionDao.findAccountByUsername(session.username());
+
+        Message reply = new Message(MessageType.BALANCE, sessionToken, request.getReqId(), null);
+        Map<String, Object> data = new HashMap<>();
+        data.put("username", session.username());
+        data.put("balance", balance != null ? balance : 0.0);
+        data.put("accountNo", accountNo != null ? accountNo : "ACC-" + session.username().toUpperCase());
+        return reply.setPayload(data);
+    }
+
+    private Message handleGetHistory(Message request) {
+        SessionManager.Session session =
+                (sessionToken != null && sessionToken.equals(request.getToken())) ? SESSIONS.get(sessionToken) : null;
+        if (session == null) {
+            return Message.error(request.getReqId(), "Not authenticated");
+        }
+
+        List<Map<String, Object>> history = transactionDao.getTransactionHistory(session.username(), 50);
+
+        Message reply = new Message(MessageType.HISTORY, sessionToken, request.getReqId(), null);
+        Map<String, Object> data = new HashMap<>();
+        data.put("username", session.username());
+        data.put("transactions", history);
+        return reply.setPayload(data);
     }
 }

@@ -15,7 +15,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -254,6 +256,77 @@ public class BankClientService {
             LOG.log(Level.WARNING, "Transfer error: " + e.getMessage());
             return Result.failure("Transfer error: " + e.getMessage());
         }
+    }
+
+    /**
+     * Fetch balance and account number from backend server.
+     */
+    public Result getBalance() {
+        if (sessionToken == null) {
+            return Result.failure("Not authenticated.");
+        }
+        try {
+            if (activeSocket == null || activeSocket.isClosed() || out == null) {
+                ensureConnection(connectedHost, connectedPort);
+            }
+            Message request = new Message(MessageType.GET_BALANCE, sessionToken, "REQ-BAL-" + System.currentTimeMillis(), null);
+            out.println(request.toJson());
+
+            String line = in.readLine();
+            if (line == null) {
+                closeConnection();
+                return Result.failure("Connection dropped while fetching balance.");
+            }
+
+            Message reply = Message.fromJson(line);
+            if (reply.getMessageType() == MessageType.BALANCE) {
+                Map<String, Object> resp = GSON.fromJson(reply.getData(), MAP_TYPE);
+                double bal = resp.containsKey("balance") ? ((Number) resp.get("balance")).doubleValue() : 0.0;
+                String acc = resp.containsKey("accountNo") ? String.valueOf(resp.get("accountNo")) : this.accountNumber;
+                if (acc != null) this.accountNumber = acc;
+                return Result.success(String.valueOf(bal), sessionToken, acc);
+            }
+            return Result.failure("Unexpected response: " + reply.getType());
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, "getBalance error: " + e.getMessage());
+            return Result.failure("Failed to fetch balance: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Fetch transaction history list from backend server.
+     */
+    public List<Map<String, Object>> getTransactionHistory() {
+        if (sessionToken == null) {
+            return Collections.emptyList();
+        }
+        try {
+            if (activeSocket == null || activeSocket.isClosed() || out == null) {
+                ensureConnection(connectedHost, connectedPort);
+            }
+            Message request = new Message(MessageType.GET_HISTORY, sessionToken, "REQ-HIST-" + System.currentTimeMillis(), null);
+            out.println(request.toJson());
+
+            String line = in.readLine();
+            if (line == null) {
+                closeConnection();
+                return Collections.emptyList();
+            }
+
+            Message reply = Message.fromJson(line);
+            if (reply.getMessageType() == MessageType.HISTORY) {
+                Map<String, Object> resp = GSON.fromJson(reply.getData(), MAP_TYPE);
+                if (resp != null && resp.containsKey("transactions")) {
+                    Object rawList = resp.get("transactions");
+                    if (rawList instanceof List) {
+                        return (List<Map<String, Object>>) rawList;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, "getTransactionHistory error: " + e.getMessage());
+        }
+        return Collections.emptyList();
     }
 
     private synchronized void ensureConnection(String host, int port) throws IOException {

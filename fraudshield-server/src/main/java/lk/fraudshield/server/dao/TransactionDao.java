@@ -169,7 +169,62 @@ public class TransactionDao {
         }
     }
 
-        private String findAccountByUsername(Connection conn, String username) throws SQLException {
+        public String findAccountByUsername(String username) {
+        try (Connection conn = Database.getConnection()) {
+            return findAccountByUsername(conn, username);
+        } catch (SQLException e) {
+            LOG.log(Level.WARNING, "Failed to find account for username: " + username, e);
+            return null;
+        }
+    }
+
+    public Double getBalanceByUsername(String username) {
+        if (username == null) return null;
+        String sql = "SELECT a.balance FROM accounts a JOIN users u ON a.user_id = u.user_id WHERE u.username = ? LIMIT 1";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getDouble(1) : null;
+            }
+        } catch (SQLException e) {
+            LOG.log(Level.SEVERE, "Failed to get balance for: " + username, e);
+            return null;
+        }
+    }
+
+    public List<Map<String, Object>> getTransactionHistory(String username, int limit) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        if (username == null) return list;
+        String sql = "SELECT t.tx_id, t.from_acc, t.to_acc, t.amount, t.status, t.risk_score, t.timestamp "
+                + "FROM transactions t JOIN accounts a ON (t.from_acc = a.account_no OR t.to_acc = a.account_no) "
+                + "JOIN users u ON a.user_id = u.user_id "
+                + "WHERE u.username = ? "
+                + "ORDER BY t.timestamp DESC LIMIT ?";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            ps.setInt(2, limit > 0 ? limit : 20);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("txId", rs.getString("tx_id"));
+                    map.put("fromAcc", rs.getString("from_acc"));
+                    map.put("toAcc", rs.getString("to_acc"));
+                    map.put("amount", rs.getDouble("amount"));
+                    map.put("status", rs.getString("status"));
+                    map.put("riskScore", rs.getInt("risk_score"));
+                    map.put("timestamp", rs.getLong("timestamp"));
+                    list.add(map);
+                }
+            }
+        } catch (SQLException e) {
+            LOG.log(Level.SEVERE, "Failed to get history for: " + username, e);
+        }
+        return list;
+    }
+
+    private String findAccountByUsername(Connection conn, String username) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(
                 "SELECT a.account_no FROM accounts a JOIN users u ON a.user_id = u.user_id "
                         + "WHERE u.username = ? ORDER BY a.account_no LIMIT 1")) {
