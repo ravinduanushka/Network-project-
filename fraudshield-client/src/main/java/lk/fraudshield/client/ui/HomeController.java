@@ -1105,6 +1105,9 @@ public class HomeController {
     }
 
     private Stage getStage() {
+        if (getStartedBtn != null && getStartedBtn.getScene() != null && getStartedBtn.getScene().getWindow() != null) {
+            return (Stage) getStartedBtn.getScene().getWindow();
+        }
         if (rootPane != null && rootPane.getScene() != null && rootPane.getScene().getWindow() != null) {
             return (Stage) rootPane.getScene().getWindow();
         }
@@ -1113,6 +1116,11 @@ public class HomeController {
         }
         if (signUpBtn != null && signUpBtn.getScene() != null && signUpBtn.getScene().getWindow() != null) {
             return (Stage) signUpBtn.getScene().getWindow();
+        }
+        for (javafx.stage.Window window : javafx.stage.Window.getWindows()) {
+            if (window instanceof Stage && window.isShowing()) {
+                return (Stage) window;
+            }
         }
         return null;
     }
