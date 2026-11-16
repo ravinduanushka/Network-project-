@@ -139,9 +139,6 @@ public class RegisterController {
         new Thread(() -> {
             BankClientService.Result result = BankClientService.getInstance().register("127.0.0.1", 5000, username, fullName, password, finalInitialBalance);
 
-            // Pre-save the user balance and initial deposit transaction locally so dashboard loads it
-            saveInitialUserData(username, finalInitialBalance);
-
             javafx.application.Platform.runLater(() -> {
                 if (registerBtn != null) {
                     registerBtn.setDisable(false);
@@ -162,35 +159,6 @@ public class RegisterController {
                 }
             });
         }).start();
-    }
-
-    private void saveInitialUserData(String username, double balance) {
-        try {
-            String userKey = username.toLowerCase().trim();
-            // 1. Save user balance file
-            File balanceFile = new File("balance_" + userKey + ".json");
-            try (Writer writer = new FileWriter(balanceFile, StandardCharsets.UTF_8)) {
-                JsonObject obj = new JsonObject();
-                obj.addProperty("balance", balance);
-                new Gson().toJson(obj, writer);
-            }
-
-            // 2. Save initial deposit transaction record
-            File txFile = new File("transactions_" + userKey + ".json");
-            List<JsonObject> list = new ArrayList<>();
-            JsonObject tx = new JsonObject();
-            String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-            tx.addProperty("timestamp", now);
-            tx.addProperty("recipient", "INITIAL-DEPOSIT");
-            tx.addProperty("amount", String.format("%,.2f", balance));
-            tx.addProperty("status", "Cleared");
-            list.add(tx);
-            try (Writer writer = new FileWriter(txFile, StandardCharsets.UTF_8)) {
-                new Gson().toJson(list, writer);
-            }
-        } catch (Exception e) {
-            System.err.println("Could not save initial user data: " + e.getMessage());
-        }
     }
 
     @FXML
