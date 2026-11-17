@@ -83,8 +83,6 @@
                                            style="-fx-text-fill: #0f172a; -fx-font-size: 28px; -fx-font-weight: 800; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', sans-serif;"/>
                                 </VBox>
                                 <Region HBox.hgrow="ALWAYS"/>
-                                <Button text="← Back to Home" onAction="#handleBackToHome"
-                                        style="-fx-background-color: #f1f5f9; -fx-text-fill: #334155; -fx-font-size: 12.5px; -fx-font-weight: bold; -fx-padding: 8 18; -fx-background-radius: 20; -fx-border-color: #cbd5e1; -fx-border-radius: 20; -fx-cursor: hand;"/>
                             </HBox>
 
                             <!-- Top 3 Metric & Quick Action Cards -->
@@ -160,8 +158,6 @@
                                 <Label text="Send money"
                                        style="-fx-text-fill: #0f172a; -fx-font-size: 28px; -fx-font-weight: 800; -fx-font-family: 'Poppins', 'Urbanist', 'Plus Jakarta Sans', sans-serif;"/>
                                 <Region HBox.hgrow="ALWAYS"/>
-                                <Button text="← Back to Home" onAction="#handleBackToHome"
-                                        style="-fx-background-color: #ffffff; -fx-text-fill: #334155; -fx-font-size: 12.5px; -fx-font-weight: bold; -fx-padding: 8 18; -fx-background-radius: 20; -fx-border-color: #cbd5e1; -fx-border-radius: 20; -fx-cursor: hand;"/>
                             </HBox>
 
                             <!-- Two Columns: Left = Quick transfer, Right = HOW YOUR TRANSFER IS PROTECTED (CENTERED) -->
@@ -277,8 +273,6 @@
                                     <Circle radius="3.5" fill="#16a34a"/>
                                     <Label text="LIVE" style="-fx-text-fill: #16a34a; -fx-font-size: 11.5px; -fx-font-weight: 800;"/>
                                 </HBox>
-                                <Button text="← Back to Home" onAction="#handleBackToHome"
-                                        style="-fx-background-color: #f1f5f9; -fx-text-fill: #334155; -fx-font-size: 12.5px; -fx-font-weight: bold; -fx-padding: 8 18; -fx-background-radius: 20; -fx-border-color: #cbd5e1; -fx-border-radius: 20; -fx-cursor: hand;"/>
                             </HBox>
 
                             <!-- Live Alerts Feed ListView with Custom Floating Cards -->
