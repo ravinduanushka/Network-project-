@@ -549,8 +549,27 @@
         showError('Please fill in all details.');
         return;
       }
+      if (user.length < 3) {
+        showError('Username must be at least 3 characters long.');
+        return;
+      }
       if (pass !== conf) {
         showError('Passwords do not match.');
+        return;
+      }
+
+      // Check if username already exists
+      let users = {};
+      try {
+        users = JSON.parse(localStorage.getItem('fraudshield_registered_users') || '{}');
+      } catch (e) {
+        users = {};
+      }
+
+      const lowerUser = user.toLowerCase();
+      const defaultUsers = ['admin', 'testuser', 'anushka'];
+      if (users[lowerUser] || defaultUsers.includes(lowerUser)) {
+        showError('Username "' + user + '" is already taken. Please choose another username.');
         return;
       }
 
@@ -558,12 +577,28 @@
       registerBtn.textContent = 'Registering...';
 
       setTimeout(() => {
+        // Save user to localStorage
+        users[lowerUser] = {
+          username: user,
+          fullName: fn,
+          password: pass,
+          accountNo: 'ACC-' + user.toUpperCase(),
+          balance: 250000.00,
+          registeredAt: new Date().toISOString()
+        };
+        try {
+          localStorage.setItem('fraudshield_registered_users', JSON.stringify(users));
+          localStorage.setItem('fraudshield_last_registered', user);
+        } catch (e) {
+          console.warn('LocalStorage save failed:', e);
+        }
+
         registerBtn.disabled = false;
         registerBtn.textContent = 'Register Account';
         showSuccess('Account created successfully for ' + fn + '! Redirecting to Sign In...');
         setTimeout(() => {
-          window.location.href = 'login.html';
-        }, 1200);
+          window.location.href = 'login.html?registered=' + encodeURIComponent(user);
+        }, 1100);
       }, 600);
     });
 

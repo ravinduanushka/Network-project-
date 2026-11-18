@@ -145,17 +145,19 @@ public class RegisterController {
                     registerBtn.setText("Register Account");
                 }
 
-                // If registration succeeded or offline fallback demo
-                if (result.isSuccess() || (result.getMessage() != null && !result.getMessage().contains("already exists"))) {
-                    showSuccess("Account registered successfully! Redirecting to Sign In...");
+                // If registration succeeded
+                if (result.isSuccess()) {
+                    String msg = result.getMessage() != null && !result.getMessage().isBlank()
+                            ? result.getMessage() : "Account registered successfully! Redirecting to Sign In...";
+                    showSuccess(msg);
                     new Thread(() -> {
                         try {
-                            Thread.sleep(1100);
+                            Thread.sleep(1200);
                             javafx.application.Platform.runLater(this::navigateToLogin);
                         } catch (InterruptedException ignored) {}
                     }).start();
                 } else {
-                    showError(result.getMessage());
+                    showError(result.getMessage() != null ? result.getMessage() : "Registration failed.");
                 }
             });
         }).start();
