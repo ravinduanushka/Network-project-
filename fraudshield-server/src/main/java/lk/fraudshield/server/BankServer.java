@@ -34,6 +34,7 @@ public class BankServer {
         try {
             configureKeyStore();
             Database.initializeDatabase();
+            seedDefaultAccounts();
             new BankServer().start();
         } catch (BindException e) {
             LOG.log(Level.SEVERE, "Cannot bind to port " + PORT + " - is another server already running?", e);
@@ -41,6 +42,22 @@ public class BankServer {
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "Server failed to start", e);
             System.exit(1);
+        }
+    }
+
+    private static void seedDefaultAccounts() {
+        lk.fraudshield.server.dao.UserDao userDao = new lk.fraudshield.server.dao.UserDao();
+        if (userDao.findUserId("admin") == null) {
+            userDao.registerUser("U000000001", "admin", "System Administrator", "admin123", 1000000.0);
+            LOG.info("Seeded default account: admin");
+        }
+        if (userDao.findUserId("testuser") == null) {
+            userDao.registerUser("U000000002", "testuser", "Test User", "Test@1234", 250000.0);
+            LOG.info("Seeded default account: testuser");
+        }
+        if (userDao.findUserId("anushka") == null) {
+            userDao.registerUser("U000000003", "anushka", "Anushka Silva", "anushka123", 250000.0);
+            LOG.info("Seeded default account: anushka");
         }
     }
 

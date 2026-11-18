@@ -42,12 +42,38 @@ public class BankClientService {
     private String sessionToken;
     private String accountNumber;
 
-    // In-memory demo fallback when BankServer process is not yet started
+    // Demo fallback when BankServer process is not yet started
     private static final Map<String, String> DEMO_USERS = new HashMap<>();
+    private static final Path DEMO_FILE = Path.of(System.getProperty("user.home"), ".fraudshield_demo_users.json");
     static {
         DEMO_USERS.put("admin", "admin123");
         DEMO_USERS.put("ravindu", "pass123");
         DEMO_USERS.put("anushka", "anushka123");
+        DEMO_USERS.put("testuser", "Test@1234");
+        loadDemoUsers();
+    }
+
+    private static synchronized void loadDemoUsers() {
+        if (Files.isReadable(DEMO_FILE)) {
+            try (Reader reader = Files.newBufferedReader(DEMO_FILE, StandardCharsets.UTF_8)) {
+                Map<String, String> loaded = GSON.fromJson(reader, new TypeToken<Map<String, String>>(){}.getType());
+                if (loaded != null) {
+                    DEMO_USERS.putAll(loaded);
+                }
+            } catch (Exception e) {
+                LOG.warning("Failed to load demo users: " + e.getMessage());
+            }
+        }
+    }
+
+    private static synchronized void saveDemoUser(String username, String password) {
+        loadDemoUsers();
+        DEMO_USERS.put(username, password);
+        try (Writer writer = Files.newBufferedWriter(DEMO_FILE, StandardCharsets.UTF_8)) {
+            GSON.toJson(DEMO_USERS, writer);
+        } catch (Exception e) {
+            LOG.warning("Failed to save demo user: " + e.getMessage());
+        }
     }
 
     private BankClientService() {}
@@ -145,6 +171,7 @@ public class BankClientService {
             closeConnection();
 
             // Check if user entered demo credentials when server is offline
+            loadDemoUsers();
             if (DEMO_USERS.containsKey(username) && DEMO_USERS.get(username).equals(password)) {
                 this.currentUsername = username;
                 this.sessionToken = "DEMO-TOKEN-" + System.currentTimeMillis();
@@ -197,7 +224,7 @@ public class BankClientService {
                     this.currentFullName = fullName;
                     this.currentUsername = username;
                     if (acc != null) this.accountNumber = acc;
-                    DEMO_USERS.put(username, password);
+                    saveDemoUser(username, password);
                     return Result.success(msg, null, acc);
                 } else {
                     return Result.failure(msg != null ? msg : "Registration failed.");
@@ -211,7 +238,7 @@ public class BankClientService {
             closeConnection();
 
             // Save in demo registry so the user is not stuck if server is offline
-            DEMO_USERS.put(username, password);
+            saveDemoUser(username, password);
             return Result.success("Registered in Offline Demo Mode (Server offline: " + e.getMessage() + ")", null, "ACC-" + username.toUpperCase());
         }
     }
