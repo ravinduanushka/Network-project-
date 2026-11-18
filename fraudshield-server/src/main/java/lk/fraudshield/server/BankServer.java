@@ -24,7 +24,7 @@ public class BankServer {
     private static final int PORT = 5000;
     private static final int POOL_SIZE = 20;
     private static final int HANDSHAKE_TIMEOUT_MS = 10_000;
-    private static final int CLIENT_TIMEOUT_MS = 30_000; // same as ClientHandler.READ_TIMEOUT_MS
+    private static final int CLIENT_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes persistent session
 
     private final ExecutorService pool = Executors.newFixedThreadPool(POOL_SIZE);
     private volatile boolean running = true;
@@ -96,6 +96,7 @@ public class BankServer {
         LOG.info("Secure FraudShield server listening on port " + PORT + " (TLS/SSL), pool size " + POOL_SIZE);
 
         new lk.fraudshield.server.net.AdminChannelServer().start();
+        startHeartbeat();
 
         while (running) {
             SSLSocket client = null;
@@ -155,6 +156,26 @@ public class BankServer {
             pool.shutdownNow();
             Thread.currentThread().interrupt();
         }
+    }
+
+    private void startHeartbeat() {
+        Thread t = new Thread(() -> {
+            try (java.net.DatagramSocket ds = new java.net.DatagramSocket()) {
+                byte[] data = "{\"type\":\"HEARTBEAT\",\"status\":\"ONLINE\"}".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                java.net.InetAddress addr = java.net.InetAddress.getByName("127.0.0.1");
+                java.net.DatagramPacket packet = new java.net.DatagramPacket(data, data.length, addr, 6002);
+                while (running) {
+                    try {
+                        ds.send(packet);
+                        Thread.sleep(3000);
+                    } catch (Exception ignored) {}
+                }
+            } catch (Exception e) {
+                LOG.warning("Heartbeat service disabled: " + e.getMessage());
+            }
+        }, "BankServer-Heartbeat");
+        t.setDaemon(true);
+        t.start();
     }
 
     private static void closeQuietly(java.io.Closeable c) {

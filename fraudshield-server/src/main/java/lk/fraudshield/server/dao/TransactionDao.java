@@ -117,7 +117,14 @@ public class TransactionDao {
                 String senderAccount = findAccountByUsername(conn, senderUsername);
                 if (senderAccount == null) {
                     conn.rollback();
-                    LOG.warning("performTransfer: no account for the sender");
+                    LOG.warning("performTransfer: no account for the sender '" + senderUsername + "'");
+                    return false;
+                }
+
+                String actualTarget = resolveAccount(conn, targetAccount);
+                if (actualTarget == null) {
+                    conn.rollback();
+                    LOG.warning("performTransfer: target account not found for '" + targetAccount + "'");
                     return false;
                 }
 
@@ -133,7 +140,7 @@ public class TransactionDao {
                     boolean credited = debited && updateOne(conn,
                             "UPDATE accounts SET balance = balance + ? "
                                     + "WHERE account_no = ? AND status = 'ACTIVE'",
-                            value, targetAccount, null);
+                            value, actualTarget, null);
 
                     if (credited) {
                         moved = true;
@@ -148,7 +155,7 @@ public class TransactionDao {
                                 + "VALUES (?, ?, ?, ?, ?, ?, ?)")) {
                     ps.setString(1, UUID.randomUUID().toString());
                     ps.setString(2, senderAccount);
-                    ps.setString(3, targetAccount);
+                    ps.setString(3, actualTarget);
                     ps.setDouble(4, value);
                     ps.setString(5, loggedStatus);
                     ps.setInt(6, riskScore);
@@ -228,11 +235,51 @@ public class TransactionDao {
         return list;
     }
 
-    private String findAccountByUsername(Connection conn, String username) throws SQLException {
+    public String resolveAccount(Connection conn, String identifier) throws SQLException {
+        if (identifier == null || identifier.isBlank()) return null;
+        String clean = identifier.trim();
+
+        // 1. Direct match on account_no (case-insensitive)
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT account_no FROM accounts WHERE LOWER(account_no) = LOWER(?) LIMIT 1")) {
+            ps.setString(1, clean);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getString(1);
+            }
+        }
+
+        // 2. Match by username (e.g. "chalindu12", "anushka", "dasuni25")
         try (PreparedStatement ps = conn.prepareStatement(
                 "SELECT a.account_no FROM accounts a JOIN users u ON a.user_id = u.user_id "
-                        + "WHERE u.username = ? ORDER BY a.account_no LIMIT 1")) {
-            ps.setString(1, username);
+                        + "WHERE LOWER(u.username) = LOWER(?) LIMIT 1")) {
+            ps.setString(1, clean);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getString(1);
+            }
+        }
+
+        // 3. Match if identifier was "ACC-<username>" (e.g. "ACC-CHALINDU12")
+        if (clean.toUpperCase().startsWith("ACC-")) {
+            String subUser = clean.substring(4);
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "SELECT a.account_no FROM accounts a JOIN users u ON a.user_id = u.user_id "
+                            + "WHERE LOWER(u.username) = LOWER(?) LIMIT 1")) {
+                ps.setString(1, subUser);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) return rs.getString(1);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private String findAccountByUsername(Connection conn, String username) throws SQLException {
+        if (username == null) return null;
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT a.account_no FROM accounts a JOIN users u ON a.user_id = u.user_id "
+                        + "WHERE LOWER(u.username) = LOWER(?) ORDER BY a.account_no LIMIT 1")) {
+            ps.setString(1, username.trim());
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? rs.getString(1) : null;
             }
