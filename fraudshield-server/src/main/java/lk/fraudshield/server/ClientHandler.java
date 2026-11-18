@@ -210,7 +210,8 @@ public class ClientHandler implements Runnable {
 
         // 3. one DAO call for every outcome: it always writes the audit row and moves money
         //    only for APPROVED. The sender is the logged-in user, never a client-supplied account.
-        boolean moved = transactionDao.performTransfer(session.username(), body.targetAccount,
+        String txId = "TX-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        boolean moved = transactionDao.performTransfer(txId, session.username(), body.targetAccount,
                 body.amount, verdict.status(), verdict.riskScore());
 
         // 4. response: final status + human-readable reason
@@ -222,7 +223,7 @@ public class ClientHandler implements Runnable {
 
         // Broadcast to Admin Console (UDP 6001) and Client (UDP 6000) if flagged or blocked
         if (!verdict.approved()) {
-            broadcastAlert(session.username(), body.targetAccount, body.amount, verdict);
+            broadcastAlert(txId, session.username(), body.targetAccount, body.amount, verdict);
         }
 
         return reply.setPayload(Map.of(
@@ -233,10 +234,9 @@ public class ClientHandler implements Runnable {
                 "amount", body.amount));
     }
 
-    private void broadcastAlert(String username, String targetAccount, double amount, FraudResult verdict) {
+    private void broadcastAlert(String txId, String username, String targetAccount, double amount, FraudResult verdict) {
         new Thread(() -> {
             try (java.net.DatagramSocket socket = new java.net.DatagramSocket()) {
-                String txId = "TX-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
                 lk.fraudshield.common.fraud.Decision dec = "BLOCKED".equalsIgnoreCase(verdict.status())
                         ? lk.fraudshield.common.fraud.Decision.BLOCK
                         : lk.fraudshield.common.fraud.Decision.HOLD;

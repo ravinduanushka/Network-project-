@@ -11,6 +11,10 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import lk.fraudshield.admin.net.AdminAlertListener;
+import lk.fraudshield.admin.net.AdminNetworkService;
+
+import java.util.List;
+import java.util.Map;
 
 public class AdminController {
 
@@ -30,7 +34,9 @@ public class AdminController {
     // Real-Time Charts
     @FXML private PieChart decisionPieChart;
     @FXML private BarChart<String, Number> scoreBarChart;
+    @SuppressWarnings("unused")
     @FXML private CategoryAxis barXAxis;
+    @SuppressWarnings("unused")
     @FXML private NumberAxis barYAxis;
 
     private final ObservableList<AlertItem> alertItems = FXCollections.observableArrayList();
@@ -62,6 +68,46 @@ public class AdminController {
         alertListener = new AdminAlertListener(this::handleNewAlert);
         alertListener.start();
         statusLabel.setText("System Active - Listening on UDP 6001");
+
+        loadExistingAlerts();
+    }
+
+    private void loadExistingAlerts() {
+        AdminNetworkService.fetchFlaggedTransactionsAsync().thenAccept(list -> {
+            if (list != null && !list.isEmpty()) {
+                javafx.application.Platform.runLater(() -> {
+                    for (java.util.Map<String, Object> row : list) {
+                        String txId = (String) row.get("txId");
+                        boolean alreadyLoaded = alertItems.stream().anyMatch(a -> a.getTxId().equals(txId));
+                        if (alreadyLoaded) continue;
+
+                        String fromAcc = (String) row.get("fromAcc");
+                        Number scoreNum = (Number) row.get("riskScore");
+                        int score = scoreNum != null ? scoreNum.intValue() : 0;
+                        String status = (String) row.get("status");
+                        Number tsNum = (Number) row.get("timestamp");
+                        long ts = tsNum != null ? tsNum.longValue() : System.currentTimeMillis();
+
+                        String decision = "HOLD";
+                        if ("BLOCKED".equalsIgnoreCase(status)) {
+                            decision = "BLOCK";
+                        } else if ("APPROVED".equalsIgnoreCase(status)) {
+                            decision = "APPROVE";
+                        }
+
+                        AlertItem item = new AlertItem(
+                                txId,
+                                fromAcc != null ? fromAcc : "ACC-UNKNOWN",
+                                score,
+                                decision,
+                                "Held transaction awaiting review (" + status + ")",
+                                ts
+                        );
+                        handleNewAlert(item);
+                    }
+                });
+            }
+        });
     }
 
     private void setupCharts() {
@@ -118,14 +164,24 @@ public class AdminController {
     public void handleApprove() {
         AlertItem selected = alertsTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert("Selection Required", "Please select a held transaction to approve.");
+            showAlert("Selection Required", "Please select a held transaction from the table to approve.");
             return;
         }
 
-        statusLabel.setText("Sending Approval over TCP 5001...");
+        statusLabel.setText("Sending Approval for " + selected.getTxId() + "...");
         lk.fraudshield.admin.net.AdminNetworkService.sendDecisionAsync(selected.getTxId(), selected.getAccount(), "APPROVED", "admin_officer")
                 .thenAccept(success -> javafx.application.Platform.runLater(() -> {
                     if (success) {
+                        selected.setDecision("APPROVED");
+                        alertsTable.refresh();
+
+                        heldCount = Math.max(0, heldCount - 1);
+                        heldCountLabel.setText(String.valueOf(heldCount));
+                        heldData.setPieValue(heldCount);
+
+                        safeCount++;
+                        safeData.setPieValue(safeCount);
+
                         statusLabel.setText("Approved Tx: " + selected.getTxId() + " (Saved to DB)");
                         showAlert("Success", "Transaction " + selected.getTxId() + " approved and updated on Bank Server.");
                     } else {
@@ -139,14 +195,25 @@ public class AdminController {
     public void handleBlock() {
         AlertItem selected = alertsTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert("Selection Required", "Please select a transaction to block.");
+            showAlert("Selection Required", "Please select a transaction from the table to block.");
             return;
         }
 
-        statusLabel.setText("Sending Block action over TCP 5001...");
+        statusLabel.setText("Sending Block action for " + selected.getTxId() + "...");
         lk.fraudshield.admin.net.AdminNetworkService.sendDecisionAsync(selected.getTxId(), selected.getAccount(), "BLOCKED", "admin_officer")
                 .thenAccept(success -> javafx.application.Platform.runLater(() -> {
                     if (success) {
+                        selected.setDecision("BLOCKED");
+                        alertsTable.refresh();
+
+                        heldCount = Math.max(0, heldCount - 1);
+                        heldCountLabel.setText(String.valueOf(heldCount));
+                        heldData.setPieValue(heldCount);
+
+                        blockedCount++;
+                        blockedCountLabel.setText(String.valueOf(blockedCount));
+                        blockedData.setPieValue(blockedCount);
+
                         statusLabel.setText("Blocked & Frozen: " + selected.getAccount() + " (Saved to DB)");
                         showAlert("Blocked", "Transaction " + selected.getTxId() + " rejected. Account frozen in DB.");
                     } else {

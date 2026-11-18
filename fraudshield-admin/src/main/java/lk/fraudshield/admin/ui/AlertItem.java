@@ -25,6 +25,7 @@ public class AlertItem {
     public String getAccount() { return account.get(); }
     public int getScore() { return score.get(); }
     public String getDecision() { return decision.get(); }
+    public void setDecision(String newDecision) { this.decision.set(newDecision); }
     public String getReasons() { return reasons.get(); }
     public long getTimestamp() { return timestamp.get(); }
 }
