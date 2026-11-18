@@ -50,6 +50,8 @@ public class BankClientService {
         DEMO_USERS.put("ravindu", "pass123");
         DEMO_USERS.put("anushka", "anushka123");
         DEMO_USERS.put("testuser", "Test@1234");
+        DEMO_USERS.put("dasuni", "dasuni1234");
+        DEMO_USERS.put("dasuni25", "dasuni1234");
         loadDemoUsers();
     }
 

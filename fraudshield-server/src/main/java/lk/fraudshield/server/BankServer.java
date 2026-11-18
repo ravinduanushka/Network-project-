@@ -59,6 +59,18 @@ public class BankServer {
             userDao.registerUser("U000000003", "anushka", "Anushka Silva", "anushka123", 250000.0);
             LOG.info("Seeded default account: anushka");
         }
+        if (userDao.findUserId("ravindu") == null) {
+            userDao.registerUser("U000000004", "ravindu", "Ravindu Anushka", "pass123", 250000.0);
+            LOG.info("Seeded default account: ravindu");
+        }
+        if (userDao.findUserId("dasuni") == null) {
+            userDao.registerUser("U000000005", "dasuni", "Dasuni Tharakie", "dasuni1234", 250000.0);
+            LOG.info("Seeded default account: dasuni");
+        }
+        if (userDao.findUserId("dasuni25") == null) {
+            userDao.registerUser("U000000006", "dasuni25", "Dasuni Tharakie", "dasuni1234", 250000.0);
+            LOG.info("Seeded default account: dasuni25");
+        }
     }
 
         private static void configureKeyStore() throws IOException {
