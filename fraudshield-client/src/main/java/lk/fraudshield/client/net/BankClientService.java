@@ -36,7 +36,7 @@ public class BankClientService {
     private PrintWriter out;
 
     private String connectedHost = "127.0.0.1";
-    private int connectedPort = 5000;
+    private int connectedPort = 5005;
     private String currentUsername;
     private String currentPassword;
     private String currentFullName;
@@ -128,7 +128,7 @@ public class BankClientService {
 
         public synchronized Result login(String host, int port, String username, String password) {
         this.connectedHost = (host != null && !host.isBlank()) ? host.trim() : "127.0.0.1";
-        this.connectedPort = port > 0 ? port : 5000;
+        this.connectedPort = port > 0 ? port : 5005;
 
         try {
             ensureConnection(this.connectedHost, this.connectedPort);
@@ -197,7 +197,7 @@ public class BankClientService {
 
     public synchronized Result register(String host, int port, String username, String fullName, String password, double initialBalance) {
         this.connectedHost = (host != null && !host.isBlank()) ? host.trim() : "127.0.0.1";
-        this.connectedPort = port > 0 ? port : 5000;
+        this.connectedPort = port > 0 ? port : 5005;
 
         try {
             ensureConnection(this.connectedHost, this.connectedPort);

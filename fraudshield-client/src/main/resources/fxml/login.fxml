@@ -105,7 +105,7 @@
                 <HBox spacing="10.0">
                     <TextField fx:id="hostField" text="127.0.0.1" promptText="127.0.0.1" HBox.hgrow="ALWAYS"
                                style="-fx-background-color: #f8fafc; -fx-text-fill: #0f172a; -fx-padding: 10 12; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-font-size: 13px;"/>
-                    <TextField fx:id="portField" text="5000" promptText="5000" prefWidth="85.0"
+                    <TextField fx:id="portField" text="5005" promptText="5005" prefWidth="85.0"
                                style="-fx-background-color: #f8fafc; -fx-text-fill: #0f172a; -fx-padding: 10 12; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-font-size: 13px;"/>
                 </HBox>
             </VBox>

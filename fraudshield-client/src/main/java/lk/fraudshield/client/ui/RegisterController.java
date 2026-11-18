@@ -137,7 +137,7 @@ public class RegisterController {
         }
 
         new Thread(() -> {
-            BankClientService.Result result = BankClientService.getInstance().register("127.0.0.1", 5000, username, fullName, password, finalInitialBalance);
+            BankClientService.Result result = BankClientService.getInstance().register("127.0.0.1", 5005, username, fullName, password, finalInitialBalance);
 
             javafx.application.Platform.runLater(() -> {
                 if (registerBtn != null) {

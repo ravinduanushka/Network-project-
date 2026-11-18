@@ -21,7 +21,7 @@ public class BankServer {
 
     private static final Logger LOG = Logger.getLogger(BankServer.class.getName());
 
-    private static final int PORT = 5000;
+    public static final int PORT = 5005;
     private static final int POOL_SIZE = 20;
     private static final int HANDSHAKE_TIMEOUT_MS = 10_000;
     private static final int CLIENT_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes persistent session

@@ -219,12 +219,53 @@ public class ClientHandler implements Runnable {
                 : moved ? "Transfer completed" : "Transfer failed: insufficient funds or invalid target account";
 
         LOG.info("Transfer " + status + " for " + session.username() + " (risk " + verdict.riskScore() + ")");
+
+        // Broadcast to Admin Console (UDP 6001) and Client (UDP 6000) if flagged or blocked
+        if (!verdict.approved()) {
+            broadcastAlert(session.username(), body.targetAccount, body.amount, verdict);
+        }
+
         return reply.setPayload(Map.of(
                 "success", moved,
                 "status", status,
                 "reason", reason,
                 "targetAccount", body.targetAccount,
                 "amount", body.amount));
+    }
+
+    private void broadcastAlert(String username, String targetAccount, double amount, FraudResult verdict) {
+        new Thread(() -> {
+            try (java.net.DatagramSocket socket = new java.net.DatagramSocket()) {
+                String txId = "TX-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+                lk.fraudshield.common.fraud.Decision dec = "BLOCKED".equalsIgnoreCase(verdict.status())
+                        ? lk.fraudshield.common.fraud.Decision.BLOCK
+                        : lk.fraudshield.common.fraud.Decision.HOLD;
+
+                lk.fraudshield.common.fraud.FraudAlert alert = new lk.fraudshield.common.fraud.FraudAlert(
+                        txId,
+                        "ACC-" + username.toUpperCase(),
+                        verdict.riskScore(),
+                        dec,
+                        List.of(verdict.reason() != null ? verdict.reason() : "Rule violation"),
+                        System.currentTimeMillis()
+                );
+
+                String json = new com.google.gson.Gson().toJson(alert);
+                byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+                java.net.InetAddress addr = java.net.InetAddress.getByName("127.0.0.1");
+
+                // Broadcast to Admin (Port 6001)
+                java.net.DatagramPacket pAdmin = new java.net.DatagramPacket(bytes, bytes.length, addr, 6001);
+                socket.send(pAdmin);
+
+                // Broadcast to Client (Port 6000)
+                java.net.DatagramPacket pClient = new java.net.DatagramPacket(bytes, bytes.length, addr, 6000);
+                socket.send(pClient);
+                LOG.info("Broadcasted UDP FraudAlert for " + username + " to Admin (6001) & Client (6000)");
+            } catch (Exception e) {
+                LOG.warning("Failed to broadcast UDP fraud alert: " + e.getMessage());
+            }
+        }).start();
     }
 
     private Message handleGetBalance(Message request) {

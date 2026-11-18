@@ -88,8 +88,8 @@ public class LoginController {
     @FXML
     private void handleLogin() {
         String host = hostField != null ? hostField.getText().trim() : "127.0.0.1";
-        String portStr = portField != null ? portField.getText().trim() : "5000";
-        int port = 5000;
+        String portStr = portField != null ? portField.getText().trim() : "5005";
+        int port = 5005;
         try {
             port = Integer.parseInt(portStr);
         } catch (NumberFormatException ignored) {}
