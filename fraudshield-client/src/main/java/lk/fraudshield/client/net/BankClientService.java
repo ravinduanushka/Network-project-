@@ -38,6 +38,7 @@ public class BankClientService {
     private String connectedHost = "127.0.0.1";
     private int connectedPort = 5000;
     private String currentUsername;
+    private String currentPassword;
     private String currentFullName;
     private String sessionToken;
     private String accountNumber;
@@ -154,6 +155,7 @@ public class BankClientService {
 
                 if (ok) {
                     this.currentUsername = username;
+                    this.currentPassword = password;
                     this.sessionToken = reply.getToken();
                     this.accountNumber = "ACC-" + username.toUpperCase();
                     return Result.success(msg, this.sessionToken, this.accountNumber);
@@ -176,6 +178,7 @@ public class BankClientService {
             loadDemoUsers();
             if (DEMO_USERS.containsKey(username) && DEMO_USERS.get(username).equals(password)) {
                 this.currentUsername = username;
+                this.currentPassword = password;
                 this.sessionToken = "DEMO-TOKEN-" + System.currentTimeMillis();
                 this.accountNumber = "ACC-" + username.toUpperCase();
                 return Result.success("Authenticated in Offline Demo Mode (Server not reachable)", this.sessionToken, this.accountNumber);
@@ -245,46 +248,84 @@ public class BankClientService {
         }
     }
 
-        public Result transfer(String targetAccount, double amount) {
+    public synchronized boolean reconnectAndReauth() {
+        try {
+            closeConnection();
+            ensureConnection(connectedHost, connectedPort);
+            if (currentUsername != null && currentPassword != null) {
+                Message request = new Message(MessageType.LOGIN, null, "REQ-REAUTH-" + System.currentTimeMillis(), null);
+                Map<String, String> creds = new HashMap<>();
+                creds.put("username", currentUsername);
+                creds.put("password", currentPassword);
+                request.setPayload(creds);
+
+                out.println(request.toJson());
+                String line = in.readLine();
+                if (line != null) {
+                    Message reply = Message.fromJson(line);
+                    if (reply.getMessageType() == MessageType.LOGIN_RESULT) {
+                        this.sessionToken = reply.getToken();
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.warning("reconnectAndReauth failed: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public Result transfer(String targetAccount, double amount) {
         if (sessionToken == null) {
             return Result.failure("Not authenticated.");
         }
 
         try {
-            if (activeSocket == null || activeSocket.isClosed() || out == null) {
-                ensureConnection(connectedHost, connectedPort);
+            return doTransfer(targetAccount, amount);
+        } catch (Exception ex) {
+            LOG.warning("Transfer on active socket failed (" + ex.getMessage() + "), auto-reconnecting...");
+            if (reconnectAndReauth()) {
+                try {
+                    return doTransfer(targetAccount, amount);
+                } catch (Exception retryEx) {
+                    LOG.log(Level.WARNING, "Transfer failed after reconnect: " + retryEx.getMessage());
+                    return Result.failure("Transfer error: " + retryEx.getMessage());
+                }
             }
-
-            Message request = new Message(MessageType.TRANSFER, sessionToken, "REQ-TX-" + System.currentTimeMillis(), null);
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("targetAccount", targetAccount);
-            payload.put("amount", amount);
-            request.setPayload(payload);
-
-            out.println(request.toJson());
-
-            String line = in.readLine();
-            if (line == null) {
-                closeConnection();
-                return Result.failure("Connection dropped during transfer.");
-            }
-
-            Message reply = Message.fromJson(line);
-            if (reply.getMessageType() == MessageType.TRANSFER_RESULT) {
-                Map<String, Object> resp = GSON.fromJson(reply.getData(), MAP_TYPE);
-                boolean ok = Boolean.TRUE.equals(resp.get("success"));
-                String status = resp.containsKey("status") ? String.valueOf(resp.get("status")) : "COMPLETED";
-                String reason = resp.containsKey("reason") ? String.valueOf(resp.get("reason")) : "";
-
-                return new Result(ok, reason.isEmpty() ? status : reason, sessionToken, null);
-            }
-
-            return Result.failure("Unexpected transfer reply: " + reply.getType());
-
-        } catch (Exception e) {
-            LOG.log(Level.WARNING, "Transfer error: " + e.getMessage());
-            return Result.failure("Transfer error: " + e.getMessage());
+            return Result.failure("Transfer error: " + ex.getMessage());
         }
+    }
+
+    private Result doTransfer(String targetAccount, double amount) throws IOException {
+        if (activeSocket == null || activeSocket.isClosed() || out == null) {
+            ensureConnection(connectedHost, connectedPort);
+        }
+
+        Message request = new Message(MessageType.TRANSFER, sessionToken, "REQ-TX-" + System.currentTimeMillis(), null);
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("targetAccount", targetAccount);
+        payload.put("amount", amount);
+        request.setPayload(payload);
+
+        out.println(request.toJson());
+
+        String line = in.readLine();
+        if (line == null) {
+            closeConnection();
+            throw new IOException("Connection closed by server.");
+        }
+
+        Message reply = Message.fromJson(line);
+        if (reply.getMessageType() == MessageType.TRANSFER_RESULT) {
+            Map<String, Object> resp = GSON.fromJson(reply.getData(), MAP_TYPE);
+            boolean ok = Boolean.TRUE.equals(resp.get("success"));
+            String status = resp.containsKey("status") ? String.valueOf(resp.get("status")) : "COMPLETED";
+            String reason = resp.containsKey("reason") ? String.valueOf(resp.get("reason")) : "";
+
+            return new Result(ok, reason.isEmpty() ? status : reason, sessionToken, null);
+        }
+
+        return Result.failure("Unexpected transfer reply: " + reply.getType());
     }
 
     /**
@@ -295,31 +336,39 @@ public class BankClientService {
             return Result.failure("Not authenticated.");
         }
         try {
-            if (activeSocket == null || activeSocket.isClosed() || out == null) {
-                ensureConnection(connectedHost, connectedPort);
+            return doGetBalance();
+        } catch (Exception ex) {
+            if (reconnectAndReauth()) {
+                try {
+                    return doGetBalance();
+                } catch (Exception ignored) {}
             }
-            Message request = new Message(MessageType.GET_BALANCE, sessionToken, "REQ-BAL-" + System.currentTimeMillis(), null);
-            out.println(request.toJson());
-
-            String line = in.readLine();
-            if (line == null) {
-                closeConnection();
-                return Result.failure("Connection dropped while fetching balance.");
-            }
-
-            Message reply = Message.fromJson(line);
-            if (reply.getMessageType() == MessageType.BALANCE) {
-                Map<String, Object> resp = GSON.fromJson(reply.getData(), MAP_TYPE);
-                double bal = resp.containsKey("balance") ? ((Number) resp.get("balance")).doubleValue() : 0.0;
-                String acc = resp.containsKey("accountNo") ? String.valueOf(resp.get("accountNo")) : this.accountNumber;
-                if (acc != null) this.accountNumber = acc;
-                return Result.success(String.valueOf(bal), sessionToken, acc);
-            }
-            return Result.failure("Unexpected response: " + reply.getType());
-        } catch (Exception e) {
-            LOG.log(Level.WARNING, "getBalance error: " + e.getMessage());
-            return Result.failure("Failed to fetch balance: " + e.getMessage());
+            return Result.failure("Failed to fetch balance: " + ex.getMessage());
         }
+    }
+
+    private Result doGetBalance() throws IOException {
+        if (activeSocket == null || activeSocket.isClosed() || out == null) {
+            ensureConnection(connectedHost, connectedPort);
+        }
+        Message request = new Message(MessageType.GET_BALANCE, sessionToken, "REQ-BAL-" + System.currentTimeMillis(), null);
+        out.println(request.toJson());
+
+        String line = in.readLine();
+        if (line == null) {
+            closeConnection();
+            throw new IOException("Connection closed by server.");
+        }
+
+        Message reply = Message.fromJson(line);
+        if (reply.getMessageType() == MessageType.BALANCE) {
+            Map<String, Object> resp = GSON.fromJson(reply.getData(), MAP_TYPE);
+            double bal = resp.containsKey("balance") ? ((Number) resp.get("balance")).doubleValue() : 0.0;
+            String acc = resp.containsKey("accountNo") ? String.valueOf(resp.get("accountNo")) : this.accountNumber;
+            if (acc != null) this.accountNumber = acc;
+            return Result.success(String.valueOf(bal), sessionToken, acc);
+        }
+        return Result.failure("Unexpected response: " + reply.getType());
     }
 
     /**
@@ -330,30 +379,39 @@ public class BankClientService {
             return Collections.emptyList();
         }
         try {
-            if (activeSocket == null || activeSocket.isClosed() || out == null) {
-                ensureConnection(connectedHost, connectedPort);
+            return doGetTransactionHistory();
+        } catch (Exception ex) {
+            if (reconnectAndReauth()) {
+                try {
+                    return doGetTransactionHistory();
+                } catch (Exception ignored) {}
             }
-            Message request = new Message(MessageType.GET_HISTORY, sessionToken, "REQ-HIST-" + System.currentTimeMillis(), null);
-            out.println(request.toJson());
+            return Collections.emptyList();
+        }
+    }
 
-            String line = in.readLine();
-            if (line == null) {
-                closeConnection();
-                return Collections.emptyList();
-            }
+    private List<Map<String, Object>> doGetTransactionHistory() throws IOException {
+        if (activeSocket == null || activeSocket.isClosed() || out == null) {
+            ensureConnection(connectedHost, connectedPort);
+        }
+        Message request = new Message(MessageType.GET_HISTORY, sessionToken, "REQ-HIST-" + System.currentTimeMillis(), null);
+        out.println(request.toJson());
 
-            Message reply = Message.fromJson(line);
-            if (reply.getMessageType() == MessageType.HISTORY) {
-                Map<String, Object> resp = GSON.fromJson(reply.getData(), MAP_TYPE);
-                if (resp != null && resp.containsKey("transactions")) {
-                    Object rawList = resp.get("transactions");
-                    if (rawList instanceof List) {
-                        return (List<Map<String, Object>>) rawList;
-                    }
+        String line = in.readLine();
+        if (line == null) {
+            closeConnection();
+            throw new IOException("Connection closed by server.");
+        }
+
+        Message reply = Message.fromJson(line);
+        if (reply.getMessageType() == MessageType.HISTORY) {
+            Map<String, Object> resp = GSON.fromJson(reply.getData(), MAP_TYPE);
+            if (resp != null && resp.containsKey("transactions")) {
+                Object rawList = resp.get("transactions");
+                if (rawList instanceof List) {
+                    return (List<Map<String, Object>>) rawList;
                 }
             }
-        } catch (Exception e) {
-            LOG.log(Level.WARNING, "getTransactionHistory error: " + e.getMessage());
         }
         return Collections.emptyList();
     }
@@ -371,7 +429,7 @@ public class BankClientService {
             SSLSocketFactory factory = createPermissiveSslFactory();
             SSLSocket ssl = (SSLSocket) factory.createSocket();
             ssl.connect(new InetSocketAddress(host, port), TIMEOUT_MS);
-            ssl.setSoTimeout(TIMEOUT_MS);
+            ssl.setSoTimeout(30 * 60 * 1000); // 30 minutes read timeout
 
             SSLParameters params = ssl.getSSLParameters();
             params.setProtocols(new String[]{"TLSv1.3", "TLSv1.2"});
@@ -384,7 +442,7 @@ public class BankClientService {
             // Plain socket fallback if TLS fails or server allows plaintext
             Socket plain = new Socket();
             plain.connect(new InetSocketAddress(host, port), TIMEOUT_MS);
-            plain.setSoTimeout(TIMEOUT_MS);
+            plain.setSoTimeout(30 * 60 * 1000); // 30 minutes read timeout
             this.activeSocket = plain;
         }
 

@@ -5,9 +5,9 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class RateLimiter {
 
-    private static final int MAX_REQUESTS = 5;
+    private static final int MAX_REQUESTS = 60;
     private static final long TIME_WINDOW_MS = 10_000L;
-    private static final long BLOCK_DURATION_MS = 60_000L;
+    private static final long BLOCK_DURATION_MS = 15_000L;
 
     private final ConcurrentHashMap<String, ConcurrentLinkedDeque<Long>> requestHistory = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Long> blockedIps = new ConcurrentHashMap<>();

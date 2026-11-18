@@ -32,7 +32,7 @@ public class ClientHandler implements Runnable {
 
         private static final int MAX_LINE_LENGTH = 8192;
 
-        private static final int READ_TIMEOUT_MS = 30_000;
+        private static final int READ_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes for persistent user session
 
         private static final SessionManager SESSIONS = new SessionManager();
 
