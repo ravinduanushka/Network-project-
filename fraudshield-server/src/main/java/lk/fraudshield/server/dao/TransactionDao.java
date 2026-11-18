@@ -96,10 +96,15 @@ public class TransactionDao {
     }
 
         public boolean performTransfer(String senderUsername, String targetAccount, double amount, String status) {
-        return performTransfer(senderUsername, targetAccount, amount, status, 0);
+        return performTransfer(null, senderUsername, targetAccount, amount, status, 0);
     }
 
         public boolean performTransfer(String senderUsername, String targetAccount, double amount,
+                                   String status, int riskScore) {
+        return performTransfer(null, senderUsername, targetAccount, amount, status, riskScore);
+    }
+
+        public boolean performTransfer(String txId, String senderUsername, String targetAccount, double amount,
                                    String status, int riskScore) {
         if (senderUsername == null || targetAccount == null || status == null
                 || Double.isNaN(amount) || Double.isInfinite(amount)
@@ -153,7 +158,7 @@ public class TransactionDao {
                 try (PreparedStatement ps = conn.prepareStatement(
                         "INSERT INTO transactions (tx_id, from_acc, to_acc, amount, status, risk_score, timestamp) "
                                 + "VALUES (?, ?, ?, ?, ?, ?, ?)")) {
-                    ps.setString(1, UUID.randomUUID().toString());
+                    ps.setString(1, (txId != null && !txId.isBlank()) ? txId : UUID.randomUUID().toString());
                     ps.setString(2, senderAccount);
                     ps.setString(3, actualTarget);
                     ps.setDouble(4, value);
@@ -303,18 +308,100 @@ public class TransactionDao {
 
         public boolean updateTransactionStatus(String txId, String newStatus, String adminUser) {
         if (txId == null || newStatus == null) return false;
-        String sql = "UPDATE transactions SET status = ? WHERE tx_id = ?";
-        try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, newStatus.toUpperCase());
-            ps.setString(2, txId);
-            int rows = ps.executeUpdate();
-            LOG.info("Transaction " + txId + " updated to " + newStatus + " by admin: " + adminUser + " (rows affected: " + rows + ")");
-            return rows > 0;
+        try (Connection conn = Database.getConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                String oldStatus = null;
+                String fromAcc = null;
+                String toAcc = null;
+                double amount = 0;
+                try (PreparedStatement checkPs = conn.prepareStatement(
+                        "SELECT from_acc, to_acc, amount, status FROM transactions WHERE tx_id = ?")) {
+                    checkPs.setString(1, txId);
+                    try (ResultSet rs = checkPs.executeQuery()) {
+                        if (rs.next()) {
+                            fromAcc = rs.getString("from_acc");
+                            toAcc = rs.getString("to_acc");
+                            amount = rs.getDouble("amount");
+                            oldStatus = rs.getString("status");
+                        }
+                    }
+                }
+
+                if (oldStatus == null) {
+                    conn.rollback();
+                    LOG.warning("Transaction not found for tx_id: " + txId);
+                    return false;
+                }
+
+                // If currently FLAGGED/HOLD/HELD and admin APPROVES, move the funds now
+                if ("APPROVED".equalsIgnoreCase(newStatus) && 
+                    ("FLAGGED".equalsIgnoreCase(oldStatus) || "HOLD".equalsIgnoreCase(oldStatus) || "HELD".equalsIgnoreCase(oldStatus))) {
+                    boolean debited = updateOne(conn,
+                            "UPDATE accounts SET balance = balance - ? WHERE account_no = ? AND status = 'ACTIVE' AND balance >= ?",
+                            amount, fromAcc, amount);
+                    boolean credited = debited && updateOne(conn,
+                            "UPDATE accounts SET balance = balance + ? WHERE account_no = ? AND status = 'ACTIVE'",
+                            amount, toAcc, null);
+                    if (!credited) {
+                        conn.rollback();
+                        LOG.warning("Approval failed: Insufficient funds or receiver inactive for tx " + txId);
+                        return false;
+                    }
+                } else if ("BLOCKED".equalsIgnoreCase(newStatus) && fromAcc != null) {
+                    // Freeze sender account on block
+                    try (PreparedStatement freezePs = conn.prepareStatement(
+                            "UPDATE accounts SET status = 'FROZEN' WHERE account_no = ?")) {
+                        freezePs.setString(1, fromAcc);
+                        freezePs.executeUpdate();
+                    }
+                }
+
+                try (PreparedStatement updatePs = conn.prepareStatement(
+                        "UPDATE transactions SET status = ? WHERE tx_id = ?")) {
+                    updatePs.setString(1, newStatus.toUpperCase());
+                    updatePs.setString(2, txId);
+                    int rows = updatePs.executeUpdate();
+                    conn.commit();
+                    LOG.info("Transaction " + txId + " updated to " + newStatus + " by admin: " + adminUser);
+                    return rows > 0;
+                }
+            } catch (SQLException e) {
+                rollbackQuietly(conn);
+                LOG.log(Level.SEVERE, "Failed to update status for tx " + txId, e);
+                return false;
+            }
         } catch (SQLException e) {
-            LOG.log(Level.SEVERE, "Failed to update status for tx " + txId, e);
+            LOG.log(Level.SEVERE, "Database connection error in updateTransactionStatus", e);
             return false;
         }
+    }
+
+    public List<Map<String, Object>> getFlaggedTransactions(int limit) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        String sql = "SELECT tx_id, from_acc, to_acc, amount, status, risk_score, timestamp "
+                + "FROM transactions WHERE status IN ('FLAGGED', 'HOLD', 'HELD', 'BLOCKED') "
+                + "ORDER BY timestamp DESC LIMIT ?";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, limit > 0 ? limit : 50);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("txId", rs.getString("tx_id"));
+                    map.put("fromAcc", rs.getString("from_acc"));
+                    map.put("toAcc", rs.getString("to_acc"));
+                    map.put("amount", rs.getDouble("amount"));
+                    map.put("status", rs.getString("status"));
+                    map.put("riskScore", rs.getInt("risk_score"));
+                    map.put("timestamp", rs.getLong("timestamp"));
+                    list.add(map);
+                }
+            }
+        } catch (SQLException e) {
+            LOG.log(Level.SEVERE, "Failed to get flagged transactions", e);
+        }
+        return list;
     }
 
     public void logAttempt(String fromAcc, String toAcc, double amount, String status, int riskScore) {

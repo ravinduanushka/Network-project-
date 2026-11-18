@@ -87,6 +87,10 @@ public class AdminChannelServer extends Thread {
                             "message", ok ? "Transaction status updated successfully" : "Update failed or tx not found"
                     ));
                 }
+            } else if (req.getMessageType() == MessageType.GET_HISTORY) {
+                java.util.List<Map<String, Object>> flagged = transactionDao.getFlaggedTransactions(50);
+                Message reply = new Message(MessageType.HISTORY, null, req.getReqId(), null);
+                return reply.setPayload(Map.of("transactions", flagged));
             }
             return Message.error(req.getReqId(), "Unsupported admin message");
         } catch (Exception e) {
