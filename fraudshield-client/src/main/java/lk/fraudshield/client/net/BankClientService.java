@@ -126,7 +126,7 @@ public class BankClientService {
         }
     }
 
-        public Result login(String host, int port, String username, String password) {
+        public synchronized Result login(String host, int port, String username, String password) {
         this.connectedHost = (host != null && !host.isBlank()) ? host.trim() : "127.0.0.1";
         this.connectedPort = port > 0 ? port : 5000;
 
@@ -195,7 +195,7 @@ public class BankClientService {
         return register(host, port, username, fullName, password, 250000.0);
     }
 
-    public Result register(String host, int port, String username, String fullName, String password, double initialBalance) {
+    public synchronized Result register(String host, int port, String username, String fullName, String password, double initialBalance) {
         this.connectedHost = (host != null && !host.isBlank()) ? host.trim() : "127.0.0.1";
         this.connectedPort = port > 0 ? port : 5000;
 
@@ -275,7 +275,7 @@ public class BankClientService {
         return false;
     }
 
-    public Result transfer(String targetAccount, double amount) {
+    public synchronized Result transfer(String targetAccount, double amount) {
         if (sessionToken == null) {
             return Result.failure("Not authenticated.");
         }
@@ -331,7 +331,7 @@ public class BankClientService {
     /**
      * Fetch balance and account number from backend server.
      */
-    public Result getBalance() {
+    public synchronized Result getBalance() {
         if (sessionToken == null) {
             return Result.failure("Not authenticated.");
         }
@@ -374,7 +374,7 @@ public class BankClientService {
     /**
      * Fetch transaction history list from backend server.
      */
-    public List<Map<String, Object>> getTransactionHistory() {
+    public synchronized List<Map<String, Object>> getTransactionHistory() {
         if (sessionToken == null) {
             return Collections.emptyList();
         }

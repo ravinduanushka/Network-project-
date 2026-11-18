@@ -33,6 +33,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class DashboardController {
 
@@ -185,6 +188,7 @@ public class DashboardController {
 
         loadActualTransactions(user);
         loadActualAlerts();
+        startAutoRefreshTimer(user);
     }
 
     private void setupTransactionsTable() {
@@ -490,13 +494,16 @@ public class DashboardController {
 
                     if (history != null && !history.isEmpty()) {
                         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                        String myAcc = BankClientService.getInstance().getAccountNumber();
                         for (Map<String, Object> h : history) {
                             long ts = ((Number) h.getOrDefault("timestamp", System.currentTimeMillis())).longValue();
                             String timeStr = LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(ts), java.time.ZoneId.systemDefault()).format(fmt);
                             String toAcc = String.valueOf(h.getOrDefault("toAcc", "Unknown"));
+                            String fromAcc = String.valueOf(h.getOrDefault("fromAcc", "Unknown"));
                             double amt = ((Number) h.getOrDefault("amount", 0.0)).doubleValue();
                             String st = String.valueOf(h.getOrDefault("status", "COMPLETED"));
-                            transactionList.add(new TransactionRecord(timeStr, toAcc, String.format("%,.2f", amt), st));
+                            String displayParty = (myAcc != null && toAcc.equalsIgnoreCase(myAcc)) ? ("From " + fromAcc) : toAcc;
+                            transactionList.add(new TransactionRecord(timeStr, displayParty, String.format("%,.2f", amt), st));
                         }
                     } else {
                         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -512,6 +519,73 @@ public class DashboardController {
             updateBalanceDisplay();
             updateTxCountLabel();
         }
+    }
+
+    private ScheduledExecutorService autoRefreshExecutor;
+
+    private void startAutoRefreshTimer(String username) {
+        if (autoRefreshExecutor != null && !autoRefreshExecutor.isShutdown()) {
+            autoRefreshExecutor.shutdownNow();
+        }
+        autoRefreshExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r, "Dashboard-AutoRefresh");
+            t.setDaemon(true);
+            return t;
+        });
+
+        autoRefreshExecutor.scheduleWithFixedDelay(() -> {
+            if (!listeningUdp) return;
+            if (BankClientService.getInstance().getSessionToken() == null) return;
+
+            try {
+                BankClientService.Result balRes = BankClientService.getInstance().getBalance();
+                List<Map<String, Object>> history = BankClientService.getInstance().getTransactionHistory();
+
+                Platform.runLater(() -> {
+                    if (balRes != null && balRes.isSuccess()) {
+                        try {
+                            double newBal = Double.parseDouble(balRes.getMessage());
+                            if (Math.abs(newBal - currentBalance) > 0.001) {
+                                currentBalance = newBal;
+                                updateBalanceDisplay();
+                            }
+                        } catch (Exception ignored) {}
+                    }
+
+                    if (history != null && !history.isEmpty()) {
+                        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                        List<TransactionRecord> newRecords = new ArrayList<>();
+                        String myAcc = BankClientService.getInstance().getAccountNumber();
+                        for (Map<String, Object> h : history) {
+                            long ts = ((Number) h.getOrDefault("timestamp", System.currentTimeMillis())).longValue();
+                            String timeStr = LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(ts), java.time.ZoneId.systemDefault()).format(fmt);
+                            String toAcc = String.valueOf(h.getOrDefault("toAcc", "Unknown"));
+                            String fromAcc = String.valueOf(h.getOrDefault("fromAcc", "Unknown"));
+                            double amt = ((Number) h.getOrDefault("amount", 0.0)).doubleValue();
+                            String st = String.valueOf(h.getOrDefault("status", "COMPLETED"));
+
+                            String displayParty = (myAcc != null && toAcc.equalsIgnoreCase(myAcc)) ? ("From " + fromAcc) : toAcc;
+                            newRecords.add(new TransactionRecord(timeStr, displayParty, String.format("%,.2f", amt), st));
+                        }
+
+                        boolean changed = false;
+                        if (newRecords.size() != transactionList.size()) {
+                            changed = true;
+                        } else if (!transactionList.isEmpty() && !newRecords.isEmpty()) {
+                            if (!newRecords.get(0).getTimestamp().equals(transactionList.get(0).getTimestamp())) {
+                                changed = true;
+                            }
+                        }
+
+                        if (changed) {
+                            transactionList.setAll(newRecords);
+                            updateTxCountLabel();
+                        }
+                    }
+                });
+            } catch (Exception ignored) {
+            }
+        }, 2, 2, TimeUnit.SECONDS);
     }
 
     private void loadActualAlerts() {
@@ -621,6 +695,9 @@ public class DashboardController {
     @FXML
     private void handleBackToHome() {
         listeningUdp = false;
+        if (autoRefreshExecutor != null && !autoRefreshExecutor.isShutdown()) {
+            autoRefreshExecutor.shutdownNow();
+        }
         if (udpSocket != null && !udpSocket.isClosed()) {
             udpSocket.close();
         }
@@ -650,6 +727,9 @@ public class DashboardController {
     @FXML
     private void handleLogout() {
         listeningUdp = false;
+        if (autoRefreshExecutor != null && !autoRefreshExecutor.isShutdown()) {
+            autoRefreshExecutor.shutdownNow();
+        }
         if (udpSocket != null && !udpSocket.isClosed()) {
             udpSocket.close();
         }
