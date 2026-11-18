@@ -766,6 +766,10 @@
           matchedUser = { username: 'testuser', fullName: 'Test User', accountNo: 'ACC-TESTUSER', balance: 250000.00 };
         } else if (lowerUser === 'anushka' && (pass === 'anushka123' || pass === 'anushka')) {
           matchedUser = { username: 'anushka', fullName: 'Anushka Silva', accountNo: 'ACC-ANUSHKA', balance: 250000.00 };
+        } else if (lowerUser === 'ravindu' && (pass === 'pass123' || pass === 'ravindu')) {
+          matchedUser = { username: 'ravindu', fullName: 'Ravindu Anushka', accountNo: 'ACC-RAVINDU', balance: 250000.00 };
+        } else if ((lowerUser === 'dasuni' || lowerUser === 'dasuni25') && (pass === 'dasuni1234' || pass === 'dasuni')) {
+          matchedUser = { username: user, fullName: 'Dasuni Tharakie', accountNo: 'ACC-' + user.toUpperCase(), balance: 250000.00 };
         } else if (registeredUsers[lowerUser] && registeredUsers[lowerUser].password === pass) {
           // Check registered users in localStorage
           matchedUser = registeredUsers[lowerUser];

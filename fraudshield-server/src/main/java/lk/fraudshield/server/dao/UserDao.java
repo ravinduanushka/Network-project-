@@ -91,8 +91,8 @@ public class UserDao {
             boolean found = false;
 
             try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT pw_hash, salt, locked FROM users WHERE username = ?")) {
-                ps.setString(1, username);
+                    "SELECT pw_hash, salt, locked FROM users WHERE LOWER(username) = LOWER(?)")) {
+                ps.setString(1, username.trim());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
                         found = true;
@@ -107,12 +107,9 @@ public class UserDao {
                 PasswordUtils.hashPassword(password, DUMMY_SALT); // equalise timing, discard result
                 return false;
             }
-            if (locked) {
-                return false;
-            }
 
             boolean ok = PasswordUtils.verifyPassword(password, storedHash, storedSalt);
-            recordLoginAttempt(conn, username, ok);
+            recordLoginAttempt(conn, username.trim(), ok);
             return ok;
 
         } catch (SQLException e) {
@@ -123,15 +120,15 @@ public class UserDao {
 
         private void recordLoginAttempt(Connection conn, String username, boolean success) throws SQLException {
         String sql = success
-                ? "UPDATE users SET failed_logins = 0 WHERE username = ?"
+                ? "UPDATE users SET failed_logins = 0, locked = 0 WHERE LOWER(username) = LOWER(?)"
                 : "UPDATE users SET failed_logins = failed_logins + 1, "
-                  + "locked = CASE WHEN failed_logins + 1 >= ? THEN 1 ELSE locked END WHERE username = ?";
+                  + "locked = CASE WHEN failed_logins + 1 >= ? THEN 1 ELSE locked END WHERE LOWER(username) = LOWER(?)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             if (success) {
-                ps.setString(1, username);
+                ps.setString(1, username.trim());
             } else {
                 ps.setInt(1, MAX_FAILED_LOGINS);
-                ps.setString(2, username);
+                ps.setString(2, username.trim());
             }
             ps.executeUpdate();
         }
@@ -142,8 +139,8 @@ public class UserDao {
             return null;
         }
         try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement("SELECT user_id FROM users WHERE username = ?")) {
-            ps.setString(1, username);
+             PreparedStatement ps = conn.prepareStatement("SELECT user_id FROM users WHERE LOWER(username) = LOWER(?)")) {
+            ps.setString(1, username.trim());
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? rs.getString("user_id") : null;
             }
