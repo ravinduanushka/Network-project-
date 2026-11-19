@@ -391,8 +391,9 @@ public class DashboardController {
                 return;
             }
 
-            if (amount >= 100000.00) {
-                boolean verified = showOtpVerificationDialog(amount, recipient);
+            // Logic update: Only transactions more than 500,000 use the OTP verification method
+            if (amount > 500000.00) {
+                boolean verified = showOtpVerificationDialog(amountText, recipient);
                 if (!verified) {
                     transferStatusLabel.setStyle("-fx-background-color: #fee2e2; -fx-text-fill: #dc2626; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 8 14; -fx-background-radius: 8;");
                     transferStatusLabel.setText("Transfer Cancelled: OTP verification failed or aborted.");
@@ -409,10 +410,11 @@ public class DashboardController {
         }
     }
 
-    private boolean showOtpVerificationDialog(double amount, String recipient) {
+    private boolean showOtpVerificationDialog(String amountText, String recipient) {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("FraudShield Step-Up Authentication");
-        dialog.setHeaderText("High-Value Transfer Flagged: LKR " + String.format("%,.2f", amount) + " to " + recipient);
+        // Displays the exact same money value as entered in the Send Money field (e.g. 500000 LKR)
+        dialog.setHeaderText("High-Value Transfer Flagged: " + amountText + " LKR to " + recipient);
         dialog.setContentText("Enter 6-digit OTP sent to registered device (Demo OTP: 123456):");
 
         Optional<String> result = dialog.showAndWait();
