@@ -39,7 +39,7 @@
             <!-- Stat Metric Cards Row -->
             <HBox spacing="18" style="-fx-padding: 4 0 2 0;">
                 <VBox styleClass="metric-card" HBox.hgrow="ALWAYS">
-                    <Label text="TOTAL ALERTS" styleClass="metric-title"/>
+                    <Label text="TOTAL TRANSACTIONS &amp; ALERTS" styleClass="metric-title"/>
                     <Label fx:id="totalAlertsLabel" text="0" styleClass="metric-value"/>
                 </VBox>
                 <VBox styleClass="metric-card, metric-held" HBox.hgrow="ALWAYS">
@@ -84,19 +84,21 @@
             <!-- Live Table Section -->
             <VBox spacing="10" VBox.vgrow="ALWAYS">
                 <HBox alignment="CENTER_LEFT">
-                    <Label text="Real-Time Flagged Transactions (UDP 6001 Feed)" styleClass="section-title"/>
+                    <Label text="Real-Time Transactions &amp; Audit Logs (All Activity)" styleClass="section-title"/>
                     <Region HBox.hgrow="ALWAYS"/>
                     <Label text="Select a held transaction to take action" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;"/>
                 </HBox>
 
                 <TableView fx:id="alertsTable" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="colTxId" text="Transaction ID" prefWidth="160"/>
-                        <TableColumn fx:id="colAccount" text="Account No" prefWidth="130"/>
-                        <TableColumn fx:id="colScore" text="Score" prefWidth="85"/>
-                        <TableColumn fx:id="colDecision" text="Decision" prefWidth="110"/>
-                        <TableColumn fx:id="colReasons" text="Triggered Fraud Rules" prefWidth="440"/>
-                        <TableColumn fx:id="colTime" text="Timestamp" prefWidth="170"/>
+                        <TableColumn fx:id="colTxId" text="Transaction ID" prefWidth="140"/>
+                        <TableColumn fx:id="colAccount" text="Sender Account" prefWidth="130"/>
+                        <TableColumn fx:id="colRecipient" text="Recipient" prefWidth="130"/>
+                        <TableColumn fx:id="colAmount" text="Amount (LKR)" prefWidth="115"/>
+                        <TableColumn fx:id="colScore" text="Score" prefWidth="75"/>
+                        <TableColumn fx:id="colDecision" text="Decision" prefWidth="105"/>
+                        <TableColumn fx:id="colReasons" text="Activity &amp; Fraud Rule Details" prefWidth="300"/>
+                        <TableColumn fx:id="colTime" text="Date &amp; Time" prefWidth="150"/>
                     </columns>
                 </TableView>
 

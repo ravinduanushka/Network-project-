@@ -63,8 +63,20 @@ public final class Database {
                         timestamp  LONG NOT NULL
                     )""");
 
+            st.execute("""
+                    CREATE TABLE IF NOT EXISTS alerts (
+                        alert_id    INTEGER PRIMARY KEY AUTOINCREMENT,
+                        tx_id       TEXT,
+                        account_no  TEXT NOT NULL,
+                        risk_score  INT NOT NULL DEFAULT 0,
+                        decision    TEXT NOT NULL,
+                        reasons     TEXT,
+                        timestamp   LONG NOT NULL
+                    )""");
+
             st.execute("CREATE INDEX IF NOT EXISTS idx_tx_from ON transactions(from_acc, timestamp)");
             st.execute("CREATE INDEX IF NOT EXISTS idx_acc_user ON accounts(user_id)");
+            st.execute("CREATE INDEX IF NOT EXISTS idx_alert_acc ON alerts(account_no, timestamp)");
 
             LOG.info("Database initialised: " + URL);
         }

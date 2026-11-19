@@ -21,6 +21,8 @@ public class AdminController {
     @FXML private TableView<AlertItem> alertsTable;
     @FXML private TableColumn<AlertItem, String> colTxId;
     @FXML private TableColumn<AlertItem, String> colAccount;
+    @FXML private TableColumn<AlertItem, String> colRecipient;
+    @FXML private TableColumn<AlertItem, String> colAmount;
     @FXML private TableColumn<AlertItem, Integer> colScore;
     @FXML private TableColumn<AlertItem, String> colDecision;
     @FXML private TableColumn<AlertItem, String> colReasons;
@@ -56,10 +58,69 @@ public class AdminController {
     public void initialize() {
         colTxId.setCellValueFactory(new PropertyValueFactory<>("txId"));
         colAccount.setCellValueFactory(new PropertyValueFactory<>("account"));
+        if (colRecipient != null) {
+            colRecipient.setCellValueFactory(new PropertyValueFactory<>("recipient"));
+        }
+        if (colAmount != null) {
+            colAmount.setCellValueFactory(new PropertyValueFactory<>("amount"));
+            colAmount.setCellFactory(col -> new TableCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                    } else {
+                        setText(item);
+                        setStyle("-fx-font-weight: 800; -fx-text-fill: #0f172a; -fx-font-size: 12.5px;");
+                    }
+                }
+            });
+        }
         colScore.setCellValueFactory(new PropertyValueFactory<>("score"));
         colDecision.setCellValueFactory(new PropertyValueFactory<>("decision"));
+
+        // Decision pill badges (Approved = Green, Held = Amber, Blocked = Red)
+        colDecision.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    Label badge = new Label(item.toUpperCase());
+                    String s = item.toLowerCase();
+                    if (s.contains("approve") || s.contains("cleared") || s.contains("allow") || s.contains("safe")) {
+                        badge.setStyle("-fx-background-color: #dcfce7; -fx-text-fill: #15803d; -fx-font-weight: bold; -fx-font-size: 11px; -fx-padding: 3 12; -fx-background-radius: 12;");
+                    } else if (s.contains("hold") || s.contains("held") || s.contains("review") || s.contains("otp")) {
+                        badge.setStyle("-fx-background-color: #fef3c7; -fx-text-fill: #d97706; -fx-font-weight: bold; -fx-font-size: 11px; -fx-padding: 3 12; -fx-background-radius: 12;");
+                    } else if (s.contains("block")) {
+                        badge.setStyle("-fx-background-color: #fee2e2; -fx-text-fill: #dc2626; -fx-font-weight: bold; -fx-font-size: 11px; -fx-padding: 3 12; -fx-background-radius: 12;");
+                    } else {
+                        badge.setStyle("-fx-background-color: #f1f5f9; -fx-text-fill: #475569; -fx-font-weight: bold; -fx-font-size: 11px; -fx-padding: 3 12; -fx-background-radius: 12;");
+                    }
+                    setGraphic(badge);
+                    setText(null);
+                }
+            }
+        });
+
         colReasons.setCellValueFactory(new PropertyValueFactory<>("reasons"));
         colTime.setCellValueFactory(new PropertyValueFactory<>("timestamp"));
+
+        // Formatted timestamp yyyy-MM-dd HH:mm:ss
+        colTime.setCellFactory(col -> new TableCell<>() {
+            private final java.time.format.DateTimeFormatter fmt = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            @Override
+            protected void updateItem(Long item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null || item <= 0) {
+                    setText(null);
+                } else {
+                    setText(java.time.LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(item), java.time.ZoneId.systemDefault()).format(fmt));
+                }
+            }
+        });
 
         alertsTable.setItems(alertItems);
 
@@ -82,6 +143,10 @@ public class AdminController {
                         if (alreadyLoaded) continue;
 
                         String fromAcc = (String) row.get("fromAcc");
+                        String toAcc = (String) row.get("toAcc");
+                        Double amountVal = (Double) row.get("amount");
+                        String amountStr = (amountVal != null && amountVal > 0) ? String.format("%,.2f", amountVal) : "-";
+
                         Number scoreNum = (Number) row.get("riskScore");
                         int score = scoreNum != null ? scoreNum.intValue() : 0;
                         String status = (String) row.get("status");
@@ -91,16 +156,29 @@ public class AdminController {
                         String decision = "HOLD";
                         if ("BLOCKED".equalsIgnoreCase(status)) {
                             decision = "BLOCK";
-                        } else if ("APPROVED".equalsIgnoreCase(status)) {
+                        } else if ("APPROVED".equalsIgnoreCase(status) || "SUCCESS".equalsIgnoreCase(status)) {
                             decision = "APPROVE";
+                        }
+
+                        String reason;
+                        if ("BLOCK".equalsIgnoreCase(decision)) {
+                            reason = "Auto-blocked by Fraud Sentinel (Risk Score: " + score + ")";
+                        } else if ("HOLD".equalsIgnoreCase(decision)) {
+                            reason = "Held transaction awaiting review (Risk Score: " + score + ")";
+                        } else if (score > 50) {
+                            reason = "High value transfer · Verified & Cleared (Risk Score: " + score + ")";
+                        } else {
+                            reason = "Cleared normal transaction (" + status + ")";
                         }
 
                         AlertItem item = new AlertItem(
                                 txId,
                                 fromAcc != null ? fromAcc : "ACC-UNKNOWN",
+                                toAcc != null ? toAcc : "-",
+                                amountStr,
                                 score,
                                 decision,
-                                "Held transaction awaiting review (" + status + ")",
+                                reason,
                                 ts
                         );
                         handleNewAlert(item);
@@ -114,7 +192,7 @@ public class AdminController {
         // Setup Decision PieChart with initial reactive slices
         heldData = new PieChart.Data("HELD (Review)", 0);
         blockedData = new PieChart.Data("BLOCKED", 0);
-        safeData = new PieChart.Data("APPROVED / SAFE", 1); // seed 1 so chart renders nicely
+        safeData = new PieChart.Data("APPROVED / SAFE", 0);
 
         pieChartData.addAll(heldData, blockedData, safeData);
         if (decisionPieChart != null) {
@@ -137,7 +215,7 @@ public class AdminController {
             blockedCount++;
             blockedCountLabel.setText(String.valueOf(blockedCount));
             blockedData.setPieValue(blockedCount);
-        } else if ("HOLD".equalsIgnoreCase(decision)) {
+        } else if ("HOLD".equalsIgnoreCase(decision) || "OTP".equalsIgnoreCase(decision) || "REVIEW".equalsIgnoreCase(decision)) {
             heldCount++;
             heldCountLabel.setText(String.valueOf(heldCount));
             heldData.setPieValue(heldCount);
@@ -154,8 +232,8 @@ public class AdminController {
         XYChart.Data<String, Number> bar = new XYChart.Data<>(shortTxId, alert.getScore());
         barSeries.getData().add(bar);
 
-        // Keep at most 8 bars in view
-        if (barSeries.getData().size() > 8) {
+        // Keep at most 15 bars in view
+        if (barSeries.getData().size() > 15) {
             barSeries.getData().remove(0);
         }
     }

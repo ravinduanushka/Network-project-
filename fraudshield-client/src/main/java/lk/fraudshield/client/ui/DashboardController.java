@@ -590,10 +590,84 @@ public class DashboardController {
 
     private void loadActualAlerts() {
         if (fraudAlertsListView == null) return;
-        fraudAlertsListView.getItems().clear();
         Label emptyLbl = new Label("No alerts recorded yet. Live monitoring active on UDP Port 6000.");
         emptyLbl.setStyle("-fx-text-fill: #64748b; -fx-font-size: 13px; -fx-font-weight: 600;");
         fraudAlertsListView.setPlaceholder(emptyLbl);
+
+        new Thread(() -> {
+            List<String> loadedAlerts = new ArrayList<>();
+            DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+            // 1. Try reading directly from SQLite alerts table so past notifications persist across reruns
+            String[] candidatePaths = {
+                    "fraudshield.db",
+                    "../fraudshield.db",
+                    "FraudShield-Root/fraudshield.db",
+                    "../../fraudshield.db"
+            };
+            for (String path : candidatePaths) {
+                File f = new File(path);
+                if (f.exists() && f.isFile()) {
+                    try {
+                        Class.forName("org.sqlite.JDBC");
+                        try (java.sql.Connection conn = java.sql.DriverManager.getConnection("jdbc:sqlite:" + path);
+                             java.sql.PreparedStatement ps = conn.prepareStatement(
+                                     "SELECT tx_id, account_no, risk_score, decision, reasons, timestamp FROM alerts ORDER BY timestamp DESC LIMIT 30")) {
+                            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                                while (rs.next()) {
+                                    long ts = rs.getLong("timestamp");
+                                    String timeStr = LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(ts), java.time.ZoneId.systemDefault()).format(timeFmt);
+                                    String dec = rs.getString("decision");
+                                    int score = rs.getInt("risk_score");
+                                    String txId = rs.getString("tx_id");
+                                    String reason = rs.getString("reasons");
+                                    String formatted = String.format("[%s] %s ALERT: Tx %s | Score: %d | %s",
+                                            timeStr, dec, txId != null ? txId : "-", score, reason != null ? reason : "Transaction event");
+                                    loadedAlerts.add(formatted);
+                                }
+                            }
+                        }
+                    } catch (Throwable ignored) {}
+                    break;
+                }
+            }
+
+            // 2. Fallback to transaction history if alerts table has no rows
+            if (loadedAlerts.isEmpty()) {
+                List<Map<String, Object>> history = BankClientService.getInstance().getTransactionHistory();
+                if (history != null && !history.isEmpty()) {
+                    String myAcc = BankClientService.getInstance().getAccountNumber();
+                    for (Map<String, Object> h : history) {
+                        long ts = ((Number) h.getOrDefault("timestamp", System.currentTimeMillis())).longValue();
+                        String timeStr = LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(ts), java.time.ZoneId.systemDefault()).format(timeFmt);
+                        String toAcc = String.valueOf(h.getOrDefault("toAcc", "Unknown"));
+                        String fromAcc = String.valueOf(h.getOrDefault("fromAcc", "Unknown"));
+                        double amt = ((Number) h.getOrDefault("amount", 0.0)).doubleValue();
+                        String st = String.valueOf(h.getOrDefault("status", "COMPLETED"));
+                        int risk = ((Number) h.getOrDefault("riskScore", 0)).intValue();
+                        String displayParty = (myAcc != null && toAcc.equalsIgnoreCase(myAcc)) ? ("From " + fromAcc) : toAcc;
+
+                        String notifText;
+                        if ("BLOCKED".equalsIgnoreCase(st)) {
+                            notifText = String.format("[%s] BLOCKED ALERT: Transfer of LKR %,.2f to %s auto-blocked (Risk Score: %d)", timeStr, amt, toAcc, risk);
+                        } else if ("HOLD".equalsIgnoreCase(st) || "HELD".equalsIgnoreCase(st) || "FLAGGED".equalsIgnoreCase(st)) {
+                            notifText = String.format("[%s] REVIEW ALERT: Transfer of LKR %,.2f held for review (Risk Score: %d)", timeStr, amt, risk);
+                        } else if (risk > 50) {
+                            notifText = String.format("[%s] HIGH RISK ALERT: Transfer of LKR %,.2f to %s cleared (Score: %d)", timeStr, amt, displayParty, risk);
+                        } else {
+                            notifText = String.format("[%s] CLEARED: Transfer of LKR %,.2f with %s (Status: %s)", timeStr, amt, displayParty, st);
+                        }
+                        loadedAlerts.add(notifText);
+                    }
+                }
+            }
+
+            if (!loadedAlerts.isEmpty()) {
+                Platform.runLater(() -> {
+                    fraudAlertsListView.getItems().setAll(loadedAlerts);
+                });
+            }
+        }).start();
     }
 
     private void startUdpAlertListener() {
