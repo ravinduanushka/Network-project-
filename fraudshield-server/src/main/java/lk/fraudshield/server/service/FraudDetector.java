@@ -6,7 +6,7 @@ public class FraudDetector {
     public static final String FLAGGED = "FLAGGED";
     public static final String BLOCKED = "BLOCKED";
 
-        public static final double HIGH_AMOUNT_LIMIT = 150_000.0;
+        public static final double HIGH_AMOUNT_LIMIT = 500_000.0;
 
         public record FraudResult(boolean approved, String status, String reason) {
 
