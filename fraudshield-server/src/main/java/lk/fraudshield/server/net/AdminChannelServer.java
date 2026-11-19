@@ -88,9 +88,9 @@ public class AdminChannelServer extends Thread {
                     ));
                 }
             } else if (req.getMessageType() == MessageType.GET_HISTORY) {
-                java.util.List<Map<String, Object>> flagged = transactionDao.getFlaggedTransactions(50);
+                java.util.List<Map<String, Object>> allTxs = transactionDao.getAllTransactions(100);
                 Message reply = new Message(MessageType.HISTORY, null, req.getReqId(), null);
-                return reply.setPayload(Map.of("transactions", flagged));
+                return reply.setPayload(Map.of("transactions", allTxs));
             }
             return Message.error(req.getReqId(), "Unsupported admin message");
         } catch (Exception e) {

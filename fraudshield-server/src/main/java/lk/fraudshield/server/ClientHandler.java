@@ -221,10 +221,8 @@ public class ClientHandler implements Runnable {
 
         LOG.info("Transfer " + status + " for " + session.username() + " (risk " + verdict.riskScore() + ")");
 
-        // Broadcast to Admin Console (UDP 6001) and Client (UDP 6000) if flagged or blocked
-        if (!verdict.approved()) {
-            broadcastAlert(txId, session.username(), body.targetAccount, body.amount, verdict);
-        }
+        // Persist notification/alert in DB and broadcast to Admin (UDP 6001) and Client (UDP 6000)
+        broadcastAlert(txId, session.username(), body.targetAccount, body.amount, verdict, moved);
 
         return reply.setPayload(Map.of(
                 "success", moved,
@@ -234,36 +232,55 @@ public class ClientHandler implements Runnable {
                 "amount", body.amount));
     }
 
-    private void broadcastAlert(String txId, String username, String targetAccount, double amount, FraudResult verdict) {
+    private void broadcastAlert(String txId, String username, String targetAccount, double amount, FraudResult verdict, boolean moved) {
         new Thread(() -> {
-            try (java.net.DatagramSocket socket = new java.net.DatagramSocket()) {
-                lk.fraudshield.common.fraud.Decision dec = "BLOCKED".equalsIgnoreCase(verdict.status())
-                        ? lk.fraudshield.common.fraud.Decision.BLOCK
-                        : lk.fraudshield.common.fraud.Decision.HOLD;
+            try {
+                lk.fraudshield.common.fraud.Decision dec;
+                String alertReason;
+                if (!verdict.approved()) {
+                    dec = "BLOCKED".equalsIgnoreCase(verdict.status())
+                            ? lk.fraudshield.common.fraud.Decision.BLOCK
+                            : lk.fraudshield.common.fraud.Decision.HOLD;
+                    alertReason = verdict.reason() != null ? verdict.reason() : "Rule violation";
+                } else {
+                    dec = lk.fraudshield.common.fraud.Decision.ALLOW;
+                    alertReason = moved
+                            ? String.format("Transfer of LKR %,.2f to %s completed", amount, targetAccount)
+                            : "Transfer failed: insufficient funds or invalid target account";
+                }
 
-                lk.fraudshield.common.fraud.FraudAlert alert = new lk.fraudshield.common.fraud.FraudAlert(
-                        txId,
-                        "ACC-" + username.toUpperCase(),
-                        verdict.riskScore(),
-                        dec,
-                        List.of(verdict.reason() != null ? verdict.reason() : "Rule violation"),
-                        System.currentTimeMillis()
-                );
+                long now = System.currentTimeMillis();
+                String senderAccount = "ACC-" + username.toUpperCase();
 
-                String json = new com.google.gson.Gson().toJson(alert);
-                byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
-                java.net.InetAddress addr = java.net.InetAddress.getByName("127.0.0.1");
+                // 1. Permanently record alert in SQLite DB so notifications persist across reruns
+                transactionDao.recordAlert(txId, senderAccount, verdict.riskScore(), dec.name(), alertReason, now);
 
-                // Broadcast to Admin (Port 6001)
-                java.net.DatagramPacket pAdmin = new java.net.DatagramPacket(bytes, bytes.length, addr, 6001);
-                socket.send(pAdmin);
+                // 2. Broadcast live UDP alert to Admin (Port 6001) & Client (Port 6000)
+                try (java.net.DatagramSocket socket = new java.net.DatagramSocket()) {
+                    lk.fraudshield.common.fraud.FraudAlert alert = new lk.fraudshield.common.fraud.FraudAlert(
+                            txId,
+                            senderAccount,
+                            verdict.riskScore(),
+                            dec,
+                            List.of(alertReason),
+                            now
+                    );
 
-                // Broadcast to Client (Port 6000)
-                java.net.DatagramPacket pClient = new java.net.DatagramPacket(bytes, bytes.length, addr, 6000);
-                socket.send(pClient);
-                LOG.info("Broadcasted UDP FraudAlert for " + username + " to Admin (6001) & Client (6000)");
+                    String json = new com.google.gson.Gson().toJson(alert);
+                    byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+                    java.net.InetAddress addr = java.net.InetAddress.getByName("127.0.0.1");
+
+                    // Broadcast to Admin (Port 6001)
+                    java.net.DatagramPacket pAdmin = new java.net.DatagramPacket(bytes, bytes.length, addr, 6001);
+                    socket.send(pAdmin);
+
+                    // Broadcast to Client (Port 6000)
+                    java.net.DatagramPacket pClient = new java.net.DatagramPacket(bytes, bytes.length, addr, 6000);
+                    socket.send(pClient);
+                    LOG.info("Broadcasted and saved alert for " + username + " to Admin (6001) & Client (6000)");
+                }
             } catch (Exception e) {
-                LOG.warning("Failed to broadcast UDP fraud alert: " + e.getMessage());
+                LOG.warning("Failed to broadcast/save fraud alert: " + e.getMessage());
             }
         }).start();
     }

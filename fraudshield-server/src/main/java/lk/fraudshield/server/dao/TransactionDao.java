@@ -377,6 +377,32 @@ public class TransactionDao {
         }
     }
 
+    public List<Map<String, Object>> getAllTransactions(int limit) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        String sql = "SELECT tx_id, from_acc, to_acc, amount, status, risk_score, timestamp "
+                + "FROM transactions ORDER BY timestamp DESC LIMIT ?";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, limit > 0 ? limit : 100);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("txId", rs.getString("tx_id"));
+                    map.put("fromAcc", rs.getString("from_acc"));
+                    map.put("toAcc", rs.getString("to_acc"));
+                    map.put("amount", rs.getDouble("amount"));
+                    map.put("status", rs.getString("status"));
+                    map.put("riskScore", rs.getInt("risk_score"));
+                    map.put("timestamp", rs.getLong("timestamp"));
+                    list.add(map);
+                }
+            }
+        } catch (SQLException e) {
+            LOG.log(Level.SEVERE, "Failed to get all transactions", e);
+        }
+        return list;
+    }
+
     public List<Map<String, Object>> getFlaggedTransactions(int limit) {
         List<Map<String, Object>> list = new ArrayList<>();
         String sql = "SELECT tx_id, from_acc, to_acc, amount, status, risk_score, timestamp "
@@ -401,7 +427,27 @@ public class TransactionDao {
         } catch (SQLException e) {
             LOG.log(Level.SEVERE, "Failed to get flagged transactions", e);
         }
+        // If no flagged transactions exist, return all recent transactions so Admin Console never starts empty
+        if (list.isEmpty()) {
+            return getAllTransactions(limit);
+        }
         return list;
+    }
+
+    public void recordAlert(String txId, String accountNo, int riskScore, String decision, String reasons, long timestamp) {
+        String sql = "INSERT INTO alerts (tx_id, account_no, risk_score, decision, reasons, timestamp) VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, txId);
+            ps.setString(2, accountNo);
+            ps.setInt(3, riskScore);
+            ps.setString(4, decision);
+            ps.setString(5, reasons);
+            ps.setLong(6, timestamp);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            LOG.log(Level.WARNING, "Failed to record alert in database: " + e.getMessage());
+        }
     }
 
     public void logAttempt(String fromAcc, String toAcc, double amount, String status, int riskScore) {

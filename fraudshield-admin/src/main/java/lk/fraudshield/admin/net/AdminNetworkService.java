@@ -75,8 +75,8 @@ public class AdminNetworkService {
             try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
                  PreparedStatement ps = conn.prepareStatement(
                          "SELECT tx_id, from_acc, to_acc, amount, status, risk_score, timestamp " +
-                         "FROM transactions WHERE status IN ('FLAGGED', 'HOLD', 'HELD', 'BLOCKED') " +
-                         "ORDER BY timestamp DESC LIMIT 50")) {
+                         "FROM transactions " +
+                         "ORDER BY timestamp DESC LIMIT 100")) {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
                         Map<String, Object> map = new HashMap<>();
