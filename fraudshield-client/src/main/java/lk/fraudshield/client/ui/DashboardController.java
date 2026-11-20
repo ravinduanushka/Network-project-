@@ -589,7 +589,7 @@ public class DashboardController {
 
                                 // 1. Main Dashboard Banner Notification
                                 if (overviewNotificationLabel != null) {
-                                    overviewNotificationLabel.setText("🎉 Money Received! LKR " + amtFormatted + " successfully received from " + fromAcc + ".");
+                                    overviewNotificationLabel.setText("Money Received: LKR " + amtFormatted + " successfully received from " + fromAcc + ".");
                                     overviewNotificationLabel.setVisible(true);
                                     overviewNotificationLabel.setManaged(true);
                                 }
@@ -597,13 +597,13 @@ public class DashboardController {
                                 // 2. Quick Transfer Tab Banner Notification
                                 if (transferStatusLabel != null) {
                                     transferStatusLabel.setStyle("-fx-background-color: #dcfce7; -fx-text-fill: #15803d; -fx-font-weight: bold; -fx-font-size: 13px; -fx-padding: 10 16; -fx-background-radius: 8; -fx-border-color: #86efac; -fx-border-radius: 8;");
-                                    transferStatusLabel.setText("🎉 Money Received! LKR " + amtFormatted + " successfully received from " + fromAcc + ".");
+                                    transferStatusLabel.setText("Money Received: LKR " + amtFormatted + " successfully received from " + fromAcc + ".");
                                     transferStatusLabel.setVisible(true);
                                 }
 
                                 // 3. Fraud & Security Alerts Tab Entry
                                 if (fraudAlertsListView != null) {
-                                    String notifMsg = "[" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + "] 💰 MONEY ARRIVED: Received LKR " + amtFormatted + " from " + fromAcc + " - Successfully Arrived";
+                                    String notifMsg = "[" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + "] MONEY ARRIVED: Received LKR " + amtFormatted + " from " + fromAcc + " - Successfully Arrived";
                                     fraudAlertsListView.getItems().add(0, notifMsg);
                                 }
 
@@ -611,8 +611,8 @@ public class DashboardController {
                                 try {
                                     javafx.scene.control.Alert notif = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
                                     notif.setTitle("Money Received Notification");
-                                    notif.setHeaderText("🎉 Payment Arrived Successfully!");
-                                    notif.setContentText("You have received LKR " + amtFormatted + " from " + fromAcc + ".\nMoney has successfully arrived into your account!");
+                                    notif.setHeaderText("Payment Arrived Successfully");
+                                    notif.setContentText("You have received LKR " + amtFormatted + " from " + fromAcc + ".\nMoney has successfully arrived into your account.");
                                     notif.show();
                                 } catch (Exception ignored) {}
                             }
