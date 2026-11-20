@@ -105,9 +105,21 @@ public class ClientHandler implements Runnable {
         } catch (IOException e) {
             LOG.log(Level.WARNING, "I/O error with client " + peer, e);
         } finally {
-            SESSIONS.invalidate(sessionToken);                // a dead connection must not keep a live token
             LOG.info("Client disconnected: " + peer);
         }
+    }
+
+    private SessionManager.Session resolveSession(Message request) {
+        if (request == null || request.getToken() == null || request.getToken().isBlank()) {
+            return null;
+        }
+        String token = request.getToken();
+        SessionManager.Session s = SESSIONS.get(token);
+        if (s != null) {
+            this.sessionToken = token;
+            return s;
+        }
+        return null;
     }
 
         private Message handle(String line) {
@@ -192,9 +204,8 @@ public class ClientHandler implements Runnable {
     }
 
     private Message handleTransfer(Message request) {
-        // 1. must be logged in; the token must be one issued to this very connection
-        SessionManager.Session session =
-                (sessionToken != null && sessionToken.equals(request.getToken())) ? SESSIONS.get(sessionToken) : null;
+        // 1. must be logged in with a valid session
+        SessionManager.Session session = resolveSession(request);
         if (session == null) {
             return Message.error(request.getReqId(), "Not authenticated");
         }
@@ -224,12 +235,13 @@ public class ClientHandler implements Runnable {
         // Persist notification/alert in DB and broadcast to Admin (UDP 6001) and Client (UDP 6000)
         broadcastAlert(txId, session.username(), body.targetAccount, body.amount, verdict, moved);
 
-        return reply.setPayload(Map.of(
-                "success", moved,
-                "status", status,
-                "reason", reason,
-                "targetAccount", body.targetAccount,
-                "amount", body.amount));
+        Map<String, Object> replyPayload = new HashMap<>();
+        replyPayload.put("success", moved);
+        replyPayload.put("status", status != null ? status : "FAILED");
+        replyPayload.put("reason", reason != null ? reason : "");
+        replyPayload.put("targetAccount", body.targetAccount != null ? body.targetAccount : "");
+        replyPayload.put("amount", body.amount);
+        return reply.setPayload(replyPayload);
     }
 
     private void broadcastAlert(String txId, String username, String targetAccount, double amount, FraudResult verdict, boolean moved) {
@@ -286,8 +298,7 @@ public class ClientHandler implements Runnable {
     }
 
     private Message handleGetBalance(Message request) {
-        SessionManager.Session session =
-                (sessionToken != null && sessionToken.equals(request.getToken())) ? SESSIONS.get(sessionToken) : null;
+        SessionManager.Session session = resolveSession(request);
         if (session == null) {
             return Message.error(request.getReqId(), "Not authenticated");
         }
@@ -304,8 +315,7 @@ public class ClientHandler implements Runnable {
     }
 
     private Message handleGetHistory(Message request) {
-        SessionManager.Session session =
-                (sessionToken != null && sessionToken.equals(request.getToken())) ? SESSIONS.get(sessionToken) : null;
+        SessionManager.Session session = resolveSession(request);
         if (session == null) {
             return Message.error(request.getReqId(), "Not authenticated");
         }

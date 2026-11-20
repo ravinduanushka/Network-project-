@@ -325,6 +325,15 @@ public class BankClientService {
             return new Result(ok, reason.isEmpty() ? status : reason, sessionToken, null);
         }
 
+        if (reply.getMessageType() == MessageType.ERROR) {
+            Map<String, Object> data = GSON.fromJson(reply.getData(), MAP_TYPE);
+            String reason = (data != null && data.containsKey("reason")) ? String.valueOf(data.get("reason")) : "Server error";
+            if ("Not authenticated".equalsIgnoreCase(reason) || reason.toLowerCase().contains("session")) {
+                throw new IOException("Session expired (Not authenticated)");
+            }
+            return Result.failure(reason);
+        }
+
         return Result.failure("Unexpected transfer reply: " + reply.getType());
     }
 
@@ -367,6 +376,14 @@ public class BankClientService {
             String acc = resp.containsKey("accountNo") ? String.valueOf(resp.get("accountNo")) : this.accountNumber;
             if (acc != null) this.accountNumber = acc;
             return Result.success(String.valueOf(bal), sessionToken, acc);
+        }
+        if (reply.getMessageType() == MessageType.ERROR) {
+            Map<String, Object> data = GSON.fromJson(reply.getData(), MAP_TYPE);
+            String reason = (data != null && data.containsKey("reason")) ? String.valueOf(data.get("reason")) : "Server error";
+            if ("Not authenticated".equalsIgnoreCase(reason)) {
+                throw new IOException("Session expired");
+            }
+            return Result.failure(reason);
         }
         return Result.failure("Unexpected response: " + reply.getType());
     }
@@ -411,6 +428,13 @@ public class BankClientService {
                 if (rawList instanceof List) {
                     return (List<Map<String, Object>>) rawList;
                 }
+            }
+        }
+        if (reply.getMessageType() == MessageType.ERROR) {
+            Map<String, Object> data = GSON.fromJson(reply.getData(), MAP_TYPE);
+            String reason = (data != null && data.containsKey("reason")) ? String.valueOf(data.get("reason")) : "";
+            if ("Not authenticated".equalsIgnoreCase(reason)) {
+                throw new IOException("Session expired");
             }
         }
         return Collections.emptyList();
