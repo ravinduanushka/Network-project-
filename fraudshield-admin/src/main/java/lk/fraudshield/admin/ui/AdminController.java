@@ -207,6 +207,16 @@ public class AdminController {
     }
 
     private void handleNewAlert(AlertItem alert) {
+        if (alert == null) return;
+        java.util.Optional<AlertItem> existing = alertItems.stream()
+                .filter(a -> a.getTxId() != null && a.getTxId().equalsIgnoreCase(alert.getTxId()))
+                .findFirst();
+        if (existing.isPresent()) {
+            existing.get().setDecision(alert.getDecision());
+            alertsTable.refresh();
+            return;
+        }
+
         alertItems.add(0, alert);
         totalAlertsLabel.setText(String.valueOf(alertItems.size()));
 

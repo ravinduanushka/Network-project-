@@ -122,6 +122,11 @@
 
                             </HBox>
 
+                            <!-- Live Money Arrival Notification Banner -->
+                            <Label fx:id="overviewNotificationLabel" visible="false" managed="false"
+                                   text="🎉 Money Received!"
+                                   style="-fx-background-color: #dcfce7; -fx-text-fill: #15803d; -fx-font-weight: bold; -fx-font-size: 13.5px; -fx-padding: 12 18; -fx-background-radius: 12; -fx-border-color: #86efac; -fx-border-width: 1.5; -fx-border-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(22, 101, 52, 0.12), 10, 0, 0, 3);"/>
+
                             <!-- Recent Transactions Header -->
                             <HBox alignment="CENTER_LEFT" style="-fx-padding: 8 0 0 0;">
                                 <Label text="Recent transactions"

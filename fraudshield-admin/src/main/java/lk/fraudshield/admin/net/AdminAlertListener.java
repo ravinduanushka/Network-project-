@@ -38,9 +38,25 @@ public class AdminAlertListener extends Thread {
 
                 if (alert != null) {
                     String reasonsStr = alert.reasons() != null ? String.join(", ", alert.reasons()) : "";
+                    String extractedAmt = "-";
+                    String extractedTo = "-";
+
+                    if (!reasonsStr.isEmpty()) {
+                        java.util.regex.Matcher mAmt = java.util.regex.Pattern.compile("(?:LKR|Rs\\.?)\\s*([\\d,]+(?:\\.\\d{2})?)").matcher(reasonsStr);
+                        if (mAmt.find()) {
+                            extractedAmt = mAmt.group(1);
+                        }
+                        java.util.regex.Matcher mTo = java.util.regex.Pattern.compile("(?:to|->)\\s+([A-Za-z0-9_-]+)").matcher(reasonsStr);
+                        if (mTo.find()) {
+                            extractedTo = mTo.group(1);
+                        }
+                    }
+
                     AlertItem item = new AlertItem(
                             alert.txId(),
                             alert.account(),
+                            extractedTo,
+                            extractedAmt,
                             alert.score(),
                             alert.decision() != null ? alert.decision().name() : "UNKNOWN",
                             reasonsStr,

@@ -253,12 +253,13 @@ public class ClientHandler implements Runnable {
                     dec = "BLOCKED".equalsIgnoreCase(verdict.status())
                             ? lk.fraudshield.common.fraud.Decision.BLOCK
                             : lk.fraudshield.common.fraud.Decision.HOLD;
-                    alertReason = verdict.reason() != null ? verdict.reason() : "Rule violation";
+                    alertReason = String.format("Transfer of LKR %,.2f to %s held: %s",
+                            amount, targetAccount, verdict.reason() != null ? verdict.reason() : "Rule violation");
                 } else {
                     dec = lk.fraudshield.common.fraud.Decision.ALLOW;
                     alertReason = moved
                             ? String.format("Transfer of LKR %,.2f to %s completed", amount, targetAccount)
-                            : "Transfer failed: insufficient funds or invalid target account";
+                            : String.format("Transfer of LKR %,.2f to %s failed: insufficient funds or invalid target account", amount, targetAccount);
                 }
 
                 long now = System.currentTimeMillis();

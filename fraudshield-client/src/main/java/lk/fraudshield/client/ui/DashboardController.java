@@ -103,6 +103,9 @@ public class DashboardController {
     private Label transferStatusLabel;
 
     @FXML
+    private Label overviewNotificationLabel;
+
+    @FXML
     private ListView<String> fraudAlertsListView;
 
     private final ObservableList<TransactionRecord> transactionList = FXCollections.observableArrayList();
@@ -111,6 +114,8 @@ public class DashboardController {
     private DatagramSocket udpSocket;
     private DatagramSocket heartbeatSocket;
     private final Gson gson = new Gson();
+    private long lastKnownTopTxTime = -1;
+    private boolean initialHistoryLoaded = false;
 
     @FXML
     public void initialize() {
@@ -518,10 +523,12 @@ public class DashboardController {
                             String displayParty = (myAcc != null && toAcc.equalsIgnoreCase(myAcc)) ? ("From " + fromAcc) : toAcc;
                             transactionList.add(new TransactionRecord(timeStr, displayParty, String.format("%,.2f", amt), st));
                         }
+                        lastKnownTopTxTime = ((Number) history.get(0).getOrDefault("timestamp", 0L)).longValue();
                     } else {
                         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                         transactionList.add(new TransactionRecord(LocalDateTime.now().format(fmt), "INITIAL-DEPOSIT", String.format("%,.2f", currentBalance), "Cleared"));
                     }
+                    initialHistoryLoaded = true;
                     updateTxCountLabel();
                 });
             }).start();
@@ -566,9 +573,55 @@ public class DashboardController {
                     }
 
                     if (history != null && !history.isEmpty()) {
+                        long newestTs = ((Number) history.get(0).getOrDefault("timestamp", 0L)).longValue();
+                        String myAcc = BankClientService.getInstance().getAccountNumber();
+
+                        // Detect incoming money transferred to this user in real time
+                        if (initialHistoryLoaded && newestTs > lastKnownTopTxTime && lastKnownTopTxTime > 0) {
+                            String toAcc = String.valueOf(history.get(0).getOrDefault("toAcc", ""));
+                            String fromAcc = String.valueOf(history.get(0).getOrDefault("fromAcc", ""));
+                            double amt = ((Number) history.get(0).getOrDefault("amount", 0.0)).doubleValue();
+                            String st = String.valueOf(history.get(0).getOrDefault("status", ""));
+
+                            if (myAcc != null && toAcc.equalsIgnoreCase(myAcc) && !fromAcc.equalsIgnoreCase(myAcc)
+                                    && ("SUCCESS".equalsIgnoreCase(st) || "APPROVED".equalsIgnoreCase(st) || "COMPLETED".equalsIgnoreCase(st))) {
+                                String amtFormatted = String.format("%,.2f", amt);
+
+                                // 1. Main Dashboard Banner Notification
+                                if (overviewNotificationLabel != null) {
+                                    overviewNotificationLabel.setText("🎉 Money Received! LKR " + amtFormatted + " successfully received from " + fromAcc + ".");
+                                    overviewNotificationLabel.setVisible(true);
+                                    overviewNotificationLabel.setManaged(true);
+                                }
+
+                                // 2. Quick Transfer Tab Banner Notification
+                                if (transferStatusLabel != null) {
+                                    transferStatusLabel.setStyle("-fx-background-color: #dcfce7; -fx-text-fill: #15803d; -fx-font-weight: bold; -fx-font-size: 13px; -fx-padding: 10 16; -fx-background-radius: 8; -fx-border-color: #86efac; -fx-border-radius: 8;");
+                                    transferStatusLabel.setText("🎉 Money Received! LKR " + amtFormatted + " successfully received from " + fromAcc + ".");
+                                    transferStatusLabel.setVisible(true);
+                                }
+
+                                // 3. Fraud & Security Alerts Tab Entry
+                                if (fraudAlertsListView != null) {
+                                    String notifMsg = "[" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + "] 💰 MONEY ARRIVED: Received LKR " + amtFormatted + " from " + fromAcc + " - Successfully Arrived";
+                                    fraudAlertsListView.getItems().add(0, notifMsg);
+                                }
+
+                                // 4. Floating UI Notification Alert
+                                try {
+                                    javafx.scene.control.Alert notif = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+                                    notif.setTitle("Money Received Notification");
+                                    notif.setHeaderText("🎉 Payment Arrived Successfully!");
+                                    notif.setContentText("You have received LKR " + amtFormatted + " from " + fromAcc + ".\nMoney has successfully arrived into your account!");
+                                    notif.show();
+                                } catch (Exception ignored) {}
+                            }
+                        }
+                        lastKnownTopTxTime = newestTs;
+                        initialHistoryLoaded = true;
+
                         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                         List<TransactionRecord> newRecords = new ArrayList<>();
-                        String myAcc = BankClientService.getInstance().getAccountNumber();
                         for (Map<String, Object> h : history) {
                             long ts = ((Number) h.getOrDefault("timestamp", System.currentTimeMillis())).longValue();
                             String timeStr = LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(ts), java.time.ZoneId.systemDefault()).format(fmt);
