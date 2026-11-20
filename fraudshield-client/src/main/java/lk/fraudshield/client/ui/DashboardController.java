@@ -439,7 +439,7 @@ public class DashboardController {
                     }
 
                     String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                    String finalStatus = res.isSuccess() ? status : "HELD (" + res.getMessage() + ")";
+                    String finalStatus = res.isSuccess() ? status : (res.getMessage() != null && res.getMessage().contains("Admin Approval") ? "HELD (Admin Review)" : "HELD (" + res.getMessage() + ")");
                     transactionList.add(0, new TransactionRecord(now, recipient, String.format("%,.2f", amount), finalStatus));
                     updateTxCountLabel();
 
@@ -447,13 +447,19 @@ public class DashboardController {
                     if (res.isSuccess()) {
                         transferStatusLabel.setStyle("-fx-background-color: #dcfce7; -fx-text-fill: #15803d; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 8 14; -fx-background-radius: 8;");
                         transferStatusLabel.setText("Transfer Successful: LKR " + String.format("%,.2f", amount) + " sent to " + recipient + ".");
+                    } else if (res.getMessage() != null && (res.getMessage().contains("Admin Approval") || res.getMessage().contains("exceeds"))) {
+                        transferStatusLabel.setStyle("-fx-background-color: #fef3c7; -fx-text-fill: #d97706; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 8 14; -fx-background-radius: 8;");
+                        transferStatusLabel.setText("Transfer Held: " + res.getMessage() + ".");
                     } else {
                         transferStatusLabel.setStyle("-fx-background-color: #fee2e2; -fx-text-fill: #dc2626; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 8 14; -fx-background-radius: 8;");
                         transferStatusLabel.setText("Transfer Flagged: " + res.getMessage());
                     }
 
                     if (fraudAlertsListView != null) {
-                        fraudAlertsListView.getItems().add(0, "[" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + "] Transfer of LKR " + String.format("%,.2f", amount) + " to " + recipient + ": " + (res.isSuccess() ? "Cleared" : "Flagged"));
+                        String alertMsg = res.isSuccess()
+                                ? "[" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + "] Transfer of LKR " + String.format("%,.2f", amount) + " to " + recipient + ": Cleared"
+                                : "[" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + "] HELD REVIEW: Transfer of LKR " + String.format("%,.2f", amount) + " exceeds LKR 200,000 (Awaiting Admin Approval)";
+                        fraudAlertsListView.getItems().add(0, alertMsg);
                     }
                 });
             }).start();

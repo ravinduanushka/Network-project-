@@ -6,7 +6,7 @@ public class FraudDetector {
     public static final String FLAGGED = "FLAGGED";
     public static final String BLOCKED = "BLOCKED";
 
-        public static final double HIGH_AMOUNT_LIMIT = 500_000.0;
+        public static final double HIGH_AMOUNT_LIMIT = 200_000.0;
 
         public record FraudResult(boolean approved, String status, String reason) {
 
@@ -31,10 +31,10 @@ public class FraudDetector {
             return new FraudResult(false, BLOCKED, "Transfer to yourself is not allowed");
         }
 
-        // Rule 2: high amount
+        // Rule 2: high amount - more than 200,000 requires Admin Approval
         if (amount > HIGH_AMOUNT_LIMIT) {
             return new FraudResult(false, FLAGGED,
-                    "Amount exceeds " + (long) HIGH_AMOUNT_LIMIT + " and needs manual review");
+                    "Amount exceeds LKR 200,000 and requires Admin Approval");
         }
 
         return new FraudResult(true, APPROVED, "Approved");
