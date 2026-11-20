@@ -391,9 +391,12 @@ public class DashboardController {
                 return;
             }
 
-            // Logic update: Only transactions more than 500,000 use the OTP verification method
-            if (amount > 500000.00) {
-                boolean verified = showOtpVerificationDialog(amountText, recipient);
+            // Multi-Tier Security Logic:
+            // 1. Up to 120,000 -> Standard direct transfer (no OTP, no Admin)
+            // 2. Over 120,000 up to 200,000 -> OTP required (auto-approved on valid OTP)
+            // 3. Over 200,000 -> OTP required AND HELD for Admin Approval
+            if (amount > 120000.00) {
+                boolean verified = showOtpVerificationDialog(amountText, amount, recipient);
                 if (!verified) {
                     transferStatusLabel.setStyle("-fx-background-color: #fee2e2; -fx-text-fill: #dc2626; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 8 14; -fx-background-radius: 8;");
                     transferStatusLabel.setText("Transfer Cancelled: OTP verification failed or aborted.");
@@ -410,11 +413,13 @@ public class DashboardController {
         }
     }
 
-    private boolean showOtpVerificationDialog(String amountText, String recipient) {
+    private boolean showOtpVerificationDialog(String amountText, double amount, String recipient) {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("FraudShield Step-Up Authentication");
-        // Displays the exact same money value as entered in the Send Money field (e.g. 500000 LKR)
-        dialog.setHeaderText("High-Value Transfer Flagged: " + amountText + " LKR to " + recipient);
+        String notice = amount > 200000.00
+                ? "High-Value Transfer: " + amountText + " LKR to " + recipient + "\n(Requires OTP Verification & Admin Approval)"
+                : "Step-Up Authentication: " + amountText + " LKR to " + recipient + "\n(Enter OTP to complete transfer)";
+        dialog.setHeaderText(notice);
         dialog.setContentText("Enter 6-digit OTP sent to registered device (Demo OTP: 123456):");
 
         Optional<String> result = dialog.showAndWait();

@@ -7,7 +7,7 @@ public class HighAmountRule implements FraudRule {
     private final double threshold;
 
     public HighAmountRule() {
-        this(200_000.0);
+        this(120_000.0);
     }
 
     public HighAmountRule(double threshold) {

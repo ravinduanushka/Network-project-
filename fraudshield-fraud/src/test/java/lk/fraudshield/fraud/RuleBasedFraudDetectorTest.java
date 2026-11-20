@@ -36,7 +36,7 @@ public class RuleBasedFraudDetectorTest {
     void testHighAmountTriggersHoldOrOtp() {
         TransactionContext tx = new TransactionContext(
                 UUID.randomUUID().toString(), "ACC100", "ACC200",
-                600000.0, 1000000.0, "192.168.1.5", System.currentTimeMillis(),
+                150000.0, 300000.0, "192.168.1.5", System.currentTimeMillis(),
                 false, 0
         );
 
